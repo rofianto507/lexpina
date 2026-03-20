@@ -36,12 +36,21 @@ $tahun = isset($_GET['tahun']) ? intval($_GET['tahun']) : date('Y');
 $whereTahun = '';
 if ($tahun) $whereTahun = "AND s.tahun = $tahun";
 
-$bulan = isset($_GET['bulan']) ? intval($_GET['bulan']) : 0;
+$bulan = $_GET['bulan'] ?? '';
 $whereBulan = '';
-if ($bulan) {
-    $whereBulan = "AND MONTH(kriminals.tanggal) = $bulan AND YEAR(kriminals.tanggal) = $tahun";
+if (!empty($bulan)) {
+    $dates = explode(' to ', $bulan);
+    $startDate = isset($dates[0]) && !empty($dates[0]) ? DateTime::createFromFormat('d/m/Y', trim($dates[0])) : null;
+    $endDate   = isset($dates[1]) && !empty($dates[1]) ? DateTime::createFromFormat('d/m/Y', trim($dates[1])) : null;
+    if ($startDate && $endDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $endStr   = $endDate->format('Y-m-d');
+        $whereBulan = " AND kriminals.tanggal >= '$startStr' AND kriminals.tanggal <= '$endStr' ";
+    } elseif ($startDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $whereBulan = " AND kriminals.tanggal = '$startStr' ";
+    }
 }
-
 $mode = $_GET['mode'] ?? 'kabupaten';
 $parent_id = intval($_GET['parent_id'] ?? 0);
 $data = [];

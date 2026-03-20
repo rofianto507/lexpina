@@ -40,9 +40,21 @@ if($akses != 'POLDA') {
 $tahun = isset($_GET['tahun']) ? intval($_GET['tahun']) : date('Y');
 $whereTahun = "";
 if ($tahun) $whereTahun = "AND YEAR(k.tanggal) = $tahun";
-$bulan = isset($_GET['bulan']) ? intval($_GET['bulan']) : 0;
-$whereBulan = "";
-if ($bulan) $whereBulan = "AND MONTH(k.tanggal) = $bulan AND YEAR(k.tanggal) = $tahun";
+$bulan = $_GET['bulan'] ?? '';
+$whereBulan = '';
+if (!empty($bulan)) {
+    $dates = explode(' to ', $bulan);
+    $startDate = isset($dates[0]) && !empty($dates[0]) ? DateTime::createFromFormat('d/m/Y', trim($dates[0])) : null;
+    $endDate   = isset($dates[1]) && !empty($dates[1]) ? DateTime::createFromFormat('d/m/Y', trim($dates[1])) : null;
+    if ($startDate && $endDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $endStr   = $endDate->format('Y-m-d');
+        $whereBulan = " AND k.tanggal >= '$startStr' AND k.tanggal <= '$endStr' ";
+    } elseif ($startDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $whereBulan = " AND k.tanggal = '$startStr' ";
+    }
+}
 $whereWilayah = '';
 if ($level === 'kabupaten' && $parent_id) {
     $whereWilayah = "AND d.kecamatan_id IN (SELECT id FROM kecamatans WHERE kabupaten_id = $parent_id)";

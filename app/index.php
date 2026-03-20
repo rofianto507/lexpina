@@ -54,10 +54,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"  />
  <!-- Leaflet CDN harus sudah ada -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.default.css" />
-
-     <!-- DataTables Bootstrap CSS -->
-    
- 
+<link href="../vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 <!-- Bootstrap CSS (wajib sebelum ini) -->
 <!-- Bootstrap CSS (wajib sebelum ini) -->
@@ -276,8 +273,8 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
 .sumber-overlay.expanded .btn-toggle-sumber {
     transform: rotate(180deg);
 }
-#mapMonthSelect{
-  width:170px; 
+#mapDateRange{
+  width:230px; 
   display:none;
 }
 #mapTypeSelect{
@@ -416,23 +413,16 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                       <?php endif; ?>
                   </select> 
                   <select class="form-select form-select-sm pe-4 ms-2" id="mapYearSelect" >
-                    <!-- Opsi tahun akan diisi otomatis lewat JS -->
+                    <!-- Opsi tahun akan diisi otomatisff lewat JS -->
                   </select>  
-                  <select class="form-select form-select-sm pe-4 ms-2" id="mapMonthSelect">
-                    <option value="">- Semua Bulan -</option>
-                    <option value="1">Januari</option>
-                    <option value="2">Februari</option>
-                    <option value="3">Maret</option>
-                    <option value="4">April</option>
-                    <option value="5">Mei</option>
-                    <option value="6">Juni</option>
-                    <option value="7">Juli</option>
-                    <option value="8">Agustus</option>
-                    <option value="9">September</option>
-                    <option value="10">Oktober</option>
-                    <option value="11">November</option>
-                    <option value="12">Desember</option>
-                </select>              
+                  <input 
+                    class="form-control form-control-sm ms-2 datetimepicker" 
+                    id="mapDateRange" 
+                    type="text" 
+                    placeholder="Pilih Rentang Tanggal"  
+                    data-options='{"mode":"range","dateFormat":"d/m/Y","disableMobile":true}'
+                  />
+                                
                 </div>
               </div>
             </div>
@@ -618,7 +608,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     <script src="../vendors/prism/prism.js"></script>
     <script src="../vendors/fontawesome/all.min.js"></script>
     <script src="../vendors/lodash/lodash.min.js"></script>
- 
+    <script src="../assets/js/flatpickr.js"></script>
     <script src="../vendors/list.js/list.min.js"></script>
     <script src="../assets/js/theme.js"></script>
     <script src="../vendors/echarts/echarts.min.js"></script>
@@ -629,7 +619,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
 <script>
   let currentMapType = 'umum';     
   let currentMapYear = new Date().getFullYear();
-  let currentMapMonth = '';
+  let currentMapDateRange = '';
   let lastCheckedKategoriIds = [];
   let lastCheckedSubKategoriId = "";
   function renderMapYearDropdown(min, max) {
@@ -777,7 +767,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     if(filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if(lastCheckedSubKategoriId) params.push('sub_kategori=' + lastCheckedSubKategoriId);
     if(tahun) params.push('tahun=' + tahun);
-    if(currentMapMonth) params.push('bulan=' + currentMapMonth);
+    if(currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     let url = 'data_wilayah.php?' + params.join('&');
     console.log("105. Fetching datatable kriminalitas with URL:", url);
     fetch(url)
@@ -1162,16 +1152,17 @@ function renderMapFilterOptions(options) {
 
   showDefaultMap();
 
-  function toggleMonthFilter() {
+ 
+  function toggleDateRange() {
     if ($('#mapTypeSelect').val() === 'kriminalitas') {
-      $('#mapMonthSelect').show();
+      $('#mapDateRange').show();
     } else {
-      $('#mapMonthSelect').hide().val('');
+      $('#mapDateRange').hide().val('');
     }
   }
   
   document.getElementById('mapTypeSelect').addEventListener('change', function(){
-    toggleMonthFilter();
+    toggleDateRange();
     const tipe = this.value;
     currentMapType = tipe;
     
@@ -1300,7 +1291,7 @@ function renderMapFilterOptions(options) {
       alert('Fungsi peta untuk "' + tipe + '" belum tersedia.');
     }
   });
-  $(function() { toggleMonthFilter(); });
+ // $(function() { toggleMonthFilter(); });
   let subKategoriChoices = null;
 
   function loadSubKategoriDropdown() {
@@ -1344,10 +1335,11 @@ function renderMapFilterOptions(options) {
     }
     // Tambah logic untuk map lain kalau perlu
   });
-$('#mapMonthSelect').on('change', function(){
-  currentMapMonth = $(this).val();
+$('#mapDateRange').on('change', function(){
+  const val = $(this).val();
+  currentMapDateRange = $(this).val();
   if(currentMapType === 'kriminalitas') {
-    // Kirim currentMapMonth ke fungsi-fungsi map/chart
+    // Kirim currentMapDateRange ke fungsi-fungsi map/chart
     showKriminalitasMap(lastCheckedKategoriIds, currentMapYear, lastCheckedSubKategoriId);
     loadKriminalitasStatistik(lastCheckedKategoriIds, currentMapYear, 'provinsi', 0, lastCheckedSubKategoriId);
     loadKriminalitasBarChart('kabupaten',0, lastCheckedKategoriIds, currentMapYear );
@@ -1370,7 +1362,7 @@ function loadKriminalitasStatistik(
     let params = [];
     if (kategoriFilter.length) params.push('kategori=' + kategoriFilter.join(','));
     if (tahun) params.push('tahun=' + tahun);
-    if (currentMapMonth) params.push('bulan=' + currentMapMonth);
+    if (currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     if (level) params.push('level=' + level);
     if (wilayah_id) params.push('wilayah_id=' + wilayah_id);
     if (subKategoriId) params.push('sub_kategori=' + subKategoriId);
@@ -1664,7 +1656,7 @@ function loadTrendKriminalitasChart(
   if (filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
   if (lastCheckedSubKategoriId) params.push('sub_kategori=' + lastCheckedSubKategoriId);
   if (tahun) params.push('tahun=' + tahun);
-  if (currentMapMonth) params.push('bulan=' + currentMapMonth);
+  if (currentMapDateRange) params.push('bulan=' + currentMapDateRange);
   if (level) params.push('level=' + level);
   if (parent_id) params.push('parent_id=' + parent_id);
   let url = 'kriminalitas_chart_trend.php?' + params.join('&');
@@ -1756,7 +1748,7 @@ function loadWaktuKejahatanChart(
     if(filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if(lastCheckedSubKategoriId) params.push('sub_kategori=' + lastCheckedSubKategoriId);
     if(tahun) params.push('tahun=' + tahun);
-    if(currentMapMonth) params.push('bulan=' + currentMapMonth);
+    if(currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     if(level) params.push('level=' + level);
     if(parent_id) params.push('parent_id=' + parent_id);
     let url = 'kriminalitas_chart_waktu.php?' + params.join('&');
@@ -1797,7 +1789,7 @@ function loadLokasiKejahatanChart(level, parent_id=0, filterKategoriIds = [], ta
     if(filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if(lastCheckedSubKategoriId) params.push('sub_kategori=' + lastCheckedSubKategoriId);
     if(tahun) params.push('tahun=' + tahun);
-    if(currentMapMonth) params.push('bulan=' + currentMapMonth);
+    if(currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     if(level) params.push('level=' + level);
     if(parent_id) params.push('parent_id=' + parent_id);
     let url = 'kriminalitas_chart_lokasikejahatan.php?' + params.join('&');
@@ -1842,7 +1834,7 @@ function loadKriminalitasSubKategoriChart(level, parent_id = 0, filterKategoriId
     let params = [`mode=${level}`, `parent_id=${parent_id}`];
     if (filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if (lastCheckedSubKategoriId) params.push('sub_kategori=' + lastCheckedSubKategoriId);
-    if (currentMapMonth) params.push('bulan=' + currentMapMonth);
+    if (currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     if (tahun) params.push('tahun=' + tahun);
     let url = 'kriminalitas_chart_datasub.php?' + params.join('&');
     console.log('101. Fetching sub kategori kriminalitas chart with URL:', url);
@@ -1898,7 +1890,7 @@ function loadKriminalitasBarChart(level, parent_id = 0, filterKategoriIds = [], 
     let params = [`mode=${level}`, `parent_id=${parent_id}`];
     if (filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if (tahun) params.push('tahun=' + tahun);
-    if(currentMapMonth) params.push('bulan=' + currentMapMonth);
+    if(currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     if (lastCheckedSubKategoriId) params.push('sub_kategori=' + lastCheckedSubKategoriId);
     let url = 'kriminalitas_chart_data.php?' + params.join('&');
     console.log('100. Fetching kriminalitas bar chart with URL:', url);
@@ -1944,7 +1936,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
     let params = [`mode=${modeBackend}`, `parent_id=${parent_id}`];
     if (filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if (lastCheckedSubKategoriId) params.push('sub_kategori=' + lastCheckedSubKategoriId);
-    if (currentMapMonth) params.push('bulan=' + currentMapMonth);
+    if (currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     if (tahun) params.push('tahun=' + tahun);
     let url = 'kriminalitas_chart_kategori.php?' + params.join('&');
     console.log('Fetching donut chart data with URL:', url);
@@ -2293,7 +2285,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
     let params = [];
     if (filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if (tahun) params.push('tahun=' + tahun);
-    if (currentMapMonth) params.push('bulan=' + currentMapMonth);
+    if (currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     if (subKategoriId) params.push('sub_kategori=' + subKategoriId);
     if(params.length) endpoint += '?' + params.join('&');
     console.log('99. Fetching kriminalitas map with endpoint:', endpoint);
@@ -2390,7 +2382,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
       let markerParams = [];
       if (filterKategoriIds.length) markerParams.push('kategori=' + filterKategoriIds.join(','));
       if (tahun) markerParams.push('tahun=' + tahun);
-      if (currentMapMonth) markerParams.push('bulan=' + currentMapMonth);
+      if (currentMapDateRange) markerParams.push('bulan=' + currentMapDateRange);
       if (subKategoriId) markerParams.push('sub_kategori=' + subKategoriId);
       if(markerParams.length) markerEndpoint += '?' + markerParams.join('&');
       if(window.kriminalitasMarkerLayer) { map2.removeLayer(window.kriminalitasMarkerLayer); window.kriminalitasMarkerLayer=null;}
@@ -2972,7 +2964,7 @@ function showLokasiMap() {
 
     if(currentMapType === 'kriminalitas') {
       showKriminalitasMap(lastCheckedKategoriIds, currentMapYear, lastCheckedSubKategoriId);
-      loadKriminalitasStatistik(lastCheckedKategoriIds, currentMapYear, 'provinsi', 0, lastCheckedSubKategoriId,currentMapMonth);
+      loadKriminalitasStatistik(lastCheckedKategoriIds, currentMapYear, 'provinsi', 0, lastCheckedSubKategoriId,currentMapDateRange);
       loadKriminalitasBarChart('kabupaten', 0, lastCheckedKategoriIds, currentMapYear, lastCheckedSubKategoriId);
       loadKriminalitasDonutChart('kabupaten', 0, lastCheckedKategoriIds, currentMapYear, lastCheckedSubKategoriId);
       loadKriminalitasSubKategoriChart('provinsi', 0, lastCheckedKategoriIds, currentMapYear, lastCheckedSubKategoriId);
@@ -3120,7 +3112,7 @@ function showLokasiMap() {
           + '&kategori=' + lastCheckedKategoriIds.join(',')
           + '&sub_kategori=' + lastCheckedSubKategoriId
           + '&tahun=' + currentMapYear
-          + '&bulan=' + currentMapMonth;
+          + '&bulan=' + currentMapDateRange;
           console.log("Fetching kecamatan data with URL: ", url);
       fetch(url)
       .then(res => res.json())
@@ -3178,7 +3170,7 @@ function showLokasiMap() {
         // Bar chart per kecamatan
         loadKriminalitasBarChart('kecamatan', kab_id,lastCheckedKategoriIds,currentMapYear);
         loadKriminalitasDonutChart('kecamatan', kab_id,lastCheckedKategoriIds,currentMapYear);
-        loadKriminalitasStatistik(lastCheckedKategoriIds, currentMapYear, 'kabupaten', kab_id,lastCheckedSubKategoriId,currentMapMonth);
+        loadKriminalitasStatistik(lastCheckedKategoriIds, currentMapYear, 'kabupaten', kab_id,lastCheckedSubKategoriId,currentMapDateRange);
         loadKriminalitasSubKategoriChart('kabupaten', kab_id,lastCheckedKategoriIds,currentMapYear);
         loadLokasiKejahatanChart('kabupaten', kab_id,lastCheckedKategoriIds,currentMapYear);
         loadWaktuKejahatanChart('kabupaten', kab_id,lastCheckedKategoriIds,currentMapYear);
@@ -3228,7 +3220,7 @@ function showLokasiMap() {
           + '&kategori=' + lastCheckedKategoriIds.join(',')
           + '&sub_kategori=' + lastCheckedSubKategoriId 
           + '&tahun=' + currentMapYear
-          + '&bulan=' + currentMapMonth
+          + '&bulan=' + currentMapDateRange
         )
       .then(res => res.json())
       .then(function(geojson){
@@ -3278,7 +3270,7 @@ function showLokasiMap() {
           + '&kategori=' + lastCheckedKategoriIds.join(',')
           + '&sub_kategori=' + lastCheckedSubKategoriId 
           + '&tahun=' + currentMapYear
-          + '&bulan=' + currentMapMonth
+          + '&bulan=' + currentMapDateRange
         )
       .then(res => res.json())
       .then(function(geojsonDes) {
@@ -3336,7 +3328,7 @@ function showLokasiMap() {
         // Chart per desa
         loadKriminalitasBarChart('desa', kec_id,lastCheckedKategoriIds,currentMapYear);
         loadKriminalitasDonutChart('desa', kec_id,lastCheckedKategoriIds,currentMapYear);
-        loadKriminalitasStatistik(lastCheckedKategoriIds, currentMapYear, 'kecamatan', kec_id,lastCheckedSubKategoriId,currentMapMonth);
+        loadKriminalitasStatistik(lastCheckedKategoriIds, currentMapYear, 'kecamatan', kec_id,lastCheckedSubKategoriId,currentMapDateRange);
         loadKriminalitasSubKategoriChart('kecamatan', kec_id,lastCheckedKategoriIds,currentMapYear);
         loadLokasiKejahatanChart('kecamatan', kec_id,lastCheckedKategoriIds,currentMapYear);
         loadWaktuKejahatanChart('kecamatan', kec_id,lastCheckedKategoriIds,currentMapYear);
@@ -3387,7 +3379,7 @@ function showLokasiMap() {
           + '&kategori=' + lastCheckedKategoriIds.join(',')
           + '&sub_kategori=' + lastCheckedSubKategoriId 
           + '&tahun=' + currentMapYear
-          + '&bulan=' + currentMapMonth)
+          + '&bulan=' + currentMapDateRange)
       .then(res => res.json())
       .then(function(geojson){
         var markerClusters = L.markerClusterGroup();
