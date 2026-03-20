@@ -6,6 +6,10 @@ uploads/
 app/uploads/
 public/uploads/
 
+# === File Video (aset template, terlalu besar untuk GitHub) ===
+assets/video/*.mp4
+assets/video/*.webm
+
 # === File Log ===
 logs/
 *.log
