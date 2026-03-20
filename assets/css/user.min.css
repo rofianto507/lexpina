@@ -1,0 +1,49 @@
+
+/*# sourceMappingURL=user.min.css.map */
+.preview-foto-user {
+  width: 70px;
+  border-radius: 7px;
+  border: 1px solid #bbb;
+  /* opsional: margin atau display */
+}
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../fonts/OpenSans-Regular.woff2') format('woff2'),
+       url('../fonts/OpenSans-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../fonts/OpenSans-Bold.woff2') format('woff2'),
+       url('../fonts/OpenSans-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/Poppins-Regular.woff2') format('woff2'),
+       url('../fonts/Poppins-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/Poppins-Bold.woff2') format('woff2'),
+       url('../fonts/Poppins-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+      .warna-blue { background-color: #2196f3; color: #fff; }
+      .warna-green { background-color: #4caf50; color: #fff; }
+      .warna-orange { background-color: #ff9800; color: #fff; }
+      .warna-red { background-color: #f44336; color: #fff; }
+      .warna-violet { background-color: #9c27b0; color: #fff; }
+      .warna-gold { background-color: #C1A32D; color: #fff; }
+      .warna-gray { background-color: #607d8b; color: #fff; }
+      .warna-yellow { background-color: #FFEB3B; color: #000; }
+/* Tambah style lain sesuai kebutuhan */

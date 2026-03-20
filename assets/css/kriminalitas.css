@@ -1,0 +1,11 @@
+  #filter-polres,
+      #filter-polsek        { min-width: 180px; }
+      #kriminalitasTable    { width: 100%; }
+      #kriminalitasMapTambah { height: 350px; border: 1px solid #ccc; }
+      #parseLoadingA,
+      #parseErrorA,
+      #stepFormA,
+      #parseLoading,
+      #parseError,
+      #stepForm,
+      #formTanggalSelesai   { display: none; }

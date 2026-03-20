@@ -1,0 +1,39 @@
+# === Konfigurasi Database (SENSITIF - jangan di-commit) ===
+config/configuration.php
+
+# === File Upload ===
+uploads/
+app/uploads/
+public/uploads/
+
+# === File Log ===
+logs/
+*.log
+
+# === File SQL dump ===
+*.sql
+
+# === File Office / Dokumen ===
+*.doc
+*.docx
+*.xlsx
+*.xls
+*.pdf
+
+# === PHP library bawaan ===
+PHPWord/
+
+# === File OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === IDE / Editor ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === Environment ===
+.env
+.env.local

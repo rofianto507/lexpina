@@ -1,0 +1,7 @@
+#filter-polres,
+#filter-polsek { min-width: 180px; }
+#BencanaTable { width: 100%; }
+#bencanaMapTambah,
+#bencanaMapEdit { height: 350px; border: 1px solid #ccc; }
+#previewFotoEditWrapper { display: none; }
+#previewFotoEdit { max-width: 120px; }
