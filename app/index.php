@@ -460,7 +460,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                 </div>
               </div>
             </div>
-            <div class="col-md-6" id="chart_kategori_container" style="display:none;">
+            <div class="col-md-6 d-none" id="chart_kategori_container">
               <div class="card mb-3">
                 <div class="card-header">
                   <h5 class="fs-0 mb-0" id="chart-kat-title">Grafik Konflik Berdasarkan Kategori (Semua Wilayah)</h5>
@@ -1234,7 +1234,7 @@ function renderMapFilterOptions(options) {
       showDefaultMap();
       chart_kabupaten_container.className = 'col-md-6';
       $('#chart_kabupaten_container').addClass('d-none');
-      chart_kategori_container.style.display = 'none';
+      $('#chart_kategori_container').addClass('d-none');
       //cardStat.style.display='none';
       $('#card-stats').addClass('d-none');
       $('#map-legend').addClass('d-none');
@@ -1247,7 +1247,7 @@ function renderMapFilterOptions(options) {
       loadKamtibmasDonutChart('provinsi',0, lastCheckedKategoriIds, currentMapYear);
       chart_kabupaten_container.className = 'col-md-6';
       $('#chart_kabupaten_container').removeClass('d-none');
-      chart_kategori_container.style.display = ''; 
+      $('#chart_kategori_container').removeClass('d-none');
       $('#card-stats').addClass('d-none');
       $('#map-legend').removeClass('d-none');
       cardSubKategoriKriminal.style.display = 'none';
@@ -1259,7 +1259,7 @@ function renderMapFilterOptions(options) {
       loadLalinDonutChart('kabupaten', 0, lastCheckedKategoriIds, currentMapYear);
       chart_kabupaten_container.className = 'col-md-6';
       $('#chart_kabupaten_container').removeClass('d-none');
-      chart_kategori_container.style.display = '';
+      $('#chart_kategori_container').removeClass('d-none');
       $('#card-stats').addClass('d-none');
       $('#map-legend').removeClass('d-none');
       cardSubKategoriKriminal.style.display = 'none';
@@ -1271,7 +1271,7 @@ function renderMapFilterOptions(options) {
       loadKriminalitasDonutChart('provinsi',0, lastCheckedKategoriIds, currentMapYear);
       chart_kabupaten_container.className = 'col-md-6';
       $('#chart_kabupaten_container').removeClass('d-none');
-      chart_kategori_container.style.display = ''; 
+      $('#chart_kategori_container').removeClass('d-none');
       $('#card-stats').removeClass('d-none');
       $('#map-legend').removeClass('d-none');
       loadKriminalitasStatistik(lastCheckedKategoriIds,currentMapYear);
@@ -1289,7 +1289,7 @@ function renderMapFilterOptions(options) {
       loadBencanaDonutChart('kabupaten', 0, lastCheckedKategoriIds, currentMapYear);
       chart_kabupaten_container.className = 'col-md-6';
       $('#chart_kabupaten_container').removeClass('d-none');
-      chart_kategori_container.style.display = ''; 
+      $('#chart_kategori_container').removeClass('d-none');
       $('#card-stats').addClass('d-none');
       $('#map-legend').removeClass('d-none');
       cardSubKategoriKriminal.style.display = 'none';
