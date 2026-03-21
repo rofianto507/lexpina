@@ -24,6 +24,21 @@ if($akses != 'POLDA') {
 $tahun = isset($_GET['tahun']) ? intval($_GET['tahun']) : date('Y');
 $whereTahun = "";
 if($tahun) $whereTahun = "AND s.tahun = $tahun";
+$bulan = $_GET['bulan'] ?? '';
+$whereBulan = '';
+if (!empty($bulan)) {
+    $dates = explode(' to ', $bulan);
+    $startDate = isset($dates[0]) && !empty($dates[0]) ? DateTime::createFromFormat('d/m/Y', trim($dates[0])) : null;
+    $endDate   = isset($dates[1]) && !empty($dates[1]) ? DateTime::createFromFormat('d/m/Y', trim($dates[1])) : null;
+    if ($startDate && $endDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $endStr   = $endDate->format('Y-m-d');
+        $whereBulan = " AND km.tanggal >= '$startStr' AND km.tanggal <= '$endStr' ";
+    } elseif ($startDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $whereBulan = " AND km.tanggal = '$startStr' ";
+    }
+}
 $mode = $_GET['mode'] ?? 'kabupaten';
 $parent_id = intval($_GET['parent_id'] ?? 0);
 $data = [];
@@ -37,7 +52,7 @@ if ($mode == 'kabupaten') {
         LEFT JOIN desas d ON km.desa_id = d.id
         LEFT JOIN kecamatans kc ON d.kecamatan_id = kc.id
         LEFT JOIN kabupatens k ON kc.kabupaten_id = k.id
-        WHERE km.status=1 AND km.state!='SELESAI' $whereKategori $whereTahun
+        WHERE km.status=1 AND km.state!='SELESAI' $whereKategori $whereTahun $whereBulan
         GROUP BY kk.id
         ORDER BY kk.nama
     ");
@@ -52,7 +67,7 @@ if ($mode == 'kabupaten') {
         LEFT JOIN sumbers s ON km.sumber_id = s.id
         LEFT JOIN desas d ON km.desa_id = d.id
         LEFT JOIN kecamatans kc ON d.kecamatan_id = kc.id
-        WHERE kc.kabupaten_id = ? AND km.status=1 AND km.state!='SELESAI' $whereKategori $whereTahun
+        WHERE kc.kabupaten_id = ? AND km.status=1 AND km.state!='SELESAI' $whereKategori $whereTahun $whereBulan
         GROUP BY kk.id
         ORDER BY kk.nama
     ");
@@ -68,7 +83,7 @@ if ($mode == 'kabupaten') {
         LEFT JOIN kamtibmass km ON km.kategori_id = kk.id
         LEFT JOIN sumbers s ON km.sumber_id = s.id
         LEFT JOIN desas d ON km.desa_id = d.id
-        WHERE d.kecamatan_id = ? AND km.status=1 AND km.state!='SELESAI' $whereKategori $whereTahun
+        WHERE d.kecamatan_id = ? AND km.status=1 AND km.state!='SELESAI' $whereKategori $whereTahun $whereBulan
         GROUP BY kk.id
         ORDER BY kk.nama
     ");

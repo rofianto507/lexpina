@@ -24,7 +24,21 @@ if($akses != 'POLDA') {
 $tahun = isset($_GET['tahun']) ? intval($_GET['tahun']) : date('Y');
 $whereTahun = "";
 if ($tahun) $whereTahun = "AND s.tahun = $tahun";
-
+$bulan = $_GET['bulan'] ?? '';
+$whereBulan = '';
+if (!empty($bulan)) {
+    $dates = explode(' to ', $bulan);
+    $startDate = isset($dates[0]) && !empty($dates[0]) ? DateTime::createFromFormat('d/m/Y', trim($dates[0])) : null;
+    $endDate   = isset($dates[1]) && !empty($dates[1]) ? DateTime::createFromFormat('d/m/Y', trim($dates[1])) : null;
+    if ($startDate && $endDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $endStr   = $endDate->format('Y-m-d');
+        $whereBulan = " AND kamtibmass.tanggal >= '$startStr' AND kamtibmass.tanggal <= '$endStr' ";
+    } elseif ($startDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $whereBulan = " AND kamtibmass.tanggal = '$startStr' ";
+    }
+}
 $kab_id = intval($_GET['kabupaten_id'] ?? 0);
 $kabupaten_nama = '';
 $qKab = $pdo->prepare("SELECT nama FROM kabupatens WHERE id=? LIMIT 1");
@@ -38,7 +52,7 @@ $qKec = $pdo->prepare("
     (SELECT COUNT(*) FROM kamtibmass
       LEFT JOIN sumbers s ON kamtibmass.sumber_id = s.id
       LEFT JOIN desas d ON kamtibmass.desa_id = d.id
-      WHERE d.kecamatan_id = kc.id AND kamtibmass.status=1 AND kamtibmass.state!='SELESAI' $whereKategori $whereTahun
+      WHERE d.kecamatan_id = kc.id AND kamtibmass.status=1 AND kamtibmass.state!='SELESAI' $whereKategori $whereTahun $whereBulan
     ) AS total_kamtibmas 
   FROM kecamatans kc
   WHERE kc.kabupaten_id = ? AND kc.status=1
@@ -65,7 +79,7 @@ $stmtSumber = $pdo->prepare(
      LEFT JOIN desas d ON kamtibmass.desa_id = d.id 
      LEFT JOIN kecamatans kc ON d.kecamatan_id = kc.id
      LEFT JOIN sumbers s ON kamtibmass.sumber_id = s.id
-     WHERE kc.kabupaten_id = ? AND kamtibmass.status=1 AND kamtibmass.state!='SELESAI' AND kamtibmass.sumber_id IS NOT NULL $whereKategori $whereTahun"
+     WHERE kc.kabupaten_id = ? AND kamtibmass.status=1 AND kamtibmass.state!='SELESAI' AND kamtibmass.sumber_id IS NOT NULL $whereKategori $whereTahun $whereBulan"
 );
 $stmtSumber->execute([$kab_id]);
 while($src = $stmtSumber->fetch(PDO::FETCH_ASSOC)) {

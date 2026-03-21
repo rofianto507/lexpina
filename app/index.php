@@ -859,6 +859,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     let params = [`type=kamtibmasmenonjol`, `level=${level}`, `id=${wilayah_id}`];
     if (filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if (tahun) params.push('tahun=' + tahun);
+    if (currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     let url = 'data_wilayah.php?' + params.join('&');
     fetch(url)
       .then(res => res.json())
@@ -1156,6 +1157,8 @@ function renderMapFilterOptions(options) {
   function toggleDateRange() {
     if ($('#mapTypeSelect').val() === 'kriminalitas') {
       $('#mapDateRange').show();
+    } else if ($('#mapTypeSelect').val() === 'kamtibmas') {
+      $('#mapDateRange').show();
     } else {
       $('#mapDateRange').hide().val('');
     }
@@ -1349,7 +1352,12 @@ $('#mapDateRange').on('change', function(){
     loadWaktuKejahatanChart('provinsi', 0, lastCheckedKategoriIds, currentMapYear);
     loadTrendKriminalitasChart('provinsi', 0, lastCheckedKategoriIds, currentMapYear);
       
+  }else if(currentMapType === 'kamtibmas') {
+    showKamtibmasMap(lastCheckedKategoriIds, currentMapYear, val);
+    loadKamtibmasBarChart('kabupaten',0, lastCheckedKategoriIds, currentMapYear, val);
+    loadKamtibmasDonutChart('provinsi',0, lastCheckedKategoriIds, currentMapYear, val);
   }
+   // Tambah logic untuk map lain kalau perlu
 });
 function loadKriminalitasStatistik( 
   kategoriFilter = [], 
@@ -1997,6 +2005,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
      let params = [`mode=${level}`, `parent_id=${parent_id}`];
     if (filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if (tahun) params.push('tahun=' + tahun);
+    if (currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     let url = 'kamtibmas_chart_data.php?' + params.join('&');
     fetch(url)
       .then(res => res.json())
@@ -2042,6 +2051,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
     let params = [`mode=${modeBackend}`, `parent_id=${parent_id}`];
     if (filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if (tahun) params.push('tahun=' + tahun);
+    if (currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     let url = 'kamtibmas_chart_kategori.php?' + params.join('&');
     fetch(url)
       .then(res => res.json())
@@ -2438,6 +2448,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
     let params = [];
     if(filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if(tahun) params.push('tahun=' + tahun);
+    if (currentMapDateRange) params.push('bulan=' + currentMapDateRange);
     if(params.length) endpoint += '?' + params.join('&'); 
     console.log("fetching Kamtibmas map with endpoint: ", endpoint);
     fetch(endpoint)
@@ -3548,7 +3559,8 @@ function showLokasiMap() {
       if (window.kecamatanLayer) { map2.removeLayer(window.kecamatanLayer); window.kecamatanLayer = null; }
       let url='kamtibmas_kecamatan_geojson.php?kabupaten_id='+encodeURIComponent(kab_id)+
       '&kategori='+lastCheckedKategoriIds.join(',')+
-      '&tahun='+currentMapYear;
+      '&tahun='+currentMapYear+
+      '&bulan='+currentMapDateRange;
       //console.log("Fetching kecamatan data kamtibmas with URL: ", url);
       fetch(url)
       .then(res => res.json())
@@ -3626,7 +3638,8 @@ function showLokasiMap() {
       if (window.desaLayer) { map2.removeLayer(window.desaLayer); window.desaLayer = null; }
       let url='kamtibmas_desa_geojson.php?kecamatan_id='+encodeURIComponent(kec_id)+
       '&kategori='+lastCheckedKategoriIds.join(',')+
-      '&tahun='+currentMapYear;
+      '&tahun='+currentMapYear+
+      '&bulan='+currentMapDateRange;
       //console.log("Fetching desa data kamtibmas with URL: ", url);
       fetch(url)
       .then(res => res.json())

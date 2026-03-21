@@ -10,7 +10,6 @@ require_once("../config/configuration.php");
 $level = isset($_GET['level']) ? $_GET['level'] : 'provinsi';
 $wilayah_id = isset($_GET['wilayah_id']) ? intval($_GET['wilayah_id']) : 0;
 $tahun = isset($_GET['tahun']) ? intval($_GET['tahun']) : date('Y');
-$bulan = isset($_GET['bulan']) ? intval($_GET['bulan']) : 0;
 $whereWilayah = '';
 if($level == 'kabupaten' && $wilayah_id) {
     $whereWilayah = "AND d.kecamatan_id IN (
@@ -29,9 +28,20 @@ if ($tahun) {
     $whereTahun = "AND s.tahun = $tahun";
 }
 
+$bulan = $_GET['bulan'] ?? '';
 $whereBulan = '';
-if ($bulan) {
-    $whereBulan = "AND MONTH(k.tanggal) = $bulan AND YEAR(k.tanggal) = $tahun";
+if (!empty($bulan)) {
+    $dates = explode(' to ', $bulan);
+    $startDate = isset($dates[0]) && !empty($dates[0]) ? DateTime::createFromFormat('d/m/Y', trim($dates[0])) : null;
+    $endDate   = isset($dates[1]) && !empty($dates[1]) ? DateTime::createFromFormat('d/m/Y', trim($dates[1])) : null;
+    if ($startDate && $endDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $endStr   = $endDate->format('Y-m-d');
+        $whereBulan = " AND k.tanggal >= '$startStr' AND k.tanggal <= '$endStr' ";
+    } elseif ($startDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $whereBulan = " AND k.tanggal = '$startStr' ";
+    }
 }
 
 $kategoriFilter = [];

@@ -24,7 +24,21 @@ if($akses != 'POLDA') {
 $tahun = isset($_GET['tahun']) ? intval($_GET['tahun']) : date('Y');
 $whereTahun = "";
 if ($tahun) $whereTahun = "AND s.tahun = $tahun";
-
+$bulan = $_GET['bulan'] ?? '';
+$whereBulan = '';
+if (!empty($bulan)) {
+    $dates = explode(' to ', $bulan);
+    $startDate = isset($dates[0]) && !empty($dates[0]) ? DateTime::createFromFormat('d/m/Y', trim($dates[0])) : null;
+    $endDate   = isset($dates[1]) && !empty($dates[1]) ? DateTime::createFromFormat('d/m/Y', trim($dates[1])) : null;
+    if ($startDate && $endDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $endStr   = $endDate->format('Y-m-d');
+        $whereBulan = " AND kamtibmass.tanggal >= '$startStr' AND kamtibmass.tanggal <= '$endStr' ";
+    } elseif ($startDate) {
+        $startStr = $startDate->format('Y-m-d');
+        $whereBulan = " AND kamtibmass.tanggal = '$startStr' ";
+    }
+}
 $kec_id = intval($_GET['kecamatan_id'] ?? 0);
 $nama_kabupaten = '';
 $nama_kecamatan = '';
@@ -39,7 +53,7 @@ $qDesa = $pdo->prepare("
   SELECT d.id, d.nama, d.geom,
     (SELECT COUNT(*) FROM kamtibmass
      LEFT JOIN sumbers s ON kamtibmass.sumber_id = s.id
-     WHERE kamtibmass.desa_id = d.id AND kamtibmass.status=1 AND kamtibmass.state!='SELESAI' $whereKategori $whereTahun
+     WHERE kamtibmass.desa_id = d.id AND kamtibmass.status=1 AND kamtibmass.state!='SELESAI' $whereKategori $whereTahun $whereBulan
     ) AS total_kamtibmas 
   FROM desas d
   WHERE d.kecamatan_id = ? AND d.status=1
@@ -65,7 +79,7 @@ $stmtSumber = $pdo->prepare(
      FROM kamtibmass
      LEFT JOIN sumbers s ON kamtibmass.sumber_id = s.id
      LEFT JOIN desas d ON kamtibmass.desa_id = d.id
-     WHERE d.kecamatan_id = ? AND kamtibmass.status=1 AND kamtibmass.state!='SELESAI' AND kamtibmass.sumber_id IS NOT NULL $whereKategori $whereTahun"
+     WHERE d.kecamatan_id = ? AND kamtibmass.status=1 AND kamtibmass.state!='SELESAI' AND kamtibmass.sumber_id IS NOT NULL $whereKategori $whereTahun $whereBulan"
 );
 $stmtSumber->execute([$kec_id]);
 while($src = $stmtSumber->fetch(PDO::FETCH_ASSOC)) {

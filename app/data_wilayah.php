@@ -205,7 +205,7 @@ else if ($type == 'kamtibmasmenonjol') {
               LEFT JOIN polress po ON k.polres_id = po.id
               LEFT JOIN polseks ps ON k.polsek_id = ps.id
               LEFT JOIN sumbers s ON k.sumber_id = s.id
-          WHERE k.status = 1 AND k.is_menonjol = 1 $whereKategori $whereTahun
+          WHERE k.status = 1 AND k.is_menonjol = 1 $whereKategori $whereTahun $whereBulan
       ");
       $stmt->execute();
     }
@@ -231,7 +231,7 @@ else if ($type == 'kamtibmasmenonjol') {
               LEFT JOIN sumbers s ON k.sumber_id = s.id
         WHERE k.status = 1 AND k.is_menonjol = 1 
         AND d.kecamatan_id IN (SELECT id FROM kecamatans WHERE kabupaten_id = ?) 
-         $whereKategori $whereTahun
+         $whereKategori $whereTahun $whereBulan
         ");
         $stmt->execute([$id]);
     }
@@ -256,7 +256,7 @@ else if ($type == 'kamtibmasmenonjol') {
               LEFT JOIN polseks ps ON k.polsek_id = ps.id
               LEFT JOIN sumbers s ON k.sumber_id = s.id
         WHERE k.status = 1 AND k.is_menonjol = 1 AND d.kecamatan_id = ? 
-         $whereKategori $whereTahun
+         $whereKategori $whereTahun $whereBulan
         ");
         $stmt->execute([$id]);
     }
@@ -281,7 +281,7 @@ else if ($type == 'kamtibmasmenonjol') {
               LEFT JOIN polseks ps ON k.polsek_id = ps.id
               LEFT JOIN sumbers s ON k.sumber_id = s.id
         WHERE k.status = 1 AND k.is_menonjol = 1 AND d.id = ? 
-         $whereKategori $whereTahun
+         $whereKategori $whereTahun $whereBulan
         ");
         $stmt->execute([$id]);
     }
