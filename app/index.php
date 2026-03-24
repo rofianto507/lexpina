@@ -2025,7 +2025,8 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
           }
         }).addTo(map2);
            const sumberOverlay = document.getElementById('sumberOverlay');
-           sumberOverlay.style.display='none' // selalu clear dulu sebelum isi ulang
+         //  sumberOverlay.style.display='none' // selalu clear dulu sebelum isi ulang
+           sumberOverlay.classList.add('d-none');// sembunyikan dulu
 
       });
        
@@ -2100,6 +2101,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
           
         }).addTo(map2);
         const sumberOverlay = document.getElementById('sumberOverlay');
+        sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
         if (sumberOverlay) {
             sumberOverlay.innerHTML = "";
             sumberOverlay.classList.remove('expanded');
@@ -2107,7 +2109,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
             let sumber = geojson.sumber_dokumen || [];
 
             if (sumber.length > 0) {
-                sumberOverlay.style.display = "flex";
+               
                 let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
 
                 // Struktur dengan Icon Font Awesome
@@ -2116,7 +2118,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
                     <div class="sumber-text" id="sumberText">
                         Sumber: ${listSumber}
                     </div>
-                    <div class="btn-toggle-sumber" id="btnToggle" style="display: none;">
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 `;
@@ -2127,15 +2129,14 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
                 // Cek apakah teks terpotong (overflow)
                 setTimeout(() => {
                     if (textEl.scrollWidth > textEl.clientWidth) {
-                        btnToggle.style.display = "flex"; // Tampilkan icon jika teks panjang
-                        
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
                         btnToggle.onclick = () => {
                             sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
                         };
                     }
                 }, 50);
             } else {
-                sumberOverlay.style.display = "none";
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
             }
           }
       });
@@ -2251,6 +2252,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
           
         }).addTo(map2);
           const sumberOverlay = document.getElementById('sumberOverlay');
+        sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
         if (sumberOverlay) {
             sumberOverlay.innerHTML = "";
             sumberOverlay.classList.remove('expanded');
@@ -2258,7 +2260,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
             let sumber = geojson.sumber_dokumen || [];
 
             if (sumber.length > 0) {
-                sumberOverlay.style.display = "flex";
+               
                 let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
 
                 // Struktur dengan Icon Font Awesome
@@ -2267,7 +2269,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
                     <div class="sumber-text" id="sumberText">
                         Sumber: ${listSumber}
                     </div>
-                    <div class="btn-toggle-sumber" id="btnToggle" style="display: none;">
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 `;
@@ -2278,15 +2280,14 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
                 // Cek apakah teks terpotong (overflow)
                 setTimeout(() => {
                     if (textEl.scrollWidth > textEl.clientWidth) {
-                        btnToggle.style.display = "flex"; // Tampilkan icon jika teks panjang
-                        
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
                         btnToggle.onclick = () => {
-                            sumberOverlay.classList.toggle('expanded');
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
                         };
                     }
                 }, 50);
             } else {
-                sumberOverlay.style.display = "none";
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
             }
           }
       });
@@ -2386,6 +2387,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
         }
       }).addTo(map2);
       const sumberOverlay = document.getElementById('sumberOverlay');
+       sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
         if (sumberOverlay) {
             sumberOverlay.innerHTML = "";
             sumberOverlay.classList.remove('expanded');
@@ -2393,7 +2395,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
             let sumber = geojson.sumber_dokumen || [];
 
             if (sumber.length > 0) {
-                sumberOverlay.style.display = "flex";
+               
                 let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
 
                 // Struktur dengan Icon Font Awesome
@@ -2402,7 +2404,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
                     <div class="sumber-text" id="sumberText">
                         Sumber: ${listSumber}
                     </div>
-                    <div class="btn-toggle-sumber" id="btnToggle" style="display: none;">
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 `;
@@ -2413,15 +2415,14 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
                 // Cek apakah teks terpotong (overflow)
                 setTimeout(() => {
                     if (textEl.scrollWidth > textEl.clientWidth) {
-                        btnToggle.style.display = "flex"; // Tampilkan icon jika teks panjang
-                        
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
                         btnToggle.onclick = () => {
-                            sumberOverlay.classList.toggle('expanded');
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
                         };
                     }
                 }, 50);
             } else {
-                sumberOverlay.style.display = "none";
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
             }
           }
     });
@@ -2563,13 +2564,43 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
         }
       }).addTo(map2);
       const sumberOverlay = document.getElementById('sumberOverlay');
-          if (sumberOverlay) {
-            sumberOverlay.innerHTML = ""; // selalu clear dulu sebelum isi ulang
+          sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
+        if (sumberOverlay) {
+            sumberOverlay.innerHTML = "";
+            sumberOverlay.classList.remove('expanded');
+            
             let sumber = geojson.sumber_dokumen || [];
-            let sumberHtml = sumber.length ? `<span class="fa fa-file-alt me-1"></span>Sumber: `
-              + sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ')
-              : '';
-            sumberOverlay.innerHTML = sumberHtml;
+
+            if (sumber.length > 0) {
+               
+                let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
+
+                // Struktur dengan Icon Font Awesome
+                sumberOverlay.innerHTML = `
+                    <i class="fas fa-file-alt"></i>
+                    <div class="sumber-text" id="sumberText">
+                        Sumber: ${listSumber}
+                    </div>
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                `;
+
+                const textEl = document.getElementById('sumberText');
+                const btnToggle = document.getElementById('btnToggle');
+
+                // Cek apakah teks terpotong (overflow)
+                setTimeout(() => {
+                    if (textEl.scrollWidth > textEl.clientWidth) {
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
+                        btnToggle.onclick = () => {
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
+                        };
+                    }
+                }, 50);
+            } else {
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
+            }
           }
     });
     // Hapus marker lama kalau ada
@@ -2677,14 +2708,44 @@ function showLokasiMap() {
 
       // Overlay sumber dokumen tetap
       const sumberOverlay = document.getElementById('sumberOverlay');
-      if (sumberOverlay) {
-        sumberOverlay.innerHTML = "";
-        let sumber = geojson.sumber_dokumen || [];
-        let sumberHtml = sumber.length ? `<span class="fa fa-file-alt me-1"></span>Sumber: `
-          + sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ')
-          : '';
-        sumberOverlay.innerHTML = sumberHtml;
-      }
+      sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
+        if (sumberOverlay) {
+            sumberOverlay.innerHTML = "";
+            sumberOverlay.classList.remove('expanded');
+            
+            let sumber = geojson.sumber_dokumen || [];
+
+            if (sumber.length > 0) {
+               
+                let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
+
+                // Struktur dengan Icon Font Awesome
+                sumberOverlay.innerHTML = `
+                    <i class="fas fa-file-alt"></i>
+                    <div class="sumber-text" id="sumberText">
+                        Sumber: ${listSumber}
+                    </div>
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                `;
+
+                const textEl = document.getElementById('sumberText');
+                const btnToggle = document.getElementById('btnToggle');
+
+                // Cek apakah teks terpotong (overflow)
+                setTimeout(() => {
+                    if (textEl.scrollWidth > textEl.clientWidth) {
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
+                        btnToggle.onclick = () => {
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
+                        };
+                    }
+                }, 50);
+            } else {
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
+            }
+          }
     });
   showTableWilayah('lokasi', 'kabupaten', 0);
  }
@@ -2938,14 +2999,15 @@ function showLokasiMap() {
         loadWaktuKejahatanChart('kabupaten', kab_id,lastCheckedKategoriIds,currentMapYear);
         loadTrendKriminalitasChart('kabupaten', kab_id,lastCheckedKategoriIds,currentMapYear);
         const sumberOverlay = document.getElementById('sumberOverlay');
+        sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
         if (sumberOverlay) {
             sumberOverlay.innerHTML = "";
             sumberOverlay.classList.remove('expanded');
             
-            let sumber = geojsonKec.sumber_dokumen || [];
+            let sumber = geojson.sumber_dokumen || [];
 
             if (sumber.length > 0) {
-                sumberOverlay.style.display = "flex";
+               
                 let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
 
                 // Struktur dengan Icon Font Awesome
@@ -2954,7 +3016,7 @@ function showLokasiMap() {
                     <div class="sumber-text" id="sumberText">
                         Sumber: ${listSumber}
                     </div>
-                    <div class="btn-toggle-sumber" id="btnToggle" style="display: none;">
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 `;
@@ -2965,15 +3027,14 @@ function showLokasiMap() {
                 // Cek apakah teks terpotong (overflow)
                 setTimeout(() => {
                     if (textEl.scrollWidth > textEl.clientWidth) {
-                        btnToggle.style.display = "flex"; // Tampilkan icon jika teks panjang
-                        
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
                         btnToggle.onclick = () => {
-                            sumberOverlay.classList.toggle('expanded');
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
                         };
                     }
                 }, 50);
             } else {
-                sumberOverlay.style.display = "none";
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
             }
           }
             
@@ -3096,14 +3157,15 @@ function showLokasiMap() {
         loadWaktuKejahatanChart('kecamatan', kec_id,lastCheckedKategoriIds,currentMapYear);
         loadTrendKriminalitasChart('kecamatan', kec_id,lastCheckedKategoriIds,currentMapYear);
         const sumberOverlay = document.getElementById('sumberOverlay');
+        sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
         if (sumberOverlay) {
             sumberOverlay.innerHTML = "";
             sumberOverlay.classList.remove('expanded');
             
-            let sumber = geojsonDes.sumber_dokumen || [];
+            let sumber = geojson.sumber_dokumen || [];
 
             if (sumber.length > 0) {
-                sumberOverlay.style.display = "flex";
+               
                 let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
 
                 // Struktur dengan Icon Font Awesome
@@ -3112,7 +3174,7 @@ function showLokasiMap() {
                     <div class="sumber-text" id="sumberText">
                         Sumber: ${listSumber}
                     </div>
-                    <div class="btn-toggle-sumber" id="btnToggle" style="display: none;">
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 `;
@@ -3123,15 +3185,14 @@ function showLokasiMap() {
                 // Cek apakah teks terpotong (overflow)
                 setTimeout(() => {
                     if (textEl.scrollWidth > textEl.clientWidth) {
-                        btnToggle.style.display = "flex"; // Tampilkan icon jika teks panjang
-                        
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
                         btnToggle.onclick = () => {
-                            sumberOverlay.classList.toggle('expanded');
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
                         };
                     }
                 }, 50);
             } else {
-                sumberOverlay.style.display = "none";
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
             }
           }
            
@@ -3176,124 +3237,6 @@ function showLokasiMap() {
         window.kriminalitasMarkerLayer = markerClusters.addTo(map2);
       });
       showTableWilayah('kriminalitas', 'kecamatan', kec_id);
-    }
-  } else if (tipe === 'konflik') {
-    // Kab
-    if(e.target && e.target.classList.contains('btn-zoom-kabupaten')) {
-      var kab_id = e.target.getAttribute('data-kabid');
-      var activePopup = map2._popup;
-      if(activePopup && activePopup._source && activePopup._source.getBounds) {
-        map2.fitBounds(activePopup._source.getBounds());
-      }
-      if (window.kabupatenLayer) window.kabupatenLayer.setStyle({ fillOpacity: 0.20, fillColor: '#bbbbbb' });
-      if (window.kecamatanLayer) { map2.removeLayer(window.kecamatanLayer); window.kecamatanLayer = null; }
-      fetch('konflik_kecamatan_geojson.php?kabupaten_id=' + encodeURIComponent(kab_id))
-      .then(res => res.json())
-      .then(function(geojsonKec) {
-        if (window.kecamatanLayer) { map2.removeLayer(window.kecamatanLayer); window.kecamatanLayer = null; }
-        window.kecamatanLayer = L.geoJSON(geojsonKec, {
-          style: function(feature) {
-            var jumlah = Number(feature.properties.total_konflik) || 0;
-            return {
-              color: "#e67e22",
-              weight: 2,
-              opacity: 0.9,
-              fillOpacity: 0.50,
-              fillColor:
-                jumlah > 30 ? '#800026' :
-                jumlah > 20 ? '#BD0026' :
-                jumlah > 10 ? '#E31A1C' :
-                jumlah > 5  ? '#FC4E2A' :
-                jumlah > 0  ? '#FFEDA0' :
-                              '#99f8a6'
-            };
-          },
-          onEachFeature: function(feat, lyr) {
-            var jml = feat.properties.total_konflik ?? 0;
-            var kab_id = feat.properties.id;
-            var html = `Kec. <b>${feat.properties.nama}</b> - <b>${feat.properties.kabupaten_nama}</b><br>
-                        Total konflik: <b>${jml}</b> <br><br>
-                        <button class="btn btn-zoom-kecamatan btn-info btn-sm me-1 mb-1" data-kecid="${kab_id}">Lihat Detail</button>`;
-            lyr.bindPopup(html);
-            lyr.bindTooltip(feat.properties.nama, {permanent: false, direction: 'center'});
-            lyr.on('click', function(e){ this.openPopup(); });
-          }
-        }).addTo(map2);
-        // Bar chart per kecamatan
-        loadBarChart('kecamatan', kab_id);
-        loadDonutKategori('kabupaten', kab_id);
-        const sumberOverlay = document.getElementById('sumberOverlay');
-            if (sumberOverlay) {
-              sumberOverlay.innerHTML = ""; // selalu clear dulu sebelum isi ulang
-              let sumber = geojsonKec.sumber_dokumen || [];
-              let sumberHtml = sumber.length ? `<span class="fa fa-file-alt me-1"></span>Sumber: `
-                + sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ')
-                : '';
-              sumberOverlay.innerHTML = sumberHtml;
-            }
-            
-      });
-      showTableWilayah('konflik', 'kabupaten', kab_id);
-    }
-
-    // Kec
-    if(e.target && e.target.classList.contains('btn-zoom-kecamatan')) {
-      var kec_id = e.target.getAttribute('data-kecid');
-      var activePopup = map2._popup;
-      if(activePopup && activePopup._source && activePopup._source.getBounds) {
-        map2.fitBounds(activePopup._source.getBounds());
-      }
-      if (window.kecamatanLayer) window.kecamatanLayer.setStyle({ fillOpacity: 0.20, fillColor: '#bbbbbb' });
-      if (window.desaLayer) { map2.removeLayer(window.desaLayer); window.desaLayer = null; }
-      fetch('konflik_desa_geojson.php?kecamatan_id=' + encodeURIComponent(kec_id))
-      .then(res => res.json())
-      .then(function(geojsonDes) {
-        if (window.desaLayer) { map2.removeLayer(window.desaLayer); window.desaLayer = null; }
-        window.desaLayer = L.geoJSON(geojsonDes, {
-          style: function(feature) {
-            var jumlah = Number(feature.properties.total_konflik) || 0;
-            return {
-              color: "#22e67aff",
-              weight: 2,
-              opacity: 0.9,
-              fillOpacity: 0.50,
-              fillColor:
-                jumlah > 30 ? '#800026' :
-                jumlah > 20 ? '#BD0026' :
-                jumlah > 10 ? '#E31A1C' :
-                jumlah > 5  ? '#FC4E2A' :
-                jumlah > 0  ? '#FFEDA0' :
-                              '#99f8a6'
-            };
-          },
-          onEachFeature: function(feat, lyr) {
-            var jml = feat.properties.total_konflik ?? 0;
-            var html = `<div>
-                          <b>${feat.properties.jenis} ${feat.properties.nama}</b><br>
-                          Kecamatan: <b>${feat.properties.kecamatan_nama}</b><br>
-                          Kabupaten: <b>${feat.properties.kabupaten_nama}</b><br>
-                          Total konflik: <b>${jml}</b>
-                      </div>`;
-            lyr.bindPopup(html);
-            lyr.bindTooltip(feat.properties.nama, {permanent: false, direction: 'center'});
-            lyr.on('click', function(e){ this.openPopup(); });
-          }
-        }).addTo(map2);
-        // Chart per desa
-        loadBarChart('desa', kec_id);
-        loadDonutKategori('kecamatan', kec_id);
-        const sumberOverlay = document.getElementById('sumberOverlay');
-          if (sumberOverlay) {
-            sumberOverlay.innerHTML = ""; // selalu clear dulu sebelum isi ulang
-            let sumber = geojsonDes.sumber_dokumen || [];
-            let sumberHtml = sumber.length ? `<span class="fa fa-file-alt me-1"></span>Sumber: `
-              + sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ')
-              : '';
-            sumberOverlay.innerHTML = sumberHtml;
-          }
-           
-      });
-      showTableWilayah('konflik', 'kecamatan', kec_id);
     }
   }else if (tipe === 'kamtibmas') {
     // Kab klik
@@ -3363,13 +3306,43 @@ function showLokasiMap() {
         loadKamtibmasBarChart('kecamatan', kab_id, lastCheckedKategoriIds, currentMapYear);
         loadKamtibmasDonutChart('kecamatan', kab_id, lastCheckedKategoriIds, currentMapYear);
         const sumberOverlay = document.getElementById('sumberOverlay');
-          if (sumberOverlay) {
-            sumberOverlay.innerHTML = ""; // selalu clear dulu sebelum isi ulang
-            let sumber = geojsonKec.sumber_dokumen || [];
-            let sumberHtml = sumber.length ? `<span class="fa fa-file-alt me-1"></span>Sumber: `
-              + sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ')
-              : '';
-            sumberOverlay.innerHTML = sumberHtml;
+        sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
+        if (sumberOverlay) {
+            sumberOverlay.innerHTML = "";
+            sumberOverlay.classList.remove('expanded');
+            
+            let sumber = geojson.sumber_dokumen || [];
+
+            if (sumber.length > 0) {
+               
+                let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
+
+                // Struktur dengan Icon Font Awesome
+                sumberOverlay.innerHTML = `
+                    <i class="fas fa-file-alt"></i>
+                    <div class="sumber-text" id="sumberText">
+                        Sumber: ${listSumber}
+                    </div>
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                `;
+
+                const textEl = document.getElementById('sumberText');
+                const btnToggle = document.getElementById('btnToggle');
+
+                // Cek apakah teks terpotong (overflow)
+                setTimeout(() => {
+                    if (textEl.scrollWidth > textEl.clientWidth) {
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
+                        btnToggle.onclick = () => {
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
+                        };
+                    }
+                }, 50);
+            } else {
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
+            }
           }
       });
       showTableWilayah('kamtibmas', 'kabupaten', kab_id);
@@ -3441,13 +3414,43 @@ function showLokasiMap() {
         loadKamtibmasBarChart('desa', kec_id, lastCheckedKategoriIds, currentMapYear);
         loadKamtibmasDonutChart('desa', kec_id, lastCheckedKategoriIds, currentMapYear);
         const sumberOverlay = document.getElementById('sumberOverlay');
-          if (sumberOverlay) {
-            sumberOverlay.innerHTML = ""; // selalu clear dulu sebelum isi ulang
-            let sumber = geojsonDes.sumber_dokumen || [];
-            let sumberHtml = sumber.length ? `<span class="fa fa-file-alt me-1"></span>Sumber: `
-              + sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ')
-              : '';
-            sumberOverlay.innerHTML = sumberHtml;
+        sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
+        if (sumberOverlay) {
+            sumberOverlay.innerHTML = "";
+            sumberOverlay.classList.remove('expanded');
+            
+            let sumber = geojson.sumber_dokumen || [];
+
+            if (sumber.length > 0) {
+               
+                let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
+
+                // Struktur dengan Icon Font Awesome
+                sumberOverlay.innerHTML = `
+                    <i class="fas fa-file-alt"></i>
+                    <div class="sumber-text" id="sumberText">
+                        Sumber: ${listSumber}
+                    </div>
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                `;
+
+                const textEl = document.getElementById('sumberText');
+                const btnToggle = document.getElementById('btnToggle');
+
+                // Cek apakah teks terpotong (overflow)
+                setTimeout(() => {
+                    if (textEl.scrollWidth > textEl.clientWidth) {
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
+                        btnToggle.onclick = () => {
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
+                        };
+                    }
+                }, 50);
+            } else {
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
+            }
           }
       });
       showTableWilayah('kamtibmas', 'kecamatan', kec_id);
@@ -3523,13 +3526,43 @@ function showLokasiMap() {
         loadLalinBarChart('kecamatan', kab_id, lastCheckedKategoriIds, currentMapYear);
         loadLalinDonutChart('kecamatan', kab_id, lastCheckedKategoriIds, currentMapYear);
         const sumberOverlay = document.getElementById('sumberOverlay');
-          if (sumberOverlay) {
-            sumberOverlay.innerHTML = ""; // selalu clear dulu sebelum isi ulang
-            let sumber = geojsonKec.sumber_dokumen || [];
-            let sumberHtml = sumber.length ? `<span class="fa fa-file-alt me-1"></span>Sumber: `
-              + sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ')
-              : '';
-            sumberOverlay.innerHTML = sumberHtml;
+          sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
+        if (sumberOverlay) {
+            sumberOverlay.innerHTML = "";
+            sumberOverlay.classList.remove('expanded');
+            
+            let sumber = geojson.sumber_dokumen || [];
+
+            if (sumber.length > 0) {
+               
+                let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
+
+                // Struktur dengan Icon Font Awesome
+                sumberOverlay.innerHTML = `
+                    <i class="fas fa-file-alt"></i>
+                    <div class="sumber-text" id="sumberText">
+                        Sumber: ${listSumber}
+                    </div>
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                `;
+
+                const textEl = document.getElementById('sumberText');
+                const btnToggle = document.getElementById('btnToggle');
+
+                // Cek apakah teks terpotong (overflow)
+                setTimeout(() => {
+                    if (textEl.scrollWidth > textEl.clientWidth) {
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
+                        btnToggle.onclick = () => {
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
+                        };
+                    }
+                }, 50);
+            } else {
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
+            }
           }
           showTableWilayah('lalin', 'kabupaten', kab_id);
       });
@@ -3666,13 +3699,43 @@ function showLokasiMap() {
         loadLalinBarChart('desa', kec_id, lastCheckedKategoriIds, currentMapYear);
         loadLalinDonutChart('desa', kec_id, lastCheckedKategoriIds, currentMapYear);
         const sumberOverlay = document.getElementById('sumberOverlay');
-          if (sumberOverlay) {
-            sumberOverlay.innerHTML = ""; // selalu clear dulu sebelum isi ulang
-            let sumber = geojsonDes.sumber_dokumen || [];
-            let sumberHtml = sumber.length ? `<span class="fa fa-file-alt me-1"></span>Sumber: `
-              + sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ')
-              : '';
-            sumberOverlay.innerHTML = sumberHtml;
+         sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
+        if (sumberOverlay) {
+            sumberOverlay.innerHTML = "";
+            sumberOverlay.classList.remove('expanded');
+            
+            let sumber = geojson.sumber_dokumen || [];
+
+            if (sumber.length > 0) {
+               
+                let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
+
+                // Struktur dengan Icon Font Awesome
+                sumberOverlay.innerHTML = `
+                    <i class="fas fa-file-alt"></i>
+                    <div class="sumber-text" id="sumberText">
+                        Sumber: ${listSumber}
+                    </div>
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                `;
+
+                const textEl = document.getElementById('sumberText');
+                const btnToggle = document.getElementById('btnToggle');
+
+                // Cek apakah teks terpotong (overflow)
+                setTimeout(() => {
+                    if (textEl.scrollWidth > textEl.clientWidth) {
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
+                        btnToggle.onclick = () => {
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
+                        };
+                    }
+                }, 50);
+            } else {
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
+            }
           }
           showTableWilayah('lalin', 'kecamatan', kec_id);
       });
@@ -3806,13 +3869,43 @@ function showLokasiMap() {
         loadBencanaBarChart('kecamatan', kab_id, lastCheckedKategoriIds, currentMapYear);
         loadBencanaDonutChart('kecamatan', kab_id, lastCheckedKategoriIds, currentMapYear);
         const sumberOverlay = document.getElementById('sumberOverlay');
-          if (sumberOverlay) {
-            sumberOverlay.innerHTML = ""; // selalu clear dulu sebelum isi ulang
-            let sumber = geojsonKec.sumber_dokumen || [];
-            let sumberHtml = sumber.length ? `<span class="fa fa-file-alt me-1"></span>Sumber: `
-              + sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ')
-              : '';
-            sumberOverlay.innerHTML = sumberHtml;
+        sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
+        if (sumberOverlay) {
+            sumberOverlay.innerHTML = "";
+            sumberOverlay.classList.remove('expanded');
+            
+            let sumber = geojson.sumber_dokumen || [];
+
+            if (sumber.length > 0) {
+               
+                let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
+
+                // Struktur dengan Icon Font Awesome
+                sumberOverlay.innerHTML = `
+                    <i class="fas fa-file-alt"></i>
+                    <div class="sumber-text" id="sumberText">
+                        Sumber: ${listSumber}
+                    </div>
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                `;
+
+                const textEl = document.getElementById('sumberText');
+                const btnToggle = document.getElementById('btnToggle');
+
+                // Cek apakah teks terpotong (overflow)
+                setTimeout(() => {
+                    if (textEl.scrollWidth > textEl.clientWidth) {
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
+                        btnToggle.onclick = () => {
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
+                        };
+                    }
+                }, 50);
+            } else {
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
+            }
           }
           showTableWilayah('bencana', 'kabupaten', kab_id);
       });
@@ -3867,7 +3960,7 @@ function showLokasiMap() {
         window.bencanaMarkerLayer = markerClusters.addTo(map2);
       });
     }
-    // kec
+    // kec ff
     if(e.target && e.target.classList.contains('btn-zoom-kecamatan')) {
       var kec_id = e.target.getAttribute('data-kecid');
       var activePopup = map2._popup;
@@ -3939,13 +4032,43 @@ function showLokasiMap() {
         loadBencanaBarChart('desa', kec_id, lastCheckedKategoriIds, currentMapYear);
         loadBencanaDonutChart('desa', kec_id, lastCheckedKategoriIds, currentMapYear);
         const sumberOverlay = document.getElementById('sumberOverlay');
-          if (sumberOverlay) {
-            sumberOverlay.innerHTML = ""; // selalu clear dulu sebelum isi ulang
-            let sumber = geojsonDes.sumber_dokumen || [];
-            let sumberHtml = sumber.length ? `<span class="fa fa-file-alt me-1"></span>Sumber: `
-              + sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ')
-              : '';
-            sumberOverlay.innerHTML = sumberHtml;
+        sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
+        if (sumberOverlay) {
+            sumberOverlay.innerHTML = "";
+            sumberOverlay.classList.remove('expanded');
+            
+            let sumber = geojson.sumber_dokumen || [];
+
+            if (sumber.length > 0) {
+               
+                let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
+
+                // Struktur dengan Icon Font Awesome
+                sumberOverlay.innerHTML = `
+                    <i class="fas fa-file-alt"></i>
+                    <div class="sumber-text" id="sumberText">
+                        Sumber: ${listSumber}
+                    </div>
+                    <div class="btn-toggle-sumber d-none" id="btnToggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                `;
+
+                const textEl = document.getElementById('sumberText');
+                const btnToggle = document.getElementById('btnToggle');
+
+                // Cek apakah teks terpotong (overflow)
+                setTimeout(() => {
+                    if (textEl.scrollWidth > textEl.clientWidth) {
+                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
+                        btnToggle.onclick = () => {
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
+                        };
+                    }
+                }, 50);
+            } else {
+                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
+            }
           }
           showTableWilayah('bencana', 'kecamatan', kec_id);
       });
