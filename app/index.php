@@ -66,258 +66,8 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     <link href="../assets/css/theme.min.css" rel="stylesheet" id="style-default">
     <link href="../assets/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl">
     <link href="../assets/css/user.min.css" rel="stylesheet" id="user-style-default">
-    <style>
-      .leaflet-interactive:focus { outline: none !important; }
-       .kamtibmas-pulse {
-        animation: kamtPulseGlow 1.2s infinite alternate;
-        filter: drop-shadow(0 0 18px #e04651);
-      }
-      @keyframes kamtPulseGlow {
-        0% {
-          fill: #800026;
-          opacity: 0.9;
-          filter: drop-shadow(0 0 10px #800026);
-          stroke: #e04651;
-          stroke-width: 3px;
-        }
-        100% {
-          fill: #e04651;
-          opacity: 0.6;
-          filter: drop-shadow(0 0 40px #ff4f4f);
-          stroke: #fff;
-          stroke-width: 6px;
-        }
-      }
-      .dataTables_wrapper .dataTables_filter input {
-        border-radius: 4px;
-        border: 1px solid #dde;
-        background: #f6faff;
-      }
-      .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-        background: #0769ac;
-        color: #fff !important;
-        border-radius: 3px;
-      }
-      .dataTables_wrapper .dataTables_paginate .paginate_button {
-        padding: 4px 12px;
-      }
-      tbody tr:hover {
-        background: #f3f8ff !important;
-      }
-      .lbl-kabupaten {
-        background: none !important;
-        color: #205b98; /* atau warna yang cocok dilihat di peta */
-        font-weight: 700;
-        font-size: 14px;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        text-shadow: 0 2px 8px rgba(255,255,255,0.7); /* efek agar tetap terbaca, optional */
-        pointer-events: none;    /* hanya label tidak bisa diklik, tapi TIDAK menghalangi popup/tombol lain! */
-        z-index: 1; /* Lebih rendah dari .leaflet-popup-pane (401), biasanya tooltip 600 */
-      }
-      .lbl-kecamatan {
-        background: none !important;
-        color: #5f0799; /* atau warna yang cocok dilihat di peta */
-        font-weight: 500;
-        font-size: 12px;
-        font-style: italic;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        text-shadow: 0 1px 5px rgba(255,255,255,0.8); /* efek agar tetap terbaca, optional */
-        pointer-events: none;    /* hanya label tidak bisa diklik, tapi TIDAK menghalangi popup/tombol lain! */
-        z-index: 1; /* Lebih rendah dari .leaflet-popup-pane (401), biasanya tooltip 600 */
-      }
-      .lbl-desa {
-        background: none !important;
-        color: #0f25a3ff; /* atau warna yang cocok dilihat di peta */
-        font-weight: 500;
-        font-size: 12px;
-        font-style: italic;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        text-shadow: 0 1px 5px rgba(255,255,255,0.8); /* efek agar tetap terbaca, optional */
-        pointer-events: none;    /* hanya label tidak bisa diklik, tapi TIDAK menghalangi popup/tombol lain! */
-        z-index: 1; /* Lebih rendah dari .leaflet-popup-pane (401), biasanya tooltip 600 */
-      }
-#map2{height: 100%; width: 100%;position:relative;}  
-#map-container{padding:0px; height:500px}
-#map-legend {
-  position: absolute;
-  right: 14px;
-  bottom: 16px;
-  z-index: 901;
-  background: rgba(255,255,255,0.97);
-  border-radius: 6px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.09);
-  padding: 10px 18px;
-  border: 1px solid #ddd;
-  color: #222;
-  font-size: 15px;
-  min-width: 150px;
-  min-height: 44px;
-  pointer-events: auto;
-}
-#map-legend h6 { margin-top:0; margin-bottom:9px; font-size:16px; }
-#map-legend i {
-  vertical-align: middle;
-}
-/* List container */
-#filter-options-list {
-  max-height: 160px; 
-  overflow-y: auto;
-  padding-right: 2px;
-}
-
-/* Checkbox individual option */
-#filter-options-list label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  padding: 5px 0 0 0;
-  border-radius: 5px;
-  transition: background 0.15s;
-}
-
-#filter-options-list label:hover {
-  background: rgba(64,131,255,0.09);
-  color: #246eea;
-}
-/* Checkbox style */
-#filter-options-list input[type="checkbox"] {
-  accent-color: #246eea;           /* Modern browser */
-  width: 17px;
-  height: 17px;
-  margin-right: 6px;
-  margin-top: -1px;
-  margin-bottom: 0;
-  border-radius: 4px;
-  outline: none;
-  border: 1.5px solid #b0b0b0;
-  transition: border 0.15s;
-}
-
-#filter-options-list input[type="checkbox"]:focus-visible {
-  border: 2px solid #1858a3;
-  outline: 2px solid #1858a3;
-}
-
-/* Label text */
-#filter-options-list label span {
-  font-size: 15px;
-  font-weight: 400;
-  color: #303038;
-  margin-left: 2px;
-}
-.sumber-overlay {
-    position: absolute;
-    top: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 800;
-    background: rgba(255, 245, 240, 0.95);
-    border-radius: 7px;
-    padding: 6px 12px;
-    font-weight: 600;
-    font-size: 13px;
-    box-shadow: 0 2px 7px rgba(0,0,0,0.12);
-    border: 1px solid #e3e3e3;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: 90%;
-    pointer-events: auto; /* Penting: agar bisa diklik */
-}
-
-.sumber-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 450px; /* Atur batas lebar teks di sini */
-    transition: max-width 0.3s ease;
-}
-
-/* State saat di-expand */
-.sumber-overlay.expanded .sumber-text {
-    white-space: normal;
-    max-width: 500px; /* Beri ruang lebih saat terbuka */
-}
-
-/* Styling Tombol Icon */
-.btn-toggle-sumber {
-    cursor: pointer;
-    color: #0d6efd;
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s ease, background 0.2s;
-}
-
-.btn-toggle-sumber:hover {
-    background: #f0f0f0;
-}
-
-/* Animasi rotasi icon saat expand */
-.sumber-overlay.expanded .btn-toggle-sumber {
-    transform: rotate(180deg);
-}
-#mapDateRange{
-  width:230px; 
-  display:none;
-}
-#mapTypeSelect{
- max-width: fit-content;
-}
-#subKategoriMapSelect{max-width: 400px;}
-#map-filter-overlay{
-  position: absolute;
-  left: 14px;
-  bottom: 18px;
-  z-index: 820;
-  background: rgba(255,255,255,0.86);
-  border-radius: 7px;
-  box-shadow: 0 1px 6.5px rgba(0,0,0,0.08);
-  padding: 10px 15px 8px 13px;
-  border: 1px solid #dedede;
-  min-width: 130px;
-  font-size: 14.5px;
-  user-select: none;
-}
-#mapYearSelect{
-  width:110px;
-}
-/* Gaya umum untuk kotak warna di legenda */
-.legend-icon {
-    width: 18px;
-    height: 18px;
-    display: inline-block;
-    margin-right: 8px;
-    border-radius: 3px;
-    vertical-align: middle; /* Menjaga icon tetap sejajar dengan teks */
-}
-
-/* Variasi Warna */
-.bg-deep-red { background: #800026; }
-.bg-red-dark { background: #BD0026; }
-.bg-red-medium { background: #E31A1C; }
-.bg-orange { background: #FC4E2A; }
-.bg-yellow { background: #FFEDA0; }
-.bg-green { background: #99f8a6; }
-    </style>
-
-    <script src="../assets/js/index.js"></script>
+    <link href="../assets/css/index.css" rel="stylesheet" />
+   
   </head>
 
 
@@ -428,7 +178,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
             </div>
             <div class="card-body bg-light" id="map-container">             
               <div id="map2">
-                <div id="sumberOverlay" class="sumber-overlay" style="display: '';"> 
+                <div id="sumberOverlay" class="sumber-overlay"> 
                 </div>
                 <div id="map-legend" class="d-none"></div>
                 <div id="map-filter-overlay" class="d-none">
@@ -613,7 +363,8 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     <script src="../assets/js/theme.js"></script>
     <script src="../vendors/echarts/echarts.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="../assets/js/index.js"></script>
  
  
 <script>
@@ -2379,7 +2130,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
                         btnToggle.style.display = "flex"; // Tampilkan icon jika teks panjang
                         
                         btnToggle.onclick = () => {
-                            sumberOverlay.classList.toggle('expanded');
+                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
                         };
                     }
                 }, 50);
