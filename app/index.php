@@ -15,27 +15,14 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
   $kode_provinsi = $data_provinsi["kode"];
   $lat_provinsi = $data_provinsi["lat"];
   $lng_provinsi = $data_provinsi["lng"];
-
- 
 ?>
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
-
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-
-    <!-- ===============================================-->
-    <!--    Document Title-->
-    <!-- ===============================================-->
     <title>Dashboard | Peta Digital</title>
-
-
-    <!-- ===============================================-->
-    <!--    Favicons-->
-    <!-- ===============================================-->
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png">
@@ -45,19 +32,12 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     <meta name="theme-color" content="#ffffff">
     <script src="../assets/js/config.js"></script>
     <script src="../vendors/overlayscrollbars/OverlayScrollbars.min.js"></script>
-        <link href="../vendors/choices/choices.min.css" rel="stylesheet" />
+    <link href="../vendors/choices/choices.min.css" rel="stylesheet" />
     <script src="../vendors/choices/choices.min.js"></script>
-
-    <!-- ===============================================-->
-    <!--    Stylesheets-->
-    <!-- ===============================================-->
-     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"  />
- <!-- Leaflet CDN harus sudah ada -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.default.css" />
-<link href="../vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-<!-- Bootstrap CSS (wajib sebelum ini) -->
-<!-- Bootstrap CSS (wajib sebelum ini) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"  />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.default.css" />
+    <link href="../vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <link href="../vendors/prism/prism-okaidia.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap" rel="stylesheet">
@@ -66,23 +46,14 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     <link href="../assets/css/theme.min.css" rel="stylesheet" id="style-default">
     <link href="../assets/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl">
     <link href="../assets/css/user.min.css" rel="stylesheet" id="user-style-default">
-    <link href="../assets/css/index.css" rel="stylesheet" />
-   
+    <link href="../assets/css/index.css" rel="stylesheet" /> 
   </head>
-
-
   <body>
-
-    <!-- ===============================================-->
-    <!--    Main Content-->
-    <!-- ===============================================-->
     <main class="main" id="top">
-      <div class="container-fluid" data-layout="container">
-         
+      <div class="container-fluid" data-layout="container">         
         <?php include_once("navbar.php") ?>
         <div class="content">
-          <?php include_once("header.php") ?>
-          
+          <?php include_once("header.php") ?>          
             <div class="row mb-3">
               <div class="col">
                 <div class="card bg-100 shadow-none border">
@@ -389,7 +360,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
   function hideAllDatatableWrappers() {
     // Hide semua wrapper datatables
     document.querySelectorAll('.dataTables_wrapper').forEach(function(wrapper){
-      wrapper.style.display = 'none';
+      wrapper.classList.add('d-none');
     });
   }
   function showTableWilayah(type, level, wilayah_id) {
@@ -418,14 +389,14 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
         showTableKamtibmasMenonjol(level, wilayah_id,lastCheckedKategoriIds,currentMapYear);
         setTimeout(function(){
           var wrappermenonjol = document.getElementById('tableKamtibmasMenonjol').closest('.dataTables_wrapper');
-          if(wrappermenonjol) wrappermenonjol.style.display = 'block';
+          if(wrappermenonjol) wrappermenonjol.classList.remove('d-none');
         }, 200);
         break;
       case 'lalin':
         showTableLalin(level, wilayah_id,lastCheckedKategoriIds,currentMapYear);
           setTimeout(function(){
             var wrapper = document.getElementById('tableLalin').closest('.dataTables_wrapper');
-            if(wrapper) wrapper.style.display = 'block';
+            if(wrapper) wrapper.classList.remove('d-none');
           }, 200);
         break;
   
@@ -433,14 +404,14 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
         showTableKriminalitas(level, wilayah_id,lastCheckedKategoriIds,currentMapYear);
           setTimeout(function(){
             var wrapper = document.getElementById('tableKriminalitas').closest('.dataTables_wrapper');
-            if(wrapper) wrapper.style.display = 'block';
+            if(wrapper) wrapper.classList.remove('d-none');
           }, 200);
          break;  
        case 'bencana':
         showTableBencana(level, wilayah_id,lastCheckedKategoriIds,currentMapYear);
           setTimeout(function(){
             var wrapper = document.getElementById('tableBencana').closest('.dataTables_wrapper');
-            if(wrapper) wrapper.style.display = 'block';
+            if(wrapper) wrapper.classList.remove('d-none');
           }, 200);
          break;
     }
@@ -507,7 +478,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
           <tr><th>Penyebab</th><td>${rowData.penyebab}</td></tr>
           <tr><th>Tindak Lanjut</th><td>${rowData.tindaklanjut}</td></tr>
            <tr><th>Foto</th><td>
-            ${rowData.foto ? `<img src="../public/upload/bencana/${rowData.foto}" alt="foto" style="max-width:180px;max-height:120px;">` : '-'}
+            ${rowData.foto ? `<img class="img-fluid" src="../public/upload/bencana/${rowData.foto}" alt="foto">` : '-'}
           </td></tr>
       </table>
       
@@ -778,7 +749,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
           <tr><th>Penyebab</th><td>${rowData.penyebab}</td></tr>
           <tr><th>Tindak Lanjut</th><td>${rowData.tindak_lanjut}</td></tr>
           <tr><th>Foto</th><td>
-            ${rowData.foto ? `<img src="../public/upload/lalin/${rowData.foto}" alt="foto" style="max-width:180px;max-height:120px;">` : '-'}
+            ${rowData.foto ? `<img class="img-fluid" src="../public/upload/lalin/${rowData.foto}" alt="foto">` : '-'}
           </td></tr>
         </table>
      
@@ -858,8 +829,7 @@ function getBencanaLegendHtml() {
   const filterDiv = document.getElementById('map-filter-overlay');
   const filterList = document.getElementById('filter-options-list');
 
-  // Sembunyikan dulu
- // filterDiv.style.display = 'none';  
+
  $('#map-filter-overlay').addClass('d-none'); // sembunyikan dulu
   filterList.innerHTML = '';
 
@@ -989,7 +959,6 @@ function renderMapFilterOptions(options) {
       chart_kabupaten_container.className = 'col-md-6';
       $('#chart_kabupaten_container').addClass('d-none');
       $('#chart_kategori_container').addClass('d-none');
-      //cardStat.style.display='none';
       $('#card-stats').addClass('d-none');
       $('#map-legend').addClass('d-none');
       cardSubKategoriKriminal.classList.add('d-none');
@@ -1452,7 +1421,7 @@ function loadTrendKriminalitasChart(
 
             // Format utama
             let txt = `<b>${params[0].axisValue}</b><br/>`;
-            txt += `<span style="color:#007bff;font-weight:bold;">Total: ${Number(total).toLocaleString('id-ID')}</span><br/>`;
+            txt += `<span class="text-primary fw-bold">Total: ${Number(total).toLocaleString('id-ID')}</span><br/>`;
             txt += `🟨 Proses: <b>${Number(proses).toLocaleString('id-ID')}</b> (${data.pct_proses[params[0].dataIndex]}%)<br/>`;
             txt += `🟩 Selesai: <b>${Number(selesai).toLocaleString('id-ID')}</b> (${data.pct_selesai[params[0].dataIndex]}%)`;
 
@@ -1503,7 +1472,7 @@ function loadTrendKriminalitasChart(
         ]
       });
       setTimeout(() => { if (trendKriminalitasChart) trendKriminalitasChart.resize(); }, 300);
-      document.getElementById('cardWaktuKriminal').style.display = ''; // biar terlihat
+      document.getElementById('cardWaktuKriminal').classList.remove('d-none'); // biar terlihat
     });
 }
 let waktuKejahatanChart = null;
@@ -1714,10 +1683,10 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
         const labels = data.map(d => d.label);
         const totals = data.map(d => d.total);  
         // Update judul
-        let title = "<span class='fas fa-chart-pie me-2 fs-0'></span>Donat Kriminalitas Berdasarkan Kategori (Semua Wilayah)";
-        if (level === "kabupaten")      title = "<span class='fas fa-chart-pie me -2 fs-0'></span>Donat Kriminalitas per Kategori (Kabupaten Dipilih)";
-        else if (level === "kecamatan") title = "<span class='fas fa-chart-pie me-2 fs-0'></span>Donat Kriminalitas per Kategori (Kecamatan Dipilih)";
-        else if (level === "desa")      title = "<span class='fas fa-chart-pie me-2 fs-0'></span>Donat Kriminalitas per Kategori (Desa Dipilih)";
+        let title = "<span class='fas fa-chart-pie me-2 fs-0'></span>Grafik Kriminalitas Berdasarkan Kategori (Semua Wilayah)";
+        if (level === "kabupaten")      title = "<span class='fas fa-chart-pie me -2 fs-0'></span>Grafik Kriminalitas per Kategori (Kabupaten Dipilih)";
+        else if (level === "kecamatan") title = "<span class='fas fa-chart-pie me-2 fs-0'></span>Grafik Kriminalitas per Kategori (Kecamatan Dipilih)";
+        else if (level === "desa")      title = "<span class='fas fa-chart-pie me-2 fs-0'></span>Grafik Kriminalitas per Kategori (Desa Dipilih)";
         document.getElementById("chart-kat-title").innerHTML = title;
         if(!window.myKriminalitasKatChart){
           window.myKriminalitasKatChart = echarts.init(document.getElementById('conflict_chart_kat'));
@@ -2035,7 +2004,6 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
           }
         }).addTo(map2);
            const sumberOverlay = document.getElementById('sumberOverlay');
-         //  sumberOverlay.style.display='none' // selalu clear dulu sebelum isi ulang
            sumberOverlay.classList.add('d-none');// sembunyikan dulu
 
       });
@@ -2183,7 +2151,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
                           <b>Lokasi:</b> ${p.lokasi || '-'}<br>
                           <b>Tanggal:</b> ${p.tanggal || '-'}
                           <br><br>
-                          <a href="kriminalitas-view?id=${p.id}" class="btn btn-info btn-sm me-1 mb-1" style="color: white;">Lihat Data</a>
+                          <a href="kriminalitas-view?id=${p.id}" class="btn btn-info btn-sm me-1 mb-1 text-white">Lihat Data</a>
                           `;
               layer.bindPopup(html);
             }
@@ -2305,19 +2273,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
       });
       showTableWilayah('kamtibmas', 'provinsi', 0);
   }
-  function animateMenonjol(layer) {
-    // Stop animasi sebelum dipakai ulang
-    if (layer._animID) clearInterval(layer._animID);
-    let blink = false;
-    layer._animID = setInterval(function () {
-      layer.setStyle({
-        fillColor: blink ? "#b8102a" : "#800026",
-        fillOpacity: blink ? 0.65 : 0.85
-      });
-      blink = !blink;
-    }, 850);
-    // Simpan refs animasi ke layer agar bisa distop saat layer dihapus
-  }
+ 
   function clearLayerAnim(layerGroup) {
     if (!layerGroup) return;
     layerGroup.eachLayer(function (layer) {
@@ -2373,7 +2329,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
           var kategori = feature.properties.kategori_lalin ?? [];
            let kategoriHtml = '';
             if(kategori.length > 0) {
-              kategoriHtml = '<hr class="my-2 mb-1">Kategori lalu lintas:<ul style="padding-left:22px">';
+              kategoriHtml = '<hr class="my-2 mb-1">Kategori lalu lintas:<ul class="ps-3">';
               kategori.forEach(function(kat){
                 kategoriHtml += `<li><b>${kat.label}</b>: ${kat.total}</li>`;
               });
@@ -2489,7 +2445,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
                         State: <span class="badge ${p.state === 'SELESAI' ? 'bg-success' : 'bg-warning'}">${p.state || '-'}</span><br>
                       `;
           if(p.keterangan) html += `<i>${p.keterangan}</i><br>`;
-          if(p.foto) html += `<img src="../public/upload/lalin/${p.foto}" alt="foto" style="width:170px;max-height:170px;margin:3px 0">`;
+          if(p.foto) html += `<img src="../public/upload/lalin/${p.foto}" alt="foto" class="img-fluid">`;
           layer.bindPopup(html);
         }
       });
@@ -2551,7 +2507,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
           var kategori = feature.properties.kategori_bencana ?? [];
            let kategoriHtml = '';
             if(kategori.length > 0) {
-              kategoriHtml = '<hr class="my-2 mb-1">Kategori bencana:<ul style="padding-left:22px">';
+              kategoriHtml = '<hr class="my-2 mb-1">Kategori bencana:<ul class="ps-3">';
               kategori.forEach(function(kat){
                 kategoriHtml += `<li><b>${kat.label}</b>: ${kat.total}</li>`;
               });
@@ -2653,7 +2609,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
                       Kec: <b>${p.kec_nama || '-'}</b><br>
                       Kab: <b>${p.kab_nama || '-'}</b><br>`;
           if(p.penyebab) html += `<i>${p.penyebab}</i><br>`;
-          if(p.foto) html += `<img src="../public/upload/bencana/${p.foto}" alt="foto" style="width:170px;max-height:170px;margin:3px 0">`;
+          if(p.foto) html += `<img src="../public/upload/bencana/${p.foto}" alt="foto" class="img-fluid">`;
           layer.bindPopup(html);
         }
       });
@@ -2987,7 +2943,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
                           <b>Lokasi:</b> ${p.lokasi || '-'}<br>
                           <b>Tanggal:</b> ${p.tanggal || '-'}
                           <br><br>
-                          <a href="kriminalitas-view?id=${p.id}" class="btn btn-info btn-sm me-1 mb-1" style="color: white;">Lihat Data</a>
+                          <a href="kriminalitas-view?id=${p.id}" class="btn btn-info btn-sm me-1 mb-1 text-white" >Lihat Data</a>
                           `;
               layer.bindPopup(html);
             }
@@ -3145,7 +3101,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
                           <b>Lokasi:</b> ${p.lokasi || '-'}<br>
                           <b>Tanggal:</b> ${p.tanggal || '-'}
                           <br><br>
-                          <a href="kriminalitas-view?id=${p.id}" class="btn btn-info btn-sm me-1 mb-1" style="color: white;">Lihat Data</a>
+                          <a href="kriminalitas-view?id=${p.id}" class="btn btn-info btn-sm me-1 mb-1 text-white">Lihat Data</a>
                           `;
               layer.bindPopup(html);
             }
@@ -3414,7 +3370,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
             var kategori=feat.properties.kategori_lalin||[];
             let kategoriHtml = ''; 
             if(kategori.length > 0) {
-              kategoriHtml = '<hr class="my-2 mb-1">Kategori lalu lintas:<ul style="padding-left:22px">';
+              kategoriHtml = '<hr class="my-2 mb-1">Kategori lalu lintas:<ul class="ps-3">';
               kategori.forEach(function(kat){
                 kategoriHtml += `<li><b>${kat.label}</b>: ${kat.total}</li>`;
               });
@@ -3533,7 +3489,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
                         Kab: <b>${p.kab_nama || '-'}</b><br>
                         State: <span class="badge ${p.state === 'SELESAI' ? 'bg-success' : 'bg-warning'}">${p.state || '-'}</span><br>`;
             if(p.keterangan) html += `<i>${p.keterangan}</i><br>`;
-            if(p.foto) html += `<img src="../public/upload/lalin/${p.foto}" alt="foto" style="width:170px;max-height:170px;margin:3px 0">`;
+            if(p.foto) html += `<img src="../public/upload/lalin/${p.foto}" alt="foto" class="img-fluid">`;
             layer.bindPopup(html);
           }
         });
@@ -3584,7 +3540,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
             var kategori = feat.properties.kategori_lalin || [];
             let kategoriHtml = ''; 
             if(kategori.length > 0) {
-              kategoriHtml = '<hr class="my-2 mb-1">Kategori lalu lintas:<ul style="padding-left:22px">';
+              kategoriHtml = '<hr class="my-2 mb-1">Kategori lalu lintas:<ul class="ps-3">';
               kategori.forEach(function(kat){
                 kategoriHtml += `<li><b>${kat.label}</b>: ${kat.total}</li>`;
               });
@@ -3704,7 +3660,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
                         Kab: <b>${p.kab_nama || '-'}</b><br>
                         State: <span class="badge ${p.state === 'SELESAI' ? 'bg-success' : 'bg-warning'}">${p.state || '-'}</span><br>`;
             if(p.keterangan) html += `<i>${p.keterangan}</i><br>`;
-            if(p.foto) html += `<img src="../public/upload/lalin/${p.foto}" alt="foto" style="width:170px;max-height:170px;margin:3px 0">`;
+            if(p.foto) html += `<img src="../public/upload/lalin/${p.foto}" alt="foto" class="img-fluid">`;
             layer.bindPopup(html);
           }
         });
@@ -3757,7 +3713,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
             var kategori=feat.properties.kategori_bencana||[];
             let kategoriHtml = ''; 
             if(kategori.length > 0) {
-              kategoriHtml = '<hr class="my-2 mb-1">Kategori bencana:<ul style="padding-left:22px">';
+              kategoriHtml = '<hr class="my-2 mb-1">Kategori bencana:<ul class="ps-3">';
               kategori.forEach(function(kat){
                 kategoriHtml += `<li><b>${kat.label}</b>: ${kat.total}</li>`;
               });
@@ -3866,7 +3822,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
                         Kec: <b>${p.kec_nama || '-'}</b><br>
                         Kab: <b>${p.kab_nama || '-'}</b><br>`;
             if(p.keterangan) html += `<i>${p.keterangan}</i><br>`;
-            if(p.foto) html += `<img src="../public/upload/bencana/${p.foto}" alt="foto" style="width:170px;max-height:170px;margin:3px 0">`;
+            if(p.foto) html += `<img src="../public/upload/bencana/${p.foto}" alt="foto" class="img-fluid">`;
             layer.bindPopup(html);
           }
         });
@@ -3917,7 +3873,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
             var kategori = feat.properties.kategori_bencana || [];
             let kategoriHtml = ''; 
             if(kategori.length > 0) {
-              kategoriHtml = '<hr class="my-2 mb-1">Kategori bencana:<ul style="padding-left:22px">';
+              kategoriHtml = '<hr class="my-2 mb-1">Kategori bencana:<ul class="ps-3">';
               kategori.forEach(function(kat){
                 kategoriHtml += `<li><b>${kat.label}</b>: ${kat.total}</li>`;
               });
@@ -4027,7 +3983,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
                         Kec: <b>${p.kec_nama || '-'}</b><br>
                         Kab: <b>${p.kab_nama || '-'}</b><br>`;
             if(p.keterangan) html += `<i>${p.keterangan}</i><br>`;
-            if(p.foto) html += `<img src="../public/upload/bencana/${p.foto}" alt="foto" style="width:170px;max-height:170px;margin:3px 0">`;
+            if(p.foto) html += `<img src="../public/upload/bencana/${p.foto}" alt="foto" class="img-fluid">`;
             layer.bindPopup(html);
           }
         });
