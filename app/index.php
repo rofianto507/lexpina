@@ -262,11 +262,11 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
               <h5 class="fs-0 mb-0"><span class="fas fa-table me-2 fs-0"></span>Data <span id="cardTitleWilayah"></span></h5>
             </div>
             <div class="card-body">
-              <div class="table-responsive" style="overflow-x:unset;">           
-                <table id="tableKamtibmasMenonjol" class="table table-striped table-bordered table-sm" style="width:100%;display:none;"></table>
-                <table id="tableLalin" class="table table-striped table-bordered table-sm" style="width:100%;display:none;"></table>               
-                <table id="tableKriminalitas" class="table table-striped table-bordered table-sm" style="width:100%;display:none;"></table>
-                <table id="tableBencana" class="table table-striped table-bordered table-sm" style="width:100%;display:none;"></table>
+              <div class="table-responsive">           
+                <table id="tableKamtibmasMenonjol" class="table table-striped table-bordered table-sm d-none"></table>
+                <table id="tableLalin" class="table table-striped table-bordered table-sm d-none"></table>               
+                <table id="tableKriminalitas" class="table table-striped table-bordered table-sm d-none"></table>
+                <table id="tableBencana" class="table table-striped table-bordered table-sm d-none"></table>
               </div>
             </div>
           </div>
@@ -396,10 +396,14 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     // First, hide all datatable wrappers
     hideAllDatatableWrappers();
     // Hide semua table
-    document.getElementById('tableKamtibmasMenonjol').style.display = 'none';
-    document.getElementById('tableLalin').style.display = 'none';
-    document.getElementById('tableKriminalitas').style.display = 'none';
-    document.getElementById('tableBencana').style.display = 'none';
+    const tableKamtibmasMenonjol = document.getElementById('tableKamtibmasMenonjol');
+    tableKamtibmasMenonjol.classList.add('d-none');
+    const tableLalin = document.getElementById('tableLalin');
+    tableLalin.classList.add('d-none');
+    const tableKriminalitas = document.getElementById('tableKriminalitas');
+    tableKriminalitas.classList.add('d-none');
+    const tableBencana = document.getElementById('tableBencana');
+    tableBencana.classList.add('d-none');
 
     // Set card title
     document.getElementById('cardTitleWilayah').innerText = type.charAt(0).toUpperCase() + type.slice(1);
@@ -443,7 +447,8 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
   }
   //tabel bencana
   function showTableBencana(level, wilayah_id, filterKategoriIds = [], tahun = new Date().getFullYear()) {
-    document.getElementById('tableBencana').style.display = '';
+    const tableBencana = document.getElementById('tableBencana');
+    tableBencana.classList.remove('d-none');
     let params = [`type=bencana`, `level=${level}`, `id=${wilayah_id}`];
     if(filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if(tahun) params.push('tahun=' + tahun);
@@ -514,7 +519,8 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
   
   //tabel kriminalitas
   function showTableKriminalitas(level, wilayah_id, filterKategoriIds = [], tahun = new Date().getFullYear()) {
-    document.getElementById('tableKriminalitas').style.display = '';
+    const tableKriminalitas = document.getElementById('tableKriminalitas');
+    tableKriminalitas.classList.remove('d-none');
     let params = [`type=kriminalitas`, `level=${level}`, `id=${wilayah_id}`];
     if(filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if(lastCheckedSubKategoriId) params.push('sub_kategori=' + lastCheckedSubKategoriId);
@@ -607,7 +613,8 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
   
   //kamtibmasmeononjol
   function showTableKamtibmasMenonjol(level, wilayah_id, filterKategoriIds = [], tahun = new Date().getFullYear()) {
-     document.getElementById('tableKamtibmasMenonjol').style.display = '';
+     const tableKamtibmasMenonjol = document.getElementById('tableKamtibmasMenonjol');
+     tableKamtibmasMenonjol.classList.remove('d-none');
     let params = [`type=kamtibmasmenonjol`, `level=${level}`, `id=${wilayah_id}`];
     if (filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if (tahun) params.push('tahun=' + tahun);
@@ -695,7 +702,8 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
   });
   //lalin
   function showTableLalin(level, wilayah_id, filterKategoriIds = [], tahun = new Date().getFullYear()) {
-    document.getElementById('tableLalin').style.display = '';
+    const tableLalin = document.getElementById('tableLalin');
+    tableLalin.classList.remove('d-none');
     let params = [`type=lalin`, `level=${level}`, `id=${wilayah_id}`];
     if(filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
     if(tahun) params.push('tahun=' + tahun);
