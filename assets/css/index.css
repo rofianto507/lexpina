@@ -155,7 +155,7 @@ tbody tr:hover {
     transition: max-width 0.3s ease;
 }
 
-/* State saat di-expand */
+/* State saat di-expand ff*/
 .sumber-overlay.expanded .sumber-text {
     white-space: normal;
     max-width: 500px; /* Beri ruang lebih saat terbuka */
@@ -226,3 +226,28 @@ tbody tr:hover {
 .bg-orange { background: #FC4E2A; }
 .bg-yellow { background: #FFEDA0; }
 .bg-green { background: #99f8a6; }
+
+#conflict_chart {
+    width: 100%;
+    height: 350px;
+}
+#conflict_chart_kat {
+    width: 100%;
+    height: 350px;
+}
+#lokasi_kejahatan_chart {
+    width: 100%;
+    height: 350px;
+}
+#sub_kategori_chart {
+    width: 100%;
+    height: 350px;
+}
+#trend_kriminalitas {
+    width: 100%;
+    height: 350px;
+}
+#waktu_kejahatan_chart {
+    width: 100%;
+    height: 350px;
+}

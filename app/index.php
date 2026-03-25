@@ -195,8 +195,8 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                 <div class="card-header">
                   <h5 class="fs-0 mb-0" id="chart-title"></span>Grafik Total Konflik per Kabupaten</h5>
                 </div>
-                <div class="card-body bg-light" style="padding:0">
-                  <div id="conflict_chart" style="width:100%;height:350px"></div>
+                <div class="card-body bg-light p-0">
+                  <div id="conflict_chart"></div>
                 </div>
               </div>
             </div>
@@ -205,20 +205,20 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                 <div class="card-header">
                   <h5 class="fs-0 mb-0" id="chart-kat-title">Grafik Konflik Berdasarkan Kategori (Semua Wilayah)</h5>
                 </div>
-                <div class="card-body bg-light" style="padding:0">
-                  <div id="conflict_chart_kat" style="width:100%;height:350px"></div>
+                <div class="card-body bg-light p-0">
+                  <div id="conflict_chart_kat"></div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="row" id="cardSubKategoriKriminal" style="display:none;">           
+          <div class="row d-none" id="cardSubKategoriKriminal" >           
             <div class="col-md-6" >
               <div class="card mb-3" >
                 <div class="card-header">
                   <h5 class="fs-0 mb-0"><span class="fas fa-map-pin me-2 fs-0"></span>Lokasi Kejahatan Terbanyak</h5>
                 </div>
-                <div class="card-body bg-light" style="padding:0">
-                  <div id="lokasi_kejahatan_chart" style="width:100%;height:350px"></div>
+                <div class="card-body bg-light p-0">
+                  <div id="lokasi_kejahatan_chart"></div>
                 </div>
               </div>
             </div>
@@ -227,20 +227,20 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                 <div class="card-header">
                   <h5 class="fs-0 mb-0"><span class="fas fa-tags me-2 fs-0"></span>Sub Kategori Kejahatan Terbanyak</h5>
                 </div>
-                <div class="card-body bg-light" style="padding:0">
-                    <div id="sub_kategori_chart" style="width:100%;height:350px"></div>
+                <div class="card-body bg-light p-0">
+                    <div id="sub_kategori_chart"></div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="row" id="cardWaktuKriminal" style="display:none;">
+          <div class="row d-none" id="cardWaktuKriminal">
             <div class="col-md-7" >
               <div class="card mb-3" >
                 <div class="card-header">
                   <h5 class="fs-0 mb-0"><span class="fas fa-chart-line me-2 fs-0"></span>Trend Kriminalitas</h5>
                 </div>
-                <div class="card-body bg-light" style="padding:0">
-                  <div id="trend_kriminalitas" style="width:100%;height:350px"></div>
+                <div class="card-body bg-light p-0">
+                  <div id="trend_kriminalitas"></div>
                 </div>
               </div>
             </div>
@@ -249,15 +249,15 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                 <div class="card-header">
                   <h5 class="fs-0 mb-0"><span class="fas fa-clock me-2 fs-0"></span>Statistik Waktu Kriminalitas</h5>
                 </div>
-                <div class="card-body bg-light" style="padding:0">
-                  <div id="waktu_kejahatan_chart" style="width:100%;height:350px"></div>
+                <div class="card-body bg-light p-0">
+                  <div id="waktu_kejahatan_chart"></div>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Container Table -->
-          <div class="card mb-3" id="cardDataWilayah" style="display:none;">
+          <div class="card mb-3 d-none" id="cardDataWilayah">
             <div class="card-header">
               <h5 class="fs-0 mb-0"><span class="fas fa-table me-2 fs-0"></span>Data <span id="cardTitleWilayah"></span></h5>
             </div>
@@ -405,7 +405,8 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     document.getElementById('cardTitleWilayah').innerText = type.charAt(0).toUpperCase() + type.slice(1);
 
     // Show card wrapper
-    document.getElementById('cardDataWilayah').style.display = 'block';
+    const cardDataWilayah = document.getElementById('cardDataWilayah');
+    cardDataWilayah.classList.remove('d-none');
 
     // Switch fetch data
     switch(type) {
@@ -983,8 +984,8 @@ function renderMapFilterOptions(options) {
       //cardStat.style.display='none';
       $('#card-stats').addClass('d-none');
       $('#map-legend').addClass('d-none');
-      cardSubKategoriKriminal.style.display = 'none';
-      cardWaktuKriminal.style.display = 'none';
+      cardSubKategoriKriminal.classList.add('d-none');
+      cardWaktuKriminal.classList.add('d-none');
       $('#subKategoriMapSelect').addClass('d-none');
     }else if (tipe === 'kamtibmas') {
       showKamtibmasMap(lastCheckedKategoriIds,currentMapYear);
@@ -995,8 +996,8 @@ function renderMapFilterOptions(options) {
       $('#chart_kategori_container').removeClass('d-none');
       $('#card-stats').addClass('d-none');
       $('#map-legend').removeClass('d-none');
-      cardSubKategoriKriminal.style.display = 'none';
-      cardWaktuKriminal.style.display = 'none';
+      cardSubKategoriKriminal.classList.add('d-none');
+      cardWaktuKriminal.classList.add('d-none');
       $('#subKategoriMapSelect').addClass('d-none');
     }else if (tipe === 'lalu-lintas') {
       showLalinMap(lastCheckedKategoriIds, currentMapYear)
@@ -1007,8 +1008,8 @@ function renderMapFilterOptions(options) {
       $('#chart_kategori_container').removeClass('d-none');
       $('#card-stats').addClass('d-none');
       $('#map-legend').removeClass('d-none');
-      cardSubKategoriKriminal.style.display = 'none';
-      cardWaktuKriminal.style.display = 'none';
+      cardSubKategoriKriminal.classList.add('d-none');
+      cardWaktuKriminal.classList.add('d-none');
       $('#subKategoriMapSelect').addClass('d-none');
     }else if (tipe === 'kriminalitas') {
       showKriminalitasMap(lastCheckedKategoriIds,currentMapYear);
@@ -1020,12 +1021,12 @@ function renderMapFilterOptions(options) {
       $('#card-stats').removeClass('d-none');
       $('#map-legend').removeClass('d-none');
       loadKriminalitasStatistik(lastCheckedKategoriIds,currentMapYear);
-      cardSubKategoriKriminal.style.display = '';
+      cardSubKategoriKriminal.classList.remove('d-none');
       loadKriminalitasSubKategoriChart('provinsi',0, lastCheckedKategoriIds, currentMapYear);
       loadLokasiKejahatanChart('provinsi', 0, lastCheckedKategoriIds, currentMapYear);
       loadWaktuKejahatanChart('provinsi', 0, lastCheckedKategoriIds, currentMapYear);
       loadTrendKriminalitasChart('provinsi', 0, lastCheckedKategoriIds, currentMapYear);
-      cardWaktuKriminal.style.display = '';
+      cardWaktuKriminal.classList.remove('d-none');
       $('#subKategoriMapSelect').removeClass('d-none');
       loadSubKategoriDropdown();
     }else if (tipe === 'bencana') {
@@ -1037,8 +1038,8 @@ function renderMapFilterOptions(options) {
       $('#chart_kategori_container').removeClass('d-none');
       $('#card-stats').addClass('d-none');
       $('#map-legend').removeClass('d-none');
-      cardSubKategoriKriminal.style.display = 'none';
-      cardWaktuKriminal.style.display = 'none';
+      cardSubKategoriKriminal.classList.add('d-none');
+      cardWaktuKriminal.classList.add('d-none');
       $('#subKategoriMapSelect').addClass('d-none');
     } else {
       // Tambahkan fungsi peta lain di sini
@@ -1989,7 +1990,8 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
       if(window.bencanaMarkerLayer) { map2.removeLayer(window.bencanaMarkerLayer); window.bencanaMarkerLayer = null; }
       if(window.kriminalitasMarkerLayer) { map2.removeLayer(window.kriminalitasMarkerLayer); window.kriminalitasMarkerLayer = null; }
        // Hide semua table
-      document.getElementById('cardDataWilayah').style.display = 'none';
+      const cardDataWilayah = document.getElementById('cardDataWilayah');
+      cardDataWilayah.classList.add('d-none'); // sembunyikan dulu
       fetch('konflik_kabupaten_geojson.php')
       .then(response => response.json())
       .then(function(geojson) {
@@ -2041,8 +2043,9 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
     if(window.lokasiMarkerLayer){ map2.removeLayer(window.lokasiMarkerLayer); window.lokasiMarkerLayer = null; }
     if(window.bencanaMarkerLayer) { map2.removeLayer(window.bencanaMarkerLayer); window.bencanaMarkerLayer = null; }
     if(window.kriminalitasMarkerLayer) { map2.removeLayer(window.kriminalitasMarkerLayer); window.kriminalitasMarkerLayer = null; }
-    document.getElementById('cardDataWilayah').style.display = 'none';
-    
+    const cardDataWilayah = document.getElementById('cardDataWilayah');
+    cardDataWilayah.classList.add('d-none');
+
     let endpoint = 'kriminalitas_kabupaten_geojson.php';  
     let params = [];
     if (filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
@@ -2195,7 +2198,8 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
     if(window.bencanaMarkerLayer) { map2.removeLayer(window.bencanaMarkerLayer); window.bencanaMarkerLayer = null; }
     if(window.kriminalitasMarkerLayer) { map2.removeLayer(window.kriminalitasMarkerLayer); window.kriminalitasMarkerLayer = null; }
       // Hide semua table
-      document.getElementById('cardDataWilayah').style.display = 'none';
+     const cardDataWilayah = document.getElementById('cardDataWilayah');
+     cardDataWilayah.classList.add('d-none');
       let endpoint = 'kamtibmas_kabupaten_geojson.php';
     let params = [];
     if(filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
@@ -2327,7 +2331,8 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
   if(window.bencanaMarkerLayer) { map2.removeLayer(window.bencanaMarkerLayer); window.bencanaMarkerLayer = null; }
   if(window.kriminalitasMarkerLayer) { map2.removeLayer(window.kriminalitasMarkerLayer); window.kriminalitasMarkerLayer = null; }
     // Hide semua table
-    document.getElementById('cardDataWilayah').style.display = 'none';
+    const cardDataWilayah = document.getElementById('cardDataWilayah');
+    cardDataWilayah.classList.add('d-none');
     let url = 'lalin_kabupaten_geojson.php';
   let areaParam = [];
   if(filterKategoriIds.length) areaParam.push('kategori='+filterKategoriIds.join(','));
@@ -2502,7 +2507,8 @@ function showBencanaMap(filterKategoriIds = [], tahun = new Date().getFullYear()
   if(window.bencanaMarkerLayer) { map2.removeLayer(window.bencanaMarkerLayer); window.bencanaMarkerLayer = null; }
   if(window.kriminalitasMarkerLayer) { map2.removeLayer(window.kriminalitasMarkerLayer); window.kriminalitasMarkerLayer = null; }
     // Hide semua table
-    document.getElementById('cardDataWilayah').style.display = 'none';
+    const cardDataWilayah = document.getElementById('cardDataWilayah');
+    cardDataWilayah.classList.add('d-none');
   let params = [];
 if (filterKategoriIds && filterKategoriIds.length) params.push('kategori=' + filterKategoriIds.join(','));
 if (tahun) params.push('tahun=' + tahun);
@@ -2653,102 +2659,7 @@ let endpoint2 = 'bencana_poin_geojson.php' + (params.length ? '?' + params.join(
     });
     showTableWilayah('bencana', 'provinsi', 0);
 }
-function showLokasiMap() {
-  map2.setView(lokasi_provinsi, 8);
 
-  // Kosongkan layer drilldown lama
-  if(window.kabupatenLayer) { map2.removeLayer(window.kabupatenLayer); window.kabupatenLayer = null; }
-  if(window.kecamatanLayer) { map2.removeLayer(window.kecamatanLayer); window.kecamatanLayer = null; }
-  if(window.desaLayer) { map2.removeLayer(window.desaLayer); window.desaLayer = null; }
-  if(window.lalinMarkerLayer){ map2.removeLayer(window.lalinMarkerLayer); window.lalinMarkerLayer = null; }
-  if(window.lokasiMarkerLayer){ map2.removeLayer(window.lokasiMarkerLayer); window.lokasiMarkerLayer = null; }
-  // Hide semua table
-  document.getElementById('cardDataWilayah').style.display = 'none';
-   
-
-// Misal tanpa filter:
-  fetch('lokasi_poin_geojson.php')
-    .then(res => res.json())
-    .then(function(geojson) {
-      // Buat marker cluster group
-      var markerClusters = L.markerClusterGroup();
-
-      // Buat layer GeoJSON, tiap point jadi marker
-      var geoJsonLayer = L.geoJSON(geojson, {
-        pointToLayer: function(feature, latlng) {
-          var warna = (feature.properties.kategori_warna || 'blue').toLowerCase();
-          const baseUrl = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-';
-          const shadowUrl = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png';
-          const iconUrl = baseUrl + warna + '.png';
-          return L.marker(latlng, {
-            icon: L.icon({
-              iconUrl: iconUrl,
-              iconSize: [25,41], iconAnchor: [12,41], popupAnchor: [1,-34],
-              shadowUrl: shadowUrl, shadowSize: [41,41]
-            })
-          });
-        },
-        onEachFeature: function(feature, layer) {
-          var p = feature.properties;
-          var html = `<b>${p.nama || '-'}</b><br>
-                      <span class="badge bg-secondary">${p.kategori_nama || ''}</span><br>
-                      Alamat: ${p.alamat || '-'}<br>
-                      HP: ${p.hp || '-'}<br>`;
-          if(p.keterangan) html += `<i>${p.keterangan}</i><br>`;
-          if(p.foto) html += `<img src="../public/upload/lokasi/${p.foto}" alt="foto" style="width:110px;max-height:100px;margin:3px 0">`;
-          layer.bindPopup(html);
-        }
-      });
-
-      markerClusters.addLayer(geoJsonLayer);
-
-      // Hapus layer lama jika ada
-      if(window.lokasiMarkerLayer) { map2.removeLayer(window.lokasiMarkerLayer); window.lokasiMarkerLayer = null; }
-      window.lokasiMarkerLayer = markerClusters.addTo(map2);
-
-      // Overlay sumber dokumen tetap
-      const sumberOverlay = document.getElementById('sumberOverlay');
-      sumberOverlay.classList.remove('d-none'); // pastikan overlay sumber terlihat
-        if (sumberOverlay) {
-            sumberOverlay.innerHTML = "";
-            sumberOverlay.classList.remove('expanded');
-            
-            let sumber = geojson.sumber_dokumen || [];
-
-            if (sumber.length > 0) {
-               
-                let listSumber = sumber.map(s => `<span class="text-primary">${s}</span>`).join(' <b>|</b> ');
-
-                // Struktur dengan Icon Font Awesome
-                sumberOverlay.innerHTML = `
-                    <i class="fas fa-file-alt"></i>
-                    <div class="sumber-text" id="sumberText">
-                        Sumber: ${listSumber}
-                    </div>
-                    <div class="btn-toggle-sumber d-none" id="btnToggle">
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                `;
-
-                const textEl = document.getElementById('sumberText');
-                const btnToggle = document.getElementById('btnToggle');
-
-                // Cek apakah teks terpotong (overflow)
-                setTimeout(() => {
-                    if (textEl.scrollWidth > textEl.clientWidth) {
-                        btnToggle.classList.remove('d-none'); // Tampilkan tombol toggle jika overflow terjadi
-                        btnToggle.onclick = () => {
-                            sumberOverlay.classList.toggle('expanded');// Toggle class untuk expand/collapse
-                        };
-                    }
-                }, 50);
-            } else {
-                sumberOverlay.classList.add('d-none'); // sembunyikan jika tidak ada sumber
-            }
-          }
-    });
-  showTableWilayah('lokasi', 'kabupaten', 0);
- }
 
  document.getElementById('filter-options-list').addEventListener('change', function(e){
     if(e.target.type === "checkbox") {
