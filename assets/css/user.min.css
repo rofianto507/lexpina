@@ -46,4 +46,13 @@
       .warna-gold { background-color: #C1A32D; color: #fff; }
       .warna-gray { background-color: #607d8b; color: #fff; }
       .warna-yellow { background-color: #FFEB3B; color: #000; }
+
+      .logo-image {
+        height: 150px;
+      }
+      .bg-auth-card-shape--half-circle {
+        background-image: url(../assets/img/icons/spot-illustrations/half-circle.png);
+        background-size: cover;
+        background-position: center;
+      }
 /* Tambah style lain sesuai kebutuhan */
