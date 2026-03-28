@@ -71,19 +71,7 @@
                   
                 </li>
                  <?php if($akses == "POLDA" ): ?>
-                <li class="nav-item">
-                  <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                    <div class="col-auto navbar-vertical-label">Managemen Import
-                    </div>
-                    <div class="col ps-0">
-                      <hr class="mb-0 navbar-vertical-divider" />
-                    </div>
-                  </div>
-                  <a class="nav-link <?php echo ($menu=='lapbul') ? 'active' : ''; ?>" href="lapbul" role="button" aria-expanded="false">
-                    <!--div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-calendar"></span></span><span class="nav-link-text ps-1">Import Lapbul</span>
-                    </div-->
-                  </a>                     
-                </li>
+                 
                 <?php endif; ?>    
                 <li class="nav-item">
                   <!-- label-->

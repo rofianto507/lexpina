@@ -177,7 +177,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["submit"])) {
     <script src="vendors/bootstrap/bootstrap.min.js"></script>
     <script src="vendors/anchorjs/anchor.min.js"></script>
     <script src="vendors/is/is.min.js"></script>
-    <script src="vendors/lodash/lodash.min.js"></script>
     <script src="assets/js/theme.js"></script>
 
   </body>

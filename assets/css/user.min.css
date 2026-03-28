@@ -51,7 +51,7 @@
         height: 150px;
       }
       .bg-auth-card-shape--half-circle {
-        background-image: url(../assets/img/icons/spot-illustrations/half-circle.png);
+        background-image: url(../img/icons/spot-illustrations/half-circle.png);
         background-size: cover;
         background-position: center;
       }
