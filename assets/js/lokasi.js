@@ -86,6 +86,7 @@ var lngProvinsi = parseFloat($('body').data('lng-provinsi'));
         $('#edit_desa_id').val($(this).data('desa-id'));
         $('#edit_kategori_id').val($(this).data('kategori-id'));
         $('#edit_kategori_warna').val($(this).data('kategori-warna'));
+        $('#edit_kategori_icon').val($(this).data('kategori-icon'));
         $('#edit_alamat').val($(this).data('alamat'));
         $('#edit_hp').val($(this).data('hp'));
         $('#edit_keterangan').val($(this).data('keterangan'));
@@ -271,7 +272,7 @@ var lngProvinsi = parseFloat($('body').data('lng-provinsi'));
     $('#modalEditLokasi').on('shown.bs.modal', function (e) {
       var lat = $('#edit_latitude').val() || latProvinsi;
       var lng = $('#edit_longitude').val() || lngProvinsi;
-      var kategori_warna = $('#edit_kategori_warna').val() || 'violet';
+       
       lat = parseFloat(lat); lng = parseFloat(lng);
       setTimeout(function(){
         initMapEdit(lat, lng);
@@ -280,7 +281,7 @@ var lngProvinsi = parseFloat($('body').data('lng-provinsi'));
           if(markerEdit) mapEdit.removeLayer(markerEdit);
           markerEdit = L.marker([lat, lng], {
              icon: L.icon({
-              iconUrl: '../assets/img/marker-icon-'+kategori_warna+'.png',
+              iconUrl: '../assets/img/marker-icon.png',
               iconSize: [25, 41],
               iconAnchor: [12, 41],
               popupAnchor: [1, -34],

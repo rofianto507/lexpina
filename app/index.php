@@ -152,6 +152,23 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
                     type="text" 
                     placeholder="Pilih Rentang Tanggal"   
                   />
+                  <div class="dropdown ms-2" id="filterLokasiDropdown">
+                    <button 
+                      class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                      type="button" 
+                      id="filterLokasiBtn"
+                      data-bs-toggle="dropdown" 
+                      data-bs-auto-close="outside"
+                      aria-expanded="false" 
+                    >
+                      <span class="fa fa-map-marker me-1"></span>
+                      <span id="filterLokasiLabel">Semua Lokasi</span>
+                    </button>
+                    <ul class="dropdown-menu shadow" aria-labelledby="filterLokasiBtn">
+                       
+                      
+                    </ul>
+                  </div>
                                 
                 </div>
               </div>

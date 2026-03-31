@@ -189,6 +189,15 @@ tbody tr:hover {
   width:230px; 
   display:none;
 }
+#filterLokasiDropdown{
+  display: none;
+}
+#filterLokasiBtn{
+  white-space:nowrap;
+}
+.dropdown-menu{
+  min-width:200px; max-height:260px; overflow-y:auto;padding-left:25px;color:black;
+}
 #mapTypeSelect{
  max-width: fit-content;
 }

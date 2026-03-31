@@ -33,11 +33,11 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
   }
   if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['namaKategori'])) {
       $namaKategori = trim($_POST['namaKategori']);
-      $warnaKategori = isset($_POST['warnaKategori']) ? trim($_POST['warnaKategori']) : '#2196f3'; // default
+      $iconKategori = isset($_POST['iconKategori']) ? trim($_POST['iconKategori']) : 'no'; // default
       if($namaKategori != "") {
-          $stmtInsert = $pdo->prepare("INSERT INTO lokasi_kategoris (nama, warna, status) VALUES (:nama, :warna, 1)");
+          $stmtInsert = $pdo->prepare("INSERT INTO lokasi_kategoris (nama, icon, status) VALUES (:nama, :icon, 1)");
           $stmtInsert->bindParam(':nama', $namaKategori);
-          $stmtInsert->bindParam(':warna', $warnaKategori);
+          $stmtInsert->bindParam(':icon', $iconKategori);
           $stmtInsert->execute();
           // Redirect agar refresh page dan menghilangkan POST (juga agar tabel otomatis update)
           header("Location: kategori-lokasi?status=sukses");
@@ -48,11 +48,11 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
   if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['edit_id'], $_POST['edit_nama'])) {
     $edit_id = intval($_POST['edit_id']);
     $edit_nama = trim($_POST['edit_nama']);
-    $edit_warna = isset($_POST['edit_warna']) ? trim($_POST['edit_warna']) : '#2196f3'; // default
+    $edit_icon = isset($_POST['edit_icon']) ? trim($_POST['edit_icon']) : 'no'; // default
 
     if($edit_id && $edit_nama != "") {
-      $stmtUpdate = $pdo->prepare("UPDATE lokasi_kategoris SET nama=:nama, warna=:warna, updated_at=NOW() WHERE id=:id");
-      $stmtUpdate->execute([':nama'=>$edit_nama, ':warna'=>$edit_warna, ':id'=>$edit_id]);
+      $stmtUpdate = $pdo->prepare("UPDATE lokasi_kategoris SET nama=:nama, icon=:icon, updated_at=NOW() WHERE id=:id");
+      $stmtUpdate->execute([':nama'=>$edit_nama, ':icon'=>$edit_icon, ':id'=>$edit_id]);
       header("Location: kategori-lokasi?status=edit_sukses");
       exit;
     }
@@ -139,7 +139,7 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
                     <tr>
                       <th>No</th>
                       <th>Nama</th>
-                       <th>Warna</th>
+                       <th>Icon</th>
                       <th>Aksi</th>
                       
                     </tr>
@@ -154,10 +154,10 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
                         <td>".htmlspecialchars($row['nama'], ENT_QUOTES)."</td>
 
                         <td>
-                         <span >".htmlspecialchars($row['warna'])."</span>
+                         <span >".htmlspecialchars($row['icon'])."</span>
                         </td>
                         <td>
-                          <button class='btn btn-sm btn-info btnEditKategori' data-id='{$row['id']}' data-nama='".htmlspecialchars($row['nama'],ENT_QUOTES)."' data-warna='".htmlspecialchars($row['warna'],ENT_QUOTES)."'>Edit</button>
+                          <button class='btn btn-sm btn-info btnEditKategori' data-id='{$row['id']}' data-nama='".htmlspecialchars($row['nama'],ENT_QUOTES)."' data-icon='".htmlspecialchars($row['icon'],ENT_QUOTES)."'>Edit</button>
                           <button class='btn btn-sm btn-danger btnHapusKategori' data-id='{$row['id']}' data-nama='".htmlspecialchars($row['nama'],ENT_QUOTES)."'>Hapus</button>
                         </td>
                       </tr>";
@@ -183,16 +183,16 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
                       <input type="text" class="form-control" id="namaKategori" name="namaKategori" required>
                     </div>
                     <div class="mb-3">
-                      <label for="warnaKategori" class="form-label">Warna</label>
-                      <select class="form-select" id="warnaKategori" name="warnaKategori">
-                       <option value="blue" class="warna-blue">Biru</option>
-                        <option value="green" class="warna-green">Hijau</option>
-                        <option value="orange" class="warna-orange">Oranye</option>
-                        <option value="red" class="warna-red">Merah</option>
-                        <option value="violet" class="warna-violet">Ungu</option>
-                        <option value="gold" class="warna-gold">Emas</option>
-                        <option value="gray" class="warna-gray">Abu-abu</option>
-                        <option value="yellow" class="warna-yellow">Kuning</option>
+                      <label for="iconKategori" class="form-label">Icon</label>
+                      <select class="form-select" id="iconKategori" name="iconKategori">
+                       <option value="polisi" >polisi</option>
+                        <option value="rs" >rs</option>
+                        <option value="tni" >tni</option>
+                        <option value="pemerintahan" >pemerintahan</option>
+                        <option value="wisata" >wisata</option>
+                        <option value="pasar">pasar</option>
+                        <option value="cctv" >cctv</option>
+                        <option value="no" >-</option>
                       </select>
                     </div>
                   </div>
@@ -221,16 +221,16 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
                       <input type="text" class="form-control" id="edit_nama" name="edit_nama" required>
                     </div>
                     <div class="mb-3">
-                      <label for="edit_warna" class="form-label">Warna</label>
-                      <select class="form-select" id="edit_warna" name="edit_warna">
-                        <option value="blue" class="warna-blue">Biru</option>
-                        <option value="green" class="warna-green">Hijau</option>
-                        <option value="orange" class="warna-orange">Oranye</option>
-                        <option value="red" class="warna-red">Merah</option>
-                        <option value="violet" class="warna-violet">Ungu</option>
-                        <option value="gold" class="warna-gold">Emas</option>
-                        <option value="grey" class="warna-grey">Abu-abu</option>
-                        <option value="yellow" class="warna-yellow">Kuning</option>
+                      <label for="edit_icon" class="form-label">Icon</label>
+                      <select class="form-select" id="edit_icon" name="edit_icon">
+                        <option value="polisi" >polisi</option>
+                        <option value="rs" >rs</option>
+                        <option value="tni" >tni</option>
+                        <option value="pemerintahan" >pemerintahan</option>
+                        <option value="wisata" >wisata</option>
+                        <option value="pasar">pasar</option>
+                        <option value="cctv" >cctv</option>
+                        <option value="no" >-</option>
                       </select>
                     </div>
                   </div>

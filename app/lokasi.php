@@ -280,7 +280,7 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
                     </tr>
                   <tbody>
                   <?php
-                    $q = "SELECT l.*, c.nama as kategori_nama, c.warna as kategori_warna, d.nama as desa_nama, k.nama as kecamatan_nama, kb.nama as kabupaten_nama
+                    $q = "SELECT l.*, c.nama as kategori_nama, c.warna as kategori_warna,c.icon as kategori_icon, d.nama as desa_nama, k.nama as kecamatan_nama, kb.nama as kabupaten_nama
                     , d.id as desa_id, d.kecamatan_id, k.kabupaten_id FROM lokasis l 
                     LEFT JOIN lokasi_kategoris c ON l.kategori_id=c.id
                     LEFT JOIN desas d ON l.desa_id=d.id
@@ -308,6 +308,7 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
                             data-kabupaten-id='".intval($row['kabupaten_id'] ?? 0)."'
                             data-kategori-id='{$row['kategori_id']}'
                             data-kategori-warna='{$row['kategori_warna']}'
+                            data-kategori-icon='{$row['kategori_icon']}'
                             data-alamat='".htmlspecialchars($row['alamat'],ENT_QUOTES)."'
                             data-hp='".htmlspecialchars($row['hp'],ENT_QUOTES)."'
                             data-keterangan='".htmlspecialchars($row['keterangan'],ENT_QUOTES)."'

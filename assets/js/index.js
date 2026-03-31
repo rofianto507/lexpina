@@ -17,6 +17,7 @@ let currentMapYear = new Date().getFullYear();
 let currentMapDateRange = '';
 let lastCheckedKategoriIds = [];
 let lastCheckedSubKategoriId = "";
+let lastCheckedLokasiIds = [];
 var latProvinsi = parseFloat($('body').data('lat-provinsi'));
 var lngProvinsi = parseFloat($('body').data('lng-provinsi'));
  function renderMapYearDropdown(min, max) {
@@ -560,7 +561,29 @@ $(document).ready(function() {
   // Panggil toggle saat load
   toggleDateRange();
 });
-
+// Load kategori lokasi dari endpoint
+function loadLokasiKategori() {
+  fetch('get_lokasi_kategori.php')
+    .then(res => res.json())
+    .then(res => {
+      if (!res.success || !res.data.length) return;
+      const ul = document.querySelector('#filterLokasiDropdown .dropdown-menu');
+      ul.innerHTML = ''; // Kosongkan dulu
+      res.data.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <div class="form-check px-1">
+            <input class="form-check-input lokasi-check" type="checkbox" 
+              id="lokasi_${item.id}" value="${item.id}">
+            <label class="form-check-label" for="lokasi_${item.id}">
+              ${item.nama}
+            </label>
+          </div>`;
+        ul.appendChild(li);
+      });
+    })
+    .catch(err => console.error('Gagal load kategori lokasi:', err));
+}
 // ============================================
 // Toggle show/hide daterange input
 // ============================================
@@ -571,14 +594,45 @@ document.getElementById('mapTypeSelect').addEventListener('change', function() {
 function toggleDateRange() {
   if ($('#mapTypeSelect').val() === 'kriminalitas') {
     $('#mapDateRange').show();
+    $('#filterLokasiDropdown').show();
+    loadLokasiKategori(); // Load kategori lokasi saat tipe kriminalitas dipilih
   } else if ($('#mapTypeSelect').val() === 'kamtibmas') {
     $('#mapDateRange').show();
   } else {
     $('#mapDateRange').hide();
+    $('#filterLokasiDropdown').hide();
     if (mapDateRangePicker) mapDateRangePicker.clear();
     currentMapDateRange = '';
+    $('.lokasi-check').prop('checked', false);
+    lastCheckedLokasiIds = [];
+    updateFilterLokasiLabel();
   }
 }
+function updateFilterLokasiLabel() {
+  const checked = $('.lokasi-check:checked');
+  if (checked.length === 0) {
+    $('#filterLokasiLabel').text('Semua Lokasi'); // Default label saat tidak ada yang dipilih
+  } else {
+    const labels = checked.map(function() {
+      return $(this).next('label').text().trim();
+    }).get();
+    const txt = labels.length > 2
+      ? labels.slice(0, 2).join(', ') + ` +${labels.length - 2} lainnya`
+      : labels.join(', ');
+    $('#filterLokasiLabel').text(txt);
+  }
+}
+
+// Handler checkbox lokasi
+$(document).on('change', '.lokasi-check', function() {
+  updateFilterLokasiLabel();
+  lastCheckedLokasiIds = $('.lokasi-check:checked').map(function() {
+    return $(this).val();
+  }).get();
+  console.log('Filter lokasi:', lastCheckedLokasiIds);
+  showKriminalitasMap(lastCheckedKategoriIds, currentMapYear, lastCheckedSubKategoriId);
+  // Trigger update map/chart sesuai kebutuhan
+});
 
 // ============================================
 // Handler ketika daterange berubah
@@ -1594,7 +1648,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
       if(window.lalinMarkerLayer){ map2.removeLayer(window.lalinMarkerLayer); window.lalinMarkerLayer = null; }
       if(window.lokasiMarkerLayer){ map2.removeLayer(window.lokasiMarkerLayer); window.lokasiMarkerLayer = null; }
       if(window.bencanaMarkerLayer) { map2.removeLayer(window.bencanaMarkerLayer); window.bencanaMarkerLayer = null; }
-      if(window.kriminalitasMarkerLayer) { map2.removeLayer(window.kriminalitasMarkerLayer); window.kriminalitasMarkerLayer = null; }
+      if(window.kriminalitasMarkerLayer) { map2.removeLayer(window.kriminalitasMarkerLayer); window.kriminalitasMarkerLayer = null; } // pastikan layer marker kriminalitas juga dihapus
        // Hide semua table
       const cardDataWilayah = document.getElementById('cardDataWilayah');
       cardDataWilayah.classList.add('d-none'); // sembunyikan dulu
@@ -1648,6 +1702,7 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
     if(window.lokasiMarkerLayer){ map2.removeLayer(window.lokasiMarkerLayer); window.lokasiMarkerLayer = null; }
     if(window.bencanaMarkerLayer) { map2.removeLayer(window.bencanaMarkerLayer); window.bencanaMarkerLayer = null; }
     if(window.kriminalitasMarkerLayer) { map2.removeLayer(window.kriminalitasMarkerLayer); window.kriminalitasMarkerLayer = null; }
+
     const cardDataWilayah = document.getElementById('cardDataWilayah');
     cardDataWilayah.classList.add('d-none');
 
@@ -1754,7 +1809,6 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
       if (currentMapDateRange) markerParams.push('bulan=' + currentMapDateRange);
       if (subKategoriId) markerParams.push('sub_kategori=' + subKategoriId);
       if(markerParams.length) markerEndpoint += '?' + markerParams.join('&');
-      if(window.kriminalitasMarkerLayer) { map2.removeLayer(window.kriminalitasMarkerLayer); window.kriminalitasMarkerLayer=null;}
       fetch(markerEndpoint)
         .then(res => res.json())
         .then(function(geojson){
@@ -1784,10 +1838,50 @@ function loadKriminalitasDonutChart(level, parent_id = 0, filterKategoriIds = []
           });
           markerClusters.addLayer(geoJsonLayer);
 
-          if(window.kriminalitasMarkerLayer){ map2.removeLayer(window.kriminalitasMarkerLayer);}
-          window.kriminalitasMarkerLayer = markerClusters.addTo(map2);
+          if(window.kriminalitasMarkerLayer){ map2.removeLayer(window.kriminalitasMarkerLayer);}// pastikan layer marker kriminalitas lama dihapus sebelum menambahkan yang baru
+            window.kriminalitasMarkerLayer = markerClusters.addTo(map2);// simpan referensi layer marker kriminalitas untuk penghapusan di masa depan
         });
-        
+      //load marker lokasi  
+      let markerEndpointLokasi = 'lokasi_poin_geojson.php';  
+      let markerParamsLokasi = [];
+      if(lastCheckedLokasiIds) markerParamsLokasi.push('kategori=' + lastCheckedLokasiIds.join(','));
+      if(markerParamsLokasi.length) markerEndpointLokasi += '?' + markerParamsLokasi.join('&');
+      console.log("Fetching marker data from:", markerEndpointLokasi);
+      if(lastCheckedLokasiIds.length > 0) { // hanya lakukan fetch jika ada kategori lokasi yang dipilih
+      fetch(markerEndpointLokasi)
+        .then(res => res.json())
+        .then(function(geojson){
+          var markerClustersLokasi = L.markerClusterGroup();
+          var geoJsonLayerLokasi = L.geoJSON(geojson, {
+            pointToLayer: function(feature, latlng) {
+              var icon = (feature.properties.kategori_icon || 'no').toLowerCase();
+              return L.marker(latlng, {
+                icon: L.icon({
+                  iconUrl: '../assets/img/markers/' + icon + '.png',
+                  iconSize: [32,32], iconAnchor: [16,32], popupAnchor: [0,-32],
+                  shadowUrl: '../assets/img/marker-shadow.png', shadowSize: [41,41], shadowAnchor: [12,41]
+                })
+              });
+            },
+            onEachFeature: function(feature, layer) {
+              var p = feature.properties;
+              var html = `<b>${p.nama || '-'}</b><br>
+                          <b>Alamat:</b> ${p.alamat || '-'}<br>
+                          <b>Kategori:</b> ${p.kategori_nama || '-'}<br>
+                          <b>Deskripsi:</b> ${p.keterangan || '-'}<br>
+                          <b>Kontak :</b> ${p.hp || '-'}<br>
+                          <img src="../public/upload/lokasi/${p.foto || 'noimage.png'}" class="img-fluid"><br>
+                           
+                          `;
+              layer.bindPopup(html);
+            }
+          });
+          markerClustersLokasi.addLayer(geoJsonLayerLokasi);
+
+          if(window.lokasiMarkerLayer){ map2.removeLayer(window.lokasiMarkerLayer);}// pastikan layer marker lokasi lama dihapus sebelum menambahkan yang baru
+            window.lokasiMarkerLayer = markerClustersLokasi.addTo(map2);// simpan referensi layer marker lokasi untuk penghapusan di masa depan
+        });
+      }
       showTableWilayah('kriminalitas', 'provinsi', 0);
   }
     function showKamtibmasMap(filterKategoriIds = [], tahun = new Date().getFullYear()) {
