@@ -106,7 +106,7 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
                           <div class="d-flex flex-between-center mb-3">
                             <div class="d-flex align-items-center">
                               <div class="icon-item icon-item-sm bg-soft-warning shadow-none me-2 bg-soft-warning"><span class="fs--2 fa fa-trophy text-warning"></span></div>
-                              <h6 class="mb-0" id="stat-label-3">Label 3</h6>
+                              <h6 class="mb-0 pe-6" id="stat-label-3">Label 3</h6>
                             </div>                  
                           </div>
                           <div class="d-flex">

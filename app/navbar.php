@@ -64,11 +64,17 @@
                     <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-thumbtack"></span></span><span class="nav-link-text ps-1">Lokasi Penting</span>
                     </div>
                   </a>
-                     <a class="nav-link <?php echo ($menu=='lalu-lintas') ? 'active' : ''; ?>" href="lalu-lintas" role="button" aria-expanded="false">
+                  <a class="nav-link <?php echo ($menu=='lalu-lintas') ? 'active' : ''; ?>" href="lalu-lintas" role="button" aria-expanded="false">
                     <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-road"></span></span><span class="nav-link-text ps-1">Lalu Lintas</span>
                     </div>
                   </a>
-                  
+                   <?php if($akses == "POLDA" ): ?>
+                  <a class="nav-link <?php echo ($menu=='lokasi') ? 'active' : ''; ?>" href="lokasi" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-map-signs"></span></span><span class="nav-link-text ps-1">Lokasi Penting</span>
+                    </div>
+                  </a>
+                  <?php endif; ?>  
+                
                 </li>
                  <?php if($akses == "POLDA" ): ?>
                  
@@ -161,6 +167,12 @@
                      <li class="nav-item">
                         <a class="nav-link <?php echo ($menu=='kategori-lalin') ? 'active' : ''; ?>" href="kategori-lalin" aria-expanded="false">
                         <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Kategori Lalu Lintas</span>
+                        </div>
+                      </a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link <?php echo ($menu=='kategori-lokasi') ? 'active' : ''; ?>" href="kategori-lokasi" aria-expanded="false">
+                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Kategori Lokasi</span>
                         </div>
                       </a>
                     </li>

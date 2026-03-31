@@ -1,0 +1,7 @@
+#filter-polres,
+#filter-polsek { min-width: 180px; }
+#LokasiTable { width: 100%; }
+#lokasiMapTambah,
+#lokasiMapEdit { height: 350px; border: 1px solid #ccc; }
+#previewFotoEditWrapper { display: none; }
+#previewFotoEdit { max-width: 240px; }

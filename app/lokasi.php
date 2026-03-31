@@ -1,15 +1,39 @@
 <?php
 session_start();
+header("X-Frame-Options: SAMEORIGIN");
+header("X-Content-Type-Options: nosniff");
+header("X-XSS-Protection: 1; mode=block");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+header("Content-Security-Policy: default-src 'self'; img-src 'self' data: https://*.tile.openstreetmap.org;");
 include("../config/configuration.php");
-if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
+if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
+  header("Location: ../index");
+  exit;
+}
+ if(empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+  }
   $_SESSION["menu"]="lokasi";
   $menu=$_SESSION["menu"];
   $nama=$_SESSION["nama"];
   $id=$_SESSION["id"];
   $username=$_SESSION["username"];
   $akses=$_SESSION["akses"];
+    $polres_id=$_SESSION["polres_id"] ?? null;
+  $polsek_id=$_SESSION["polsek_id"] ?? null;
   $foto=$_SESSION["foto"];
   $last_login=$_SESSION["last_login"];
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (
+        !isset($_POST['csrf_token']) ||
+        !isset($_SESSION['csrf_token']) ||
+        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+      ) {
+        header("Location: lokasi?status=csrf_failed");
+        exit;
+    }
+  }
     $query_provinsi = $pdo->query("SELECT * FROM provinsis WHERE status=1 limit 1");
   $data_provinsi = $query_provinsi->fetch();
   $nama_provinsi = $data_provinsi["nama"];
@@ -19,6 +43,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
   if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kategori_id'], $_POST['namaLokasi'])) {
     $kategori_id = intval($_POST['kategori_id']);
     $namaLokasi = trim($_POST['namaLokasi']);
+      $desa_id = intval($_POST['desa_id']);
     $alamat = trim($_POST['alamat'] ?? '');
     $hp = trim($_POST['hp'] ?? '');
     $foto = ""; 
@@ -39,12 +64,13 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     $keterangan = trim($_POST['keterangan'] ?? '');
     $latitude = trim($_POST['latitude'] ?? '');
     $longitude = trim($_POST['longitude'] ?? '');
-    $sumber_id = intval($_POST['sumber_id'] ?? 0);
+ 
     $user_id = $id_user;
 
     if($kategori_id && $namaLokasi){
-      $stmtInsert = $pdo->prepare("INSERT INTO lokasis (kategori_id, nama, alamat, hp, foto, keterangan, latitude, longitude, user_id, sumber_id, status) VALUES (:kategori_id, :nama, :alamat, :hp, :foto, :keterangan, :latitude, :longitude, :user_id, :sumber_id, 1)");
+      $stmtInsert = $pdo->prepare("INSERT INTO lokasis (desa_id, kategori_id, nama, alamat, hp, foto, keterangan, latitude, longitude, user_id, status) VALUES (:desa_id, :kategori_id, :nama, :alamat, :hp, :foto, :keterangan, :latitude, :longitude, :user_id, 1)");
       $stmtInsert->execute([
+        ':desa_id'=>$desa_id,
         ':kategori_id'=>$kategori_id,
         ':nama'=>$namaLokasi,
         ':alamat'=>$alamat,
@@ -54,7 +80,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
         ':latitude'=>$latitude,
         ':longitude'=>$longitude,
         ':user_id'=>$user_id,
-        ':sumber_id'=>$sumber_id
+   
       ]);
       header("Location: lokasi?status=sukses");
       exit;
@@ -71,7 +97,8 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     $edit_keterangan = trim($_POST['edit_keterangan'] ?? '');
     $edit_latitude = trim($_POST['edit_latitude'] ?? '');
     $edit_longitude = trim($_POST['edit_longitude'] ?? '');
-    $edit_sumber_id = intval($_POST['edit_sumber_id'] ?? 0);
+    $edit_desa_id = intval($_POST['edit_desa_id']);
+ 
     $edit_foto = "";
     if(!empty($_FILES['edit_fotoLokasi']['name'])) {
       $finfo = pathinfo($_FILES['edit_fotoLokasi']['name']);
@@ -94,8 +121,9 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
 
     if($edit_id && $edit_nama){
       if(!empty($edit_foto)){
-        $stmtUpdate = $pdo->prepare("UPDATE lokasis SET kategori_id=:kategori_id, nama=:nama, alamat=:alamat, hp=:hp, keterangan=:keterangan, latitude=:latitude, longitude=:longitude, foto=:foto, sumber_id=:sumber_id, updated_at=NOW() WHERE id=:id");
+        $stmtUpdate = $pdo->prepare("UPDATE lokasis SET desa_id=:desa_id, kategori_id=:kategori_id, nama=:nama, alamat=:alamat, hp=:hp, keterangan=:keterangan, latitude=:latitude, longitude=:longitude, foto=:foto, updated_at=NOW() WHERE id=:id");
         $stmtUpdate->execute([
+          ':desa_id'=>$edit_desa_id,
           ':kategori_id'=>$edit_kategori_id,
           ':nama'=>$edit_nama,
           ':alamat'=>$edit_alamat,
@@ -104,13 +132,13 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
           ':latitude'=>$edit_latitude,
           ':longitude'=>$edit_longitude,
           ':foto'=>$edit_foto,
-          ':sumber_id'=>$edit_sumber_id,
           ':id'=>$edit_id
         ]);
       } else {
         // Jika tidak upload foto baru
-        $stmtUpdate = $pdo->prepare("UPDATE lokasis SET kategori_id=:kategori_id, nama=:nama, alamat=:alamat, hp=:hp, keterangan=:keterangan, latitude=:latitude, longitude=:longitude, sumber_id=:sumber_id, updated_at=NOW() WHERE id=:id");
+        $stmtUpdate = $pdo->prepare("UPDATE lokasis SET desa_id=:desa_id, kategori_id=:kategori_id, nama=:nama, alamat=:alamat, hp=:hp, keterangan=:keterangan, latitude=:latitude, longitude=:longitude, updated_at=NOW() WHERE id=:id");
         $stmtUpdate->execute([
+          ':desa_id'=>$edit_desa_id,
           ':kategori_id'=>$edit_kategori_id,
           ':nama'=>$edit_nama,
           ':alamat'=>$edit_alamat,
@@ -118,7 +146,6 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
           ':keterangan'=>$edit_keterangan,
           ':latitude'=>$edit_latitude,
           ':longitude'=>$edit_longitude,
-          ':sumber_id'=>$edit_sumber_id,
           ':id'=>$edit_id
         ]);
       }
@@ -137,10 +164,17 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
       exit;
     }
   }
-  $sumberList = [];
-  $qSumber = $pdo->query("SELECT id, nama FROM sumbers WHERE status=1 AND tipe='LOKASI PENTING' ORDER BY nama ASC");
-  while($s = $qSumber->fetch(PDO::FETCH_ASSOC)){
-    $sumberList[] = $s;
+ $kabList = [];
+  if($akses == "POLRES") {
+    $stmt_kab = $pdo->prepare("SELECT id, nama, kode FROM kabupatens WHERE status=1 AND polres_id=? ORDER BY nama");
+    $stmt_kab->execute([$polres_id]);
+    $kabList = $stmt_kab->fetchAll(PDO::FETCH_ASSOC);
+  } else if($akses == "POLSEK") {
+    $stmt_kab = $pdo->prepare("SELECT kabupatens.id, kabupatens.nama, kabupatens.kode FROM kabupatens left join kecamatans on kabupatens.id = kecamatans.kabupaten_id left join polseks on kecamatans.polsek_id = polseks.id WHERE kabupatens.status=1 AND polseks.id=? ORDER BY kabupatens.nama");
+    $stmt_kab->execute([$polsek_id]);
+    $kabList = $stmt_kab->fetchAll(PDO::FETCH_ASSOC);
+  } else {
+    $kabList = $pdo->query("SELECT id, nama, kode FROM kabupatens WHERE status=1 ORDER BY nama")->fetchAll(PDO::FETCH_ASSOC);
   }
 ?>
 <!DOCTYPE html>
@@ -161,34 +195,22 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
     <script src="../vendors/overlayscrollbars/OverlayScrollbars.min.js"></script>
 
     <!-- DataTables CSS & jQuery -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css"/>
     <link href="../vendors/prism/prism-okaidia.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../vendors/datatables/datatables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../assets/icon/font-awesome/css/font-awesome.min.css">
     <link href="../vendors/overlayscrollbars/OverlayScrollbars.min.css" rel="stylesheet">
     <link href="../assets/css/theme-rtl.min.css" rel="stylesheet" id="style-rtl">
     <link href="../assets/css/theme.min.css" rel="stylesheet" id="style-default">
     <link href="../assets/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl">
     <link href="../assets/css/user.min.css" rel="stylesheet" id="user-style-default">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-      var isRTL = JSON.parse(localStorage.getItem('isRTL'));
-      if (isRTL) {
-        var linkDefault = document.getElementById('style-default');
-        var userLinkDefault = document.getElementById('user-style-default');
-        linkDefault.setAttribute('disabled', true);
-        userLinkDefault.setAttribute('disabled', true);
-        document.querySelector('html').setAttribute('dir', 'rtl');
-      } else {
-        var linkRTL = document.getElementById('style-rtl');
-        var userLinkRTL = document.getElementById('user-style-rtl');
-        linkRTL.setAttribute('disabled', true);
-        userLinkRTL.setAttribute('disabled', true);
-      }
-    </script>
+    <link href="../assets/css/lokasi.css" rel="stylesheet">
+    <link rel="stylesheet" href="../vendors/leaflet/leaflet.css" />
+    <script src="../vendors/leaflet/leaflet.js"></script>
+    
   </head>
-  <body>
+  <body data-polsek-id="<?php echo htmlspecialchars($_SESSION['polsek_id'] ?? '', ENT_QUOTES); ?>"
+        data-lat-provinsi="<?php echo htmlspecialchars($lat_provinsi, ENT_QUOTES); ?>"
+        data-lng-provinsi="<?php echo htmlspecialchars($lng_provinsi, ENT_QUOTES); ?>">
     <main class="main" id="top">
       <div class="container-fluid" data-layout="container">
         <?php include_once("navbar.php") ?>
@@ -210,12 +232,17 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                   Data berhasil dihapus.
                   <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+                <?php elseif(isset($_GET['status']) && $_GET['status']=='csrf_failed'): ?>
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                  <strong>Akses ditolak!</strong> Token keamanan tidak valid. Silakan muat ulang halaman dan coba lagi.
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
                 <?php endif; ?>
           <div class="card mb-3">
             <div class="card-header">
               <div class="row flex-between-end">
                 <div class="col-auto align-self-center">
-                  <h5 class="fs-0 mb-0"><span class="fas fa-map-signs me-2 fs-0"></span> Lokasi Penting</h5>
+                  <h5 class="fs-0 mb-0"><span class="fa fa-map-signs me-2 fs-0"></span> Lokasi Penting</h5>
                 </div>
                 <div class="col-auto ms-auto">
                   <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahLokasi">
@@ -226,49 +253,68 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
             </div>
             <div class="card-body bg-light">
               <div class="table-responsive">
-                <table id="LokasiTable" class="display table table-striped table-bordered table-sm" style="width:100%">
+                <table id="LokasiTable" class="display table table-striped table-bordered table-sm"  >
                   <thead class="bg-primary text-white">
                     <tr>
                       <th>ID</th>
-                      <th>Kategori</th>
+                      
                       <th>Nama</th>
                       <th>Alamat</th>
-                      <th>HP/Kontak</th>
-                      <th>Latitude</th>
-                      <th>Longitude</th>
-                      <th>Sumber</th>
+                       <th>Desa</th>
+                      <th>Kecamatan</th>
+                      <th>Kabupaten</th>
+                      <th>Kategori</th>
                       <th>Aksi</th>
                     </tr>
                   </thead>
+                  <tfoot>
+                     <tr>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>                   
+                      <th></th>
+                    </tr>
                   <tbody>
                   <?php
-                    $q = "SELECT l.*, k.nama as kategori_nama, s.nama as sumber_nama FROM lokasis l 
-                    LEFT JOIN lokasi_kategoris k ON l.kategori_id=k.id
-                    LEFT JOIN sumbers s ON l.sumber_id=s.id WHERE l.status=1 ORDER BY l.created_at DESC";
+                    $q = "SELECT l.*, c.nama as kategori_nama, c.warna as kategori_warna, d.nama as desa_nama, k.nama as kecamatan_nama, kb.nama as kabupaten_nama
+                    , d.id as desa_id, d.kecamatan_id, k.kabupaten_id FROM lokasis l 
+                    LEFT JOIN lokasi_kategoris c ON l.kategori_id=c.id
+                    LEFT JOIN desas d ON l.desa_id=d.id
+                    LEFT JOIN kecamatans k ON d.kecamatan_id = k.id
+                    LEFT JOIN kabupatens kb ON k.kabupaten_id = kb.id
+                    WHERE l.status=1 ORDER BY l.created_at DESC";
                     $stmt = $pdo->query($q);
                     while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                       echo "<tr>
                         <td>".$row['id']."</td>
-                        <td>".$row['kategori_nama']."</td>
                         <td>".$row['nama']."</td>
                          <td>".(mb_strlen($row['alamat']) > 100 ? mb_substr($row['alamat'], 0, 100).'...' : $row['alamat'])."</td>
-                        <td>".$row['hp']."</td>
-                        <td>".$row['latitude']."</td>
-                        <td>".$row['longitude']."</td>
-                 
-                        <td>".$row['sumber_nama']."</td>
+                        <td>".$row['desa_nama']."</td>
+                        <td>".$row['kecamatan_nama']."</td>
+                        <td>".$row['kabupaten_nama']."</td>
+                        <td>".$row['kategori_nama']."</td>
+                         
+                     
                         <td>
                           <button class='btn btn-sm btn-info btnEditLokasi'
                             data-id='{$row['id']}'
                             data-nama='".htmlspecialchars($row['nama'],ENT_QUOTES)."'
+                            data-desa-id='".intval($row['desa_id'] ?? 0)."'
+                            data-kecamatan-id='".intval($row['kecamatan_id'] ?? 0)."'
+                            data-kabupaten-id='".intval($row['kabupaten_id'] ?? 0)."'
                             data-kategori-id='{$row['kategori_id']}'
+                            data-kategori-warna='{$row['kategori_warna']}'
                             data-alamat='".htmlspecialchars($row['alamat'],ENT_QUOTES)."'
                             data-hp='".htmlspecialchars($row['hp'],ENT_QUOTES)."'
                             data-keterangan='".htmlspecialchars($row['keterangan'],ENT_QUOTES)."'
                             data-latitude='".htmlspecialchars($row['latitude'],ENT_QUOTES)."'
                             data-longitude='".htmlspecialchars($row['longitude'],ENT_QUOTES)."'
                             data-foto='".htmlspecialchars($row['foto'],ENT_QUOTES)."'
-                            data-sumber-id='{$row['sumber_id']}'
+                          
                             >Edit</button>
                           <button class='btn btn-sm btn-danger btnHapusLokasi' data-id='{$row['id']}' data-nama='".htmlspecialchars($row['nama'],ENT_QUOTES)."'>Hapus</button>
                         </td>
@@ -283,6 +329,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
            <div class="modal fade" id="modalTambahLokasi" tabindex="-1" aria-labelledby="modalTambahLokasiLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
               <form method="POST" id="formTambahLokasi" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <div class="modal-content">
                   <div class="modal-header">
                     <h5 class="modal-title" id="modalTambahLokasiLabel">Tambah Lokasi Penting</h5>
@@ -306,7 +353,39 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                       <input type="text" class="form-control form-control-sm" id="namaLokasi" name="namaLokasi" required>
                     </div>
                     <div class="mb-3">
-                      <label class="form-label">Alamat</label>
+                        <label class="form-label">Kabupaten</label>
+                        <select class="form-select" name="kabupaten_id" id="kabupaten_id_lokasi" required>
+                          <option value="">- Pilih Kabupaten -</option>
+                           <?php
+                            if($akses == "POLRES") {
+                              $kabA = $pdo->prepare("SELECT id, nama, kode FROM kabupatens WHERE status=1 AND polres_id=? ORDER BY nama");
+                              $kabA->execute([$polres_id]);
+                            } else if($akses=="POLSEK") {
+                              $kabA = $pdo->prepare("SELECT kabupatens.* FROM kabupatens join polress on kabupatens.polres_id = polress.id join polseks on polress.id = polseks.polres_id WHERE kabupatens.status=1 AND polseks.id=? ORDER BY kabupatens.nama");
+                              $kabA->execute([$polsek_id]);
+                            } else {
+                              $kabA = $pdo->query("SELECT id, nama, kode FROM kabupatens WHERE status=1 ORDER BY nama");
+                            }
+                            while($kab = $kabA->fetch()) {
+                              echo "<option value='{$kab['id']}'>".htmlspecialchars($kab['kode'])." - ".htmlspecialchars($kab['nama'])."</option>";
+                            }
+                            ?>
+                        </select>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Kecamatan</label>
+                        <select class="form-select" name="kecamatan_id" id="kecamatan_id_lokasi" required disabled>
+                          <option value="">- Pilih Kecamatan -</option>
+                        </select>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Desa</label>
+                        <select class="form-select" name="desa_id" id="desa_id_lokasi" required disabled>
+                          <option value="">- Pilih Desa -</option>
+                        </select>
+                      </div>
+                    <div class="mb-3">
+                      <label class="form-label">Alamat Lengkap</label>
                       <input type="text" class="form-control form-control-sm" name="alamat">
                     </div>
                     <div class="mb-3">
@@ -315,7 +394,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                     </div>
                     <div class="mb-3">
                       <label class="form-label">Tentukan Lokasi di Map</label>
-                      <div id="lokasiMapTambah" style="height: 350px; border:1px solid #ccc"></div>
+                      <div id="lokasiMapTambah" ></div>
                     </div>
                     <div class="mb-3">
                       <label class="form-label">Latitude</label>
@@ -333,15 +412,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                       <label class="form-label">Keterangan</label>
                       <textarea class="form-control form-control-sm" name="keterangan" rows="5"></textarea>
                     </div>
-                    <div class="mb-3">
-                      <label class="form-label">Sumber Dokumen</label>
-                      <select class="form-select" name="sumber_id" required>
-                        <option value="">- Pilih Sumber -</option>
-                        <?php foreach($sumberList as $s): ?>
-                          <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['nama']) ?></option>
-                        <?php endforeach; ?>
-                      </select>
-                    </div>
+                     
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -355,6 +426,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
           <div class="modal fade" id="modalEditLokasi" tabindex="-1" aria-labelledby="modalEditLokasiLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
               <form method="POST" id="formEditLokasi" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <input type="hidden" name="edit_id" id="edit_id">
                 <div class="modal-content">
                   <div class="modal-header">
@@ -373,13 +445,45 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                           }
                         ?>
                       </select>
+                      <input type="hidden" id="edit_kategori_warna"> <!-- untuk menyimpan warna kategori -->
                     </div>
                     <div class="mb-3">
                       <label class="form-label">Nama Lokasi</label>
                       <input type="text" class="form-control form-control-sm" id="edit_nama" name="edit_nama" required>
                     </div>
                     <div class="mb-3">
-                      <label class="form-label">Alamat</label>
+                      <label>Kabupaten</label>
+                      <select class="form-select" name="edit_kabupaten_id" id="edit_kabupaten_id" required>
+                        <option value="">- Pilih Kabupaten -</option>
+                        <?php foreach($kabList as $kab): ?>
+                           <option value="<?= $kab['id'] ?>"><?= htmlspecialchars($kab['nama']) ?></option>
+                        <?php endforeach; ?>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label>Kecamatan</label>
+                      <select class="form-select" name="edit_kecamatan_id" id="edit_kecamatan_id" required>
+                        <option value="">- Pilih Kecamatan -</option>
+                        <?php foreach($kecList as $kec): ?>
+                          <option value="<?= $kec['id'] ?>" <?= $data['kecamatan_id']==$kec['id']?'selected':'' ?>>
+                            <?= htmlspecialchars($kec['nama']) ?>
+                          </option>
+                        <?php endforeach; ?>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label>Desa</label>
+                      <select class="form-select" name="edit_desa_id" id="edit_desa_id" required>
+                        <option value="">- Pilih Desa -</option>
+                        <?php foreach($desaList as $d): ?>
+                          <option value="<?= $d['id'] ?>" <?= $data['desa_id']==$d['id']?'selected':'' ?>>
+                            <?= htmlspecialchars($d['nama']) ?>
+                          </option>
+                        <?php endforeach; ?>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Alamat Lengkap</label>
                       <input type="text" class="form-control form-control-sm" id="edit_alamat" name="edit_alamat">
                     </div>
                     <div class="mb-3">
@@ -388,7 +492,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                     </div>
                     <div class="mb-3">
                       <label class="form-label">Tentukan Lokasi di Map</label>
-                      <div id="lokasiMapEdit" style="height: 350px; border:1px solid #ccc"></div>
+                      <div id="lokasiMapEdit" ></div>
                       
                     </div>
                     <div class="mb-3">
@@ -403,23 +507,15 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
                       <label class="form-label">Foto Baru (opsional, JPG/PNG)</label>
                       <input type="file" class="form-control" name="edit_fotoLokasi" accept=".jpg,.jpeg,.png">
                     </div>
-                    <div class="mb-2" id="previewFotoEditWrapper" style="display:none">
+                    <div class="mb-2" id="previewFotoEditWrapper" >
                       <label class="form-label">Foto Saat Ini:</label><br>
-                      <img src="" id="previewFotoEdit" class="img-thumbnail" style="max-width:120px;">
+                      <img src="" id="previewFotoEdit" class="img-thumbnail" >
                     </div>
                     <div class="mb-3">
                       <label class="form-label">Keterangan</label>
                       <textarea class="form-control form-control-sm" id="edit_keterangan" name="edit_keterangan" rows="5"></textarea>
                     </div>
-                    <div class="mb-3">
-                      <label class="form-label">Sumber Dokumen</label>
-                      <select class="form-select" name="edit_sumber_id" id="edit_sumber_id" required>
-                        <option value="">- Pilih Sumber -</option>
-                        <?php foreach($sumberList as $s): ?>
-                          <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['nama']) ?></option>
-                        <?php endforeach; ?>
-                      </select>
-                    </div>
+                     
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -434,6 +530,7 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
           <div class="modal fade" id="modalHapusLokasi" tabindex="-1" aria-labelledby="modalHapusLokasiLabel" aria-hidden="true">
             <div class="modal-dialog">
               <form method="POST" id="formHapusLokasi">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <input type="hidden" name="hapus_id" id="hapus_id">
                 <div class="modal-content">
                   <div class="modal-header">
@@ -456,180 +553,18 @@ if($_SESSION["nama"]!="" && $_SESSION["id"]!=""){
       </div>
     </main>
     <!-- JavaScripts -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script>
-      $(document).ready(function() {
-        $('#LokasiTable').DataTable({
-          "autoWidth": false,
-          "order": [[ 0, "desc" ]]
-        });
-      });
-      // Handle tombol Edit (reload data di modal)
-      $(document).on('click', '.btnEditLokasi', function() {
-        var id = $(this).data('id');
-        $('#edit_id').val(id);
-        $('#edit_nama').val($(this).data('nama'));
-        $('#edit_kategori_id').val($(this).data('kategori-id'));
-        $('#edit_alamat').val($(this).data('alamat'));
-        $('#edit_hp').val($(this).data('hp'));
-        $('#edit_keterangan').val($(this).data('keterangan'));
-        $('#edit_latitude').val($(this).data('latitude'));
-        $('#edit_longitude').val($(this).data('longitude'));
-        $('#foto_lama').val($(this).data('foto'));
-        $('#edit_sumber_id').val($(this).data('sumber-id'));
-        var foto = $(this).data('foto');
-        if(foto) {
-          $('#previewFotoEdit').attr('src', '../public/upload/lokasi/' + foto);
-          $('#previewFotoEditWrapper').show();
-        } else {
-          $('#previewFotoEditWrapper').hide();
-        }
-        $('#modalEditLokasi').modal('show');
-      });
-
-      // Modal Hapus
-      $(document).on('click', '.btnHapusLokasi', function() {
-        var id = $(this).data('id');
-        var nama = $(this).data('nama');
-        $('#hapus_id').val(id);
-        $('#hapus_nama').text(nama);
-        $('#modalHapusLokasi').modal('show');
-      });
-    var map, marker;
-
-    var mapTambah, mapEdit, markerTambah, markerEdit;
-    function initMapTambah(lat, lng) {
-      if(!mapTambah) {
-        mapTambah = L.map('lokasiMapTambah').setView([lat, lng], 8);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}).addTo(mapTambah);
-      } else {
-        mapTambah.setView([lat, lng], 8);
-        if(markerTambah) { mapTambah.removeLayer(markerTambah); markerTambah = null; }
-      }
-      mapTambah.invalidateSize();
-    }
-
-    function enableMapPickTambah() {
-      if(!mapTambah) return;
-      mapTambah.off('click');
-      mapTambah.on('click', function(e){
-          var lat = e.latlng.lat.toFixed(6);
-          var lng = e.latlng.lng.toFixed(6);
-          $('input[name="latitude"]').val(lat);
-          $('input[name="longitude"]').val(lng);
-          if(markerTambah) mapTambah.removeLayer(markerTambah);
-         // markerTambah = L.marker(e.latlng).addTo(mapTambah);
-          markerTambah = L.marker(e.latlng, {
-          icon: L.icon({
-            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-            shadowSize: [41, 41]
-          })
-        }).addTo(mapTambah);
-          markerTambah.bindPopup('Koordinat:<br>'+lat+', '+lng).openPopup();
-      });
-    }
-
-    function initMapEdit(lat, lng) {
-      if(!mapEdit) {
-        mapEdit = L.map('lokasiMapEdit').setView([lat, lng], 8);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}).addTo(mapEdit);
-      } else {
-        mapEdit.setView([lat, lng], 8);
-        if(markerEdit) { mapEdit.removeLayer(markerEdit); markerEdit = null; }
-      }
-      mapEdit.invalidateSize();
-    }
-
-    function enableMapPickEdit() {
-      if(!mapEdit) return;
-      mapEdit.off('click');
-      mapEdit.on('click', function(e){
-          var lat = e.latlng.lat.toFixed(6);
-          var lng = e.latlng.lng.toFixed(6);
-          $('#edit_latitude').val(lat);
-          $('#edit_longitude').val(lng);
-          if(markerEdit) mapEdit.removeLayer(markerEdit);
-         // markerEdit = L.marker(e.latlng).addTo(mapEdit);
-          markerEdit = L.marker(e.latlng, {
-            icon: L.icon({
-              iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-              shadowSize: [41, 41]
-            })
-          }).addTo(mapEdit);
-          markerEdit.bindPopup('Koordinat:<br>'+lat+', '+lng).openPopup();
-      });
-    }
-    // Modal Tambah
-    $('#modalTambahLokasi').on('shown.bs.modal', function (e) {
-      var lat = $('input[name="latitude"]').val() || <?php  echo $lat_provinsi; ?>;
-      var lng = $('input[name="longitude"]').val() || <?php  echo $lng_provinsi; ?>;
-      lat = parseFloat(lat); lng = parseFloat(lng);
-      setTimeout(function(){
-        initMapTambah(lat, lng);
-        enableMapPickTambah();
-        if(lat && lng && lat != <?php  echo $lat_provinsi; ?>) {
-          if(markerTambah) mapTambah.removeLayer(markerTambah);
-          markerTambah = L.marker([lat, lng]).addTo(mapTambah);
-          markerTambah.bindPopup('Koordinat:<br>'+lat+', '+lng).openPopup();
-        }
-      }, 350);
-    });
-    $('#modalTambahLokasi').on('hidden.bs.modal', function(){
-      if(mapTambah){ mapTambah.remove(); mapTambah = null; markerTambah = null; }
-      $('#lokasiMapTambah').html('');
-    });
-
-    // Modal Edit
-    $('#modalEditLokasi').on('shown.bs.modal', function (e) {
-      var lat = $('#edit_latitude').val() || <?php  echo $lat_provinsi; ?>;
-      var lng = $('#edit_longitude').val() || <?php  echo $lng_provinsi; ?>;
-      lat = parseFloat(lat); lng = parseFloat(lng);
-      setTimeout(function(){
-        initMapEdit(lat, lng);
-        enableMapPickEdit();
-        if(lat && lng && lat != <?php  echo $lat_provinsi; ?>) {
-          if(markerEdit) mapEdit.removeLayer(markerEdit);
-          markerEdit = L.marker([lat, lng], {
-            icon: L.icon({
-              iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-              shadowSize: [41, 41]
-            })
-          }).addTo(mapEdit);
-          markerEdit.bindPopup('Koordinat:<br>'+lat+', '+lng).openPopup();
-        }
-      }, 350);
-    });
-    $('#modalEditLokasi').on('hidden.bs.modal', function(){
-      if(mapEdit){ mapEdit.remove(); mapEdit = null; markerEdit = null; }
-      $('#lokasiMapEdit').html('');
-    });
-    </script>
+ 
+     <script src="../vendors/jquery/jquery-3.7.0.min.js"></script>
+    <script src="../vendors/datatables/datatables.min.js"></script>
     <script src="../vendors/popper/popper.min.js"></script>
+    <script src="../assets/js/lokasi.js"></script>
     <script src="../vendors/bootstrap/bootstrap.min.js"></script>
     <script src="../vendors/anchorjs/anchor.min.js"></script>
     <script src="../vendors/is/is.min.js"></script>
     <script src="../vendors/prism/prism.js"></script>
-    <script src="../vendors/fontawesome/all.min.js"></script>
     <script src="../vendors/lodash/lodash.min.js"></script>
     <script src="../vendors/list.js/list.min.js"></script>
     <script src="../assets/js/theme.js"></script>
   </body>
 </html>
-<?php
-}else{
-  header("Location: ../index");
-}
-?>
+ 

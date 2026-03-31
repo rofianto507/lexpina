@@ -5,7 +5,7 @@ header("X-Content-Type-Options: nosniff");
 header("X-XSS-Protection: 1; mode=block");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
-header("Content-Security-Policy: default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'");
+header("Content-Security-Policy: default-src 'self'; img-src 'self' data:;");
 include("../config/configuration.php");
 if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
   header("Location: ../index");
@@ -86,10 +86,9 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
     <script src="../vendors/overlayscrollbars/OverlayScrollbars.min.js"></script>
 
     <!-- DataTables CSS & jQuery -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css"/>
+      <link rel="stylesheet" type="text/css" href="../vendors/datatables/datatables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../assets/icon/font-awesome/css/font-awesome.min.css">
     <link href="../vendors/prism/prism-okaidia.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap" rel="stylesheet">
     <link href="../vendors/overlayscrollbars/OverlayScrollbars.min.css" rel="stylesheet">
     <link href="../assets/css/theme-rtl.min.css" rel="stylesheet" id="style-rtl">
     <link href="../assets/css/theme.min.css" rel="stylesheet" id="style-default">
@@ -135,7 +134,7 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
             </div>
             <div class="card-body bg-light">
               <div class="table-responsive">
-                <table id="kategoriTable" class="display table table-striped table-bordered table-sm" style="width:100%">
+                <table id="kategoriTable" class="display table table-striped table-bordered table-sm" >
                   <thead class="bg-primary text-white">
                     <tr>
                       <th>No</th>
@@ -155,7 +154,7 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
                         <td>".htmlspecialchars($row['nama'], ENT_QUOTES)."</td>
 
                         <td>
-                          <span class='badge' style='background:{$row['warna']};color:#fff'>{$row['warna']}</span>
+                         <span >".htmlspecialchars($row['warna'])."</span>
                         </td>
                         <td>
                           <button class='btn btn-sm btn-info btnEditKategori' data-id='{$row['id']}' data-nama='".htmlspecialchars($row['nama'],ENT_QUOTES)."' data-warna='".htmlspecialchars($row['warna'],ENT_QUOTES)."'>Edit</button>
@@ -186,14 +185,14 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
                     <div class="mb-3">
                       <label for="warnaKategori" class="form-label">Warna</label>
                       <select class="form-select" id="warnaKategori" name="warnaKategori">
-                        <option value="blue" style="background:#2196f3;color:#fff;">Biru</option>
-                        <option value="green" style="background:#4caf50;color:#fff;">Hijau</option>
-                        <option value="orange" style="background:#ff9800;color:#fff;">Oranye</option>
-                        <option value="red" style="background:#f44336;color:#fff;">Merah</option>
-                        <option value="violet" style="background:#9c27b0;color:#fff;">Ungu</option>
-                        <option value="gold" style="background:#C1A32D;color:#fff;">Emas</option>
-                        <option value="grey" style="background:#607d8b;color:#fff;">Abu-abu</option>
-                        <option value="yellow" style="background:#FFEB3B;color:#000;">Kuning</option>
+                       <option value="blue" class="warna-blue">Biru</option>
+                        <option value="green" class="warna-green">Hijau</option>
+                        <option value="orange" class="warna-orange">Oranye</option>
+                        <option value="red" class="warna-red">Merah</option>
+                        <option value="violet" class="warna-violet">Ungu</option>
+                        <option value="gold" class="warna-gold">Emas</option>
+                        <option value="gray" class="warna-gray">Abu-abu</option>
+                        <option value="yellow" class="warna-yellow">Kuning</option>
                       </select>
                     </div>
                   </div>
@@ -224,14 +223,14 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
                     <div class="mb-3">
                       <label for="edit_warna" class="form-label">Warna</label>
                       <select class="form-select" id="edit_warna" name="edit_warna">
-                        <option value="blue" style="background:#2196f3;color:#fff;">Biru</option>
-                        <option value="green" style="background:#4caf50;color:#fff;">Hijau</option>
-                        <option value="orange" style="background:#ff9800;color:#fff;">Oranye</option>
-                        <option value="red" style="background:#f44336;color:#fff;">Merah</option>
-                        <option value="violet" style="background:#9c27b0;color:#fff;">Ungu</option>
-                        <option value="gold" style="background:#C1A32D;color:#fff;">Emas</option>
-                        <option value="grey" style="background:#607d8b;color:#fff;">Abu-abu</option>
-                        <option value="yellow" style="background:#FFEB3B;color:#000;">Kuning</option>
+                        <option value="blue" class="warna-blue">Biru</option>
+                        <option value="green" class="warna-green">Hijau</option>
+                        <option value="orange" class="warna-orange">Oranye</option>
+                        <option value="red" class="warna-red">Merah</option>
+                        <option value="violet" class="warna-violet">Ungu</option>
+                        <option value="gold" class="warna-gold">Emas</option>
+                        <option value="grey" class="warna-grey">Abu-abu</option>
+                        <option value="yellow" class="warna-yellow">Kuning</option>
                       </select>
                     </div>
                   </div>
@@ -272,15 +271,15 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
       </div>
     </main>
     <!-- JavaScripts -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+      <script src="../vendors/jquery/jquery-3.7.0.min.js"></script>
+    <script src="../vendors/datatables/datatables.min.js"></script>
     <script src="../assets/js/kategori-lokasi.js"></script>
     <script src="../vendors/popper/popper.min.js"></script>
     <script src="../vendors/bootstrap/bootstrap.min.js"></script>
     <script src="../vendors/anchorjs/anchor.min.js"></script>
     <script src="../vendors/is/is.min.js"></script>
     <script src="../vendors/prism/prism.js"></script>
-    <script src="../vendors/fontawesome/all.min.js"></script>
+ 
     <script src="../vendors/lodash/lodash.min.js"></script>
     <script src="../vendors/list.js/list.min.js"></script>
     <script src="../assets/js/theme.js"></script>

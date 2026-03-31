@@ -342,7 +342,45 @@
             }
             $('#modalEditLalin').modal('show');
       });
-
+       $('#edit_kabupaten_id').change(function() {
+          var kabupatenId = $(this).val();
+          console.log('Kabupaten dipilih:', kabupatenId);
+          $('#edit_kecamatan_id').html('<option value="">- Pilih Kecamatan -</option>');
+          $('#edit_desa_id').html('<option value="">- Pilih Desa -</option>');
+          if(kabupatenId) {
+            $.get('get_kecamatan.php', {kabupaten_id: kabupatenId, polsek_id: polsekId}, function(data) {
+              var opt = '<option value="">- Pilih Kecamatan -</option>';
+              var firstId = "";
+              $.each(data, function(i, v) {
+                if(i===0) firstId = v.id;
+                opt += '<option value="'+v.id+'">'+v.kode+' - '+v.nama+'</option>';
+              });
+              $('#edit_kecamatan_id').html(opt);
+              if(firstId) {
+                $('#edit_kecamatan_id').val(firstId).trigger('change');
+              }
+            }, 'json');
+          }
+        });
+          // Kecamatan → Desa
+      $('#edit_kecamatan_id').change(function() {
+        var kecamatanId = $(this).val();
+        $('#edit_desa_id').html('<option value="">- Pilih Desa -</option>');
+        if(kecamatanId) {
+          $.get('get_desa.php', {kecamatan_id: kecamatanId}, function(data) {
+            var opt = '<option value="">- Pilih Desa -</option>';
+            var firstId = "";
+            $.each(data, function(i, v) {
+              if(i===0) firstId = v.id;
+              opt += '<option value="'+v.id+'">'+v.kode+' - '+v.nama+'</option>';
+            });
+            $('#edit_desa_id').html(opt);
+            if(firstId) {
+              $('#edit_desa_id').val(firstId);
+            }
+          }, 'json');
+        }
+      });
       // Modal Hapus
       $(document).on('click', '.btnHapusLalin', function() {
         var id = $(this).data('id');
