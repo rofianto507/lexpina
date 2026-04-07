@@ -196,11 +196,14 @@
                     </li>
                     <?php endif; ?>
                   </ul>
-                   <a class="nav-link <?php echo ($menu=='pengguna') ? 'active' : ''; ?>" href="pengguna" role="button" aria-expanded="false">
+                  <a class="nav-link <?php echo ($menu=='pengguna') ? 'active' : ''; ?>" href="pengguna" role="button" aria-expanded="false">
                     <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-users"></span></span><span class="nav-link-text ps-1">Data Pengguna</span>
                     </div>
                   </a>
-                    
+                   <a class="nav-link <?php echo ($menu=='anggota') ? 'active' : ''; ?>" href="anggota" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-street-view"></span></span><span class="nav-link-text ps-1">Data Anggota</span>
+                    </div>
+                  </a> 
                 </li>
               </ul>
                
