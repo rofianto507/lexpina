@@ -41,6 +41,7 @@ $tahun = isset($_GET['tahun']) ? intval($_GET['tahun']) : date('Y');
 $whereTahun = "";
 if($tahun) $whereTahun = "AND s.tahun = $tahun";
 $bulan = $_GET['bulan'] ?? '';
+
 $whereBulan = '';
 if (!empty($bulan)) {
     $dates = explode(' to ', $bulan);
@@ -63,6 +64,7 @@ if($level === 'kabupaten' && $parent_id) {
 } elseif($level === 'desa' && $parent_id) {
     $whereWilayah = "AND k.desa_id = $parent_id";
 }
+$subkat = $_GET['subkat'] ?? '';
 
 // AGGREGATE by JAM
 $sql = "
@@ -78,7 +80,7 @@ $sql = "
   FROM kriminals k
     LEFT JOIN sumbers s ON k.sumber_id = s.id
     LEFT JOIN desas d ON k.desa_id = d.id
-  WHERE k.status=1 AND k.state != 'SELESAI'
+  WHERE k.status=1 AND k.state != 'SELESAI' AND k.sub_kategori_id = $subkat
     $whereKategori
     $whereSubKategori
     $whereTahun

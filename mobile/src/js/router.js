@@ -1,6 +1,7 @@
 import { Welcome } from './pages/welcome.js';
 import { Login } from './pages/login.js';
 import { Home } from './pages/home.js';
+import {Perencanaan} from './pages/perencanaan.js';
 import { Patroli } from './pages/patroli.js';
 import { Profil } from './pages/profil.js';
 
@@ -9,6 +10,7 @@ const routes = {
     '/welcome': Welcome,
     '/login': Login,
     '/home': Home,
+    '/perencanaan': Perencanaan,
     '/patroli': Patroli,
     '/profil': Profil,
 };

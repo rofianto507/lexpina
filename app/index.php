@@ -252,6 +252,38 @@ if(!isset($_SESSION["id"]) || !isset($_SESSION["nama"])) {
               </div>
             </div>
           </div>
+          <div class="row d-none" id="cardWaktuKriminal3c">
+            <div class="col-md-4" >
+              <div class="card mb-3" >
+                <div class="card-header">
+                  <h5 class="fs-0 mb-0"><span class="fa fa-line-chart me-2 fs-0"></span>Waktu Kejadian Curat</h5>
+                </div>
+                <div class="card-body bg-light p-0">
+                  <div id="waktu_kejadian_curat"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4" >
+              <div class="card mb-3" >
+                <div class="card-header">
+                  <h5 class="fs-0 mb-0"><span class="fa fa-clock-o me-2 fs-0"></span>Waktu Kejadian Curas</h5>
+                </div>
+                <div class="card-body bg-light p-0">
+                  <div id="waktu_kejadian_curas"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4" >
+              <div class="card mb-3" >
+                <div class="card-header">
+                  <h5 class="fs-0 mb-0"><span class="fa fa-clock-o me-2 fs-0"></span>Waktu Kejadian Curanmor</h5>
+                </div>
+                <div class="card-body bg-light p-0">
+                  <div id="waktu_kejadian_curanmor"></div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <!-- Container Table -->
           <div class="card mb-3 d-none" id="cardDataWilayah">

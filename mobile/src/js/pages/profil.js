@@ -1,5 +1,21 @@
 export function Profil(container) {
-  container.innerHTML = `<div class="page-center">Profil Anggota (next)</div>
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+  container.innerHTML = `
+  <div class="profile-page">
+      <div class="profile-photo-box">
+        <img src="../public/upload/pengguna/${user.foto || 'user.png'}" alt="User Photo" />
+      </div>
+      <div class="profile-info-card">
+        <div><b>Nama</b> <span>${user.nama || '-'}</span></div>
+        <div><b>NRP</b> <span>${user.username || '-'}</span></div>
+        <div><b>Polres</b> <span>${user.polres_nama || '-'}</span></div>
+        <div><b>Polsek</b> <span>${user.polsek_nama || '-'}</span></div>
+      </div>
+      <button id="logoutBtn" class="btn-logout">Logout</button>
+      <nav class="bottom-nav">
+        <!-- ...nav-item seperti sebelumnya -->
+      </nav>
+    </div>
   <nav class="bottom-nav">
         <a class="nav-item" href="#/home" title="Beranda">
             <!-- Home icon -->
@@ -7,6 +23,12 @@ export function Profil(container) {
             <path d="M3 11.5L12 4l9 7.5"/><path d="M5 12v7a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-3a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2v-7"/>
             </svg>
             <span>Beranda</span>
+        </a>
+         <a class="nav-item" href="#/perencanaan" title="Perencanaan">
+            <svg class="icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#adccea" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M16 2v4M8 2v4" /><path d="M3 10h18" />
+            </svg>
+            <span>Perencanaan</span>
         </a>
         <a class="nav-item" href="#/patroli" title="Patroli">
             <!-- Walking/patrol icon -->
@@ -27,4 +49,9 @@ export function Profil(container) {
         </a>
         </nav>
   `;
+   container.querySelector('#logoutBtn').onclick = () => {
+    localStorage.removeItem('user');
+    window.location.hash = '#/login';
+  };
+  
 }

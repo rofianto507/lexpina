@@ -1,0 +1,64 @@
+.profile-page {
+  min-height: 100vh;
+  background: #0d1f3c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 80px;
+}
+
+.profile-photo-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 38px;
+  margin-bottom: 19px;
+}
+.profile-photo-box img {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  border: 3px solid #29b6f6;
+  background: #415377;
+  object-fit: cover;
+  box-shadow: 0 3px 16px #1877f355;
+}
+
+.profile-info-card {
+  width: 94vw;
+  max-width: 350px;
+  margin: 0 auto 24px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 18px;
+  box-shadow: 0 2px 12px #1e88e522;
+  padding: 24px 22px 14px 22px;
+  font-size: 1.09rem;
+  color: #e3f2fd;
+  text-align: left;
+}
+.profile-info-card div {
+  margin-bottom: 10px;
+  display: flex;
+  gap: 14px;
+}
+.profile-info-card b { color: #29b6f6; min-width: 84px; }
+
+.btn-logout {
+  margin: 20px 0 32px 0;
+  background: linear-gradient(100deg,#1976d2,#29b6f6);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 0.92rem 3rem;
+  box-shadow: 0 2px 16px #1e88e555;
+  font-size: 1.07rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.19s,box-shadow 0.19s;
+}
+.btn-logout:hover { background: #1976d2; }
+
+@media (max-width: 540px) {
+  .profile-photo-box img { width: 66px; height: 66px;}
+  .profile-info-card { width: 99vw;}
+}

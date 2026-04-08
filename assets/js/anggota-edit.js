@@ -99,8 +99,9 @@ document.getElementById('password_inp').addEventListener('keyup', function() {
     $('#groupPolsek').removeClass('d-none');
     $("#polres_idInp").prop('required',true);
     $("#polsek_idInp").prop('required',true);
-    var polres_awal = "<?= isset($polsek_polres_id) ? intval($polsek_polres_id) : 0 ?>";
-    var polsek_awal = "<?= isset($polsek_id) ? intval($polsek_id) : 0 ?>";
+    var polres_awal = parseInt(document.getElementById('polres_idInp').getAttribute('data-awal')) || 0;
+    var polsek_awal = parseInt(document.getElementById('polsek_idInp').getAttribute('data-awal')) || 0;
+    
     $('#polres_idInp').val(polres_awal);
     // Prefill: jalankan loadPolsek AJAX dengan selected, pasang flag supaya tidak terbuka kedua kali
     loadPolsek(polres_awal, polsek_awal);

@@ -1,5 +1,5 @@
-export function Patroli(container) {
-  container.innerHTML = `<div class="page-center">Fitur Patroli (nantikan update!)</div>
+export function Perencanaan(container) {
+  container.innerHTML = `<div class="page-center">Fitur Perencanaan (nantikan update!)</div>
    <nav class="bottom-nav">
         <a class="nav-item" href="#/home" title="Beranda">
             <!-- Home icon -->
@@ -8,13 +8,13 @@ export function Patroli(container) {
             </svg>
             <span>Beranda</span>
         </a>
-         <a class="nav-item" href="#/perencanaan" title="Perencanaan">
+         <a class="nav-item active" href="#/perencanaan" title="Perencanaan">
             <svg class="icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#adccea" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M16 2v4M8 2v4" /><path d="M3 10h18" />
             </svg>
             <span>Perencanaan</span>
         </a>
-        <a class="nav-item active" href="#/patroli" title="Patroli">
+        <a class="nav-item" href="#/patroli" title="Patroli">
             <!-- Walking/patrol icon -->
             <svg class="icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#adccea" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="13" cy="4.5" r="2.25"/>

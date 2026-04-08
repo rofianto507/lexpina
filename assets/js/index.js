@@ -718,6 +718,7 @@ function handleDateRangeChange(val) {
       $('#map-legend').addClass('d-none');
       cardSubKategoriKriminal.classList.add('d-none');
       cardWaktuKriminal.classList.add('d-none');
+      cardWaktuKriminal3c.classList.add('d-none');
       $('#subKategoriMapSelect').addClass('d-none');
     }else if (tipe === 'kamtibmas') {
       showKamtibmasMap(lastCheckedKategoriIds,currentMapYear);
@@ -730,6 +731,7 @@ function handleDateRangeChange(val) {
       $('#map-legend').removeClass('d-none');
       cardSubKategoriKriminal.classList.add('d-none');
       cardWaktuKriminal.classList.add('d-none');
+      cardWaktuKriminal3c.classList.add('d-none');
       $('#subKategoriMapSelect').addClass('d-none');
     }else if (tipe === 'lalu-lintas') {
       showLalinMap(lastCheckedKategoriIds, currentMapYear)
@@ -742,6 +744,7 @@ function handleDateRangeChange(val) {
       $('#map-legend').removeClass('d-none');
       cardSubKategoriKriminal.classList.add('d-none');
       cardWaktuKriminal.classList.add('d-none');
+      cardWaktuKriminal3c.classList.add('d-none');
       $('#subKategoriMapSelect').addClass('d-none');
     }else if (tipe === 'kriminalitas') {
       showKriminalitasMap(lastCheckedKategoriIds,currentMapYear);
@@ -759,6 +762,7 @@ function handleDateRangeChange(val) {
       loadWaktuKejahatanChart('provinsi', 0, lastCheckedKategoriIds, currentMapYear);
       loadTrendKriminalitasChart('provinsi', 0, lastCheckedKategoriIds, currentMapYear);
       cardWaktuKriminal.classList.remove('d-none');
+        cardWaktuKriminal3c.classList.remove('d-none');
       $('#subKategoriMapSelect').removeClass('d-none');
       loadSubKategoriDropdown();
     }else if (tipe === 'bencana') {
@@ -772,6 +776,7 @@ function handleDateRangeChange(val) {
       $('#map-legend').removeClass('d-none');
       cardSubKategoriKriminal.classList.add('d-none');
       cardWaktuKriminal.classList.add('d-none');
+      cardWaktuKriminal3c.classList.add('d-none');
       $('#subKategoriMapSelect').addClass('d-none');
     } else {
       // Tambahkan fungsi peta lain di sini
@@ -1161,9 +1166,13 @@ function loadTrendKriminalitasChart(
       });
       setTimeout(() => { if (trendKriminalitasChart) trendKriminalitasChart.resize(); }, 300);
       document.getElementById('cardWaktuKriminal').classList.remove('d-none'); // biar terlihat
+      document.getElementById('cardWaktuKriminal3c').classList.remove('d-none'); // biar terlihat
     });
 }
 let waktuKejahatanChart = null;
+let waktuKejahatanCuratChart = null;
+let waktuKejahatanCurasChart = null;
+let waktuKejahatanCuranmorChart = null;
 function loadWaktuKejahatanChart(
   level, parent_id=0,
   filterKategoriIds = [],
@@ -1177,6 +1186,10 @@ function loadWaktuKejahatanChart(
     if(level) params.push('level=' + level);
     if(parent_id) params.push('parent_id=' + parent_id);
     let url = 'kriminalitas_chart_waktu.php?' + params.join('&');
+    let urlCurat = 'kriminalitas_chart_waktu_subkat.php?subkat=20&' + params.join('&');
+    let urlCuras = 'kriminalitas_chart_waktu_subkat.php?subkat=23&' + params.join('&');
+    let urlCuranmor = 'kriminalitas_chart_waktu_subkat.php?subkat=44&' + params.join('&');
+
     fetch(url)
       .then(res => res.json())
       .then(data => {
@@ -1187,7 +1200,7 @@ function loadWaktuKejahatanChart(
         }
         waktuKejahatanChart.setOption({
           tooltip: { trigger: 'axis' },
-          grid: { left: '5%', right: '3%', bottom: '13%', top: '12%', containLabel: true },
+          grid: { left: '5%', right: '3%', bottom: '13%', top: '15%', containLabel: true }, // Sedikit menyesuaikan 'top' agar label tidak terpotong
           xAxis: {
             type: 'category',
             data: data.map(d => d.label),
@@ -1195,16 +1208,127 @@ function loadWaktuKejahatanChart(
           },
           yAxis: { type: 'value', minInterval: 1 },
           series: [{
-            name: 'Kasus Kejahatan',
+            name: 'Kasus ',
             type: 'line',
             data: data.map(d => d.total),
             symbolSize: 10, 
+            label: {
+              show: true,
+              position: 'top',
+              color: '#333',    
+              fontWeight: 'bold'
+            },           
             lineStyle: { width: 3, color: '#e17055' },
             itemStyle: { color: '#e17055' },
             areaStyle: { color: '#fab1a0', opacity: 0.18 }
           }]
         });
         setTimeout(() => { if(waktuKejahatanChart) waktuKejahatanChart.resize(); },300);
+      });
+      fetch(urlCurat)
+      .then(res => res.json())
+      .then(data => {
+        if(!waktuKejahatanCuratChart){
+          waktuKejahatanCuratChart = echarts.init(document.getElementById('waktu_kejadian_curat'));
+        } else {
+          waktuKejahatanCuratChart.clear();
+        }
+        waktuKejahatanCuratChart.setOption({
+          tooltip: { trigger: 'axis' },
+          grid: { left: '5%', right: '3%', bottom: '13%', top: '15%', containLabel: true }, // Sedikit menyesuaikan 'top' agar label tidak terpotong
+          xAxis: {
+            type: 'category',
+            data: data.map(d => d.label),
+            axisLabel: { interval: 0, rotate: 30 }
+          },
+          yAxis: { type: 'value', minInterval: 1 },
+          series: [{
+            name: 'Kasus ',
+            type: 'line',
+            data: data.map(d => d.total),
+            symbolSize: 10, 
+            label: {
+              show: true,
+              position: 'top',
+              color: '#333',    
+              fontWeight: 'bold'
+            },           
+            lineStyle: { width: 3, color: '#e15555' },
+            itemStyle: { color: '#e15555' },
+            areaStyle: { color: '#faa0a4', opacity: 0.18 }
+          }]
+        });
+        setTimeout(() => { if(waktuKejahatanCuratChart) waktuKejahatanCuratChart.resize(); },300);
+      });
+      fetch(urlCuras)
+      .then(res => res.json())
+      .then(data => {
+        if(!waktuKejahatanCurasChart){
+          waktuKejahatanCurasChart = echarts.init(document.getElementById('waktu_kejadian_curas'));
+        } else {
+          waktuKejahatanCurasChart.clear();
+        }
+        waktuKejahatanCurasChart.setOption({
+          tooltip: { trigger: 'axis' },
+          grid: { left: '5%', right: '3%', bottom: '13%', top: '15%', containLabel: true }, // Sedikit menyesuaikan 'top' agar label tidak terpotong
+          xAxis: {
+            type: 'category',
+            data: data.map(d => d.label),
+            axisLabel: { interval: 0, rotate: 30 }
+          },
+          yAxis: { type: 'value', minInterval: 1 },
+          series: [{
+            name: 'Kasus ',
+            type: 'line',
+            data: data.map(d => d.total),
+            symbolSize: 10, 
+            label: {
+              show: true,
+              position: 'top',
+              color: '#333',    
+              fontWeight: 'bold'
+            },           
+            lineStyle: { width: 3, color: '#c055e1' },
+            itemStyle: { color: '#c055e1' },
+            areaStyle: { color: '#faa0f5', opacity: 0.18 }
+          }]
+        });
+        setTimeout(() => { if(waktuKejahatanCurasChart) waktuKejahatanCurasChart.resize(); },300);
+      });
+      fetch(urlCuranmor)
+      .then(res => res.json())
+      .then(data => {
+        if(!waktuKejahatanCuranmorChart){
+          waktuKejahatanCuranmorChart = echarts.init(document.getElementById('waktu_kejadian_curanmor'));
+        } else {
+          waktuKejahatanCuranmorChart.clear();
+        }
+        waktuKejahatanCuranmorChart.setOption({
+          tooltip: { trigger: 'axis' },
+          grid: { left: '5%', right: '3%', bottom: '13%', top: '15%', containLabel: true }, // Sedikit menyesuaikan 'top' agar label tidak terpotong
+          xAxis: {
+            type: 'category',
+            data: data.map(d => d.label),
+            axisLabel: { interval: 0, rotate: 30 }
+          },
+          yAxis: { type: 'value', minInterval: 1 },
+          series: [{
+            name: 'Kasus ',
+            type: 'line',
+            data: data.map(d => d.total),
+            symbolSize: 10, 
+            label: {
+              show: true,
+              position: 'top',
+              color: '#333',    
+              fontWeight: 'bold'
+            },           
+            lineStyle: { width: 3, color: '#a955e1' },
+            itemStyle: { color: '#a955e1' },
+            areaStyle: { color: '#faa0f5', opacity: 0.18 }
+          }]
+        });
+        setTimeout(() => { if(waktuKejahatanCuranmorChart) waktuKejahatanCuranmorChart.resize(); },300);
       });
 }
 let lokasiKejahatanChart = null;

@@ -15,6 +15,14 @@ body {
   overflow: hidden;
   box-shadow: 0 2px 24px #07204944;
 }
+.page-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  font-size: 1.2rem;
+  color: #90caf9;
+}
 
 /* ----- Splashscreen ----- */
 .splash {
