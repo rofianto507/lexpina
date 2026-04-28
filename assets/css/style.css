@@ -756,19 +756,157 @@ main {
     height: 35px;
     cursor: pointer;
     font-size: 16px;
+    padding: 5px;
+}
+/* ==========================================
+   PENCARIAN & FILTER DATABASE CANGGIH
+   ========================================== */
+.database-search-wrapper {
+    margin-bottom: 25px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #eee;
+}
+
+.search-input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.search-input-custom {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    width: 100%;
+    transition: border-color 0.3s;
+}
+
+.search-input-custom:focus {
+    border-color: #2c3e50;
+    outline: none;
+}
+
+.btn-search-custom {
+    padding: 12px 25px;
+    background: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 15px;
+    transition: background-color 0.3s;
+    white-space: nowrap; /* Mencegah teks turun ke bawah */
+}
+
+.btn-search-custom:hover {
+    background: #1a252f;
+}
+
+/* Grup Filter & Sort */
+.filter-sort-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px; /* Jarak dari form search atas */
+    gap: 15px;
+}
+
+.filter-select, .sort-select {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+    font-weight: 500;
+    color: #333;
+    min-width: 220px;
+    transition: border-color 0.3s;
+}
+
+.filter-select:focus, .sort-select:focus {
+    border-color: #2c3e50;
+}
+
+.search-status-text {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #666;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.btn-reset-filter {
+    color: #e74c3c;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 5px 10px;
+    background: #fadbd8;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.btn-reset-filter:hover {
+    background: #f5b7b1;
+}
+
+.result-count-text {
+    margin-bottom: 20px;
+    color: #666;
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN (MOBILE)
+   ========================================== */
+@media (max-width: 768px) {
+    .database-search-wrapper {
+        padding: 15px; /* Padding lebih kecil di HP */
+    }
+
+    /* Ubah dropdown jadi memanjang ke bawah (stacking) */
+    .filter-sort-group {
+        flex-direction: column;
+        align-items: stretch; /* Memaksa width 100% */
+        gap: 10px;
+    }
+
+    .filter-select, .sort-select {
+        width: 100%;
+        min-width: unset;
+    }
+
+    /* Teks tombol cari bisa dihilangkan agar hemat tempat, 
+       hanya menyisakan icon kaca pembesar jika Anda mau */
+    .btn-search-custom {
+        padding: 12px 20px;
+    }
 }
 
 /* Update pada .card-container */
 .card-container {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     overflow-x: auto;
-    /* Kita matikan smooth scroll bawaan CSS agar tidak 'bertabrakan' dengan gerakan halus JS */
-    scroll-behavior: auto; 
-    padding: 10px 0;
-    width: 100%;
-    max-width: 900px;
-    white-space: nowrap; /* Menghindari card turun ke bawah */
+    /* Rahasia pergerakan mulus: */
+    scroll-behavior: smooth; 
+    /* Rahasia agar kartu selalu berhenti pas di tengah/pinggir: */
+    scroll-snap-type: x mandatory; 
+    padding: 10px 5px 30px 5px; /* Beri ruang untuk shadow saat di-hover */
+    
+    /* Sembunyikan scrollbar bawaan agar rapi */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
 
 /* Sembunyikan scrollbar agar terlihat lebih bersih */
@@ -794,6 +932,8 @@ main {
     padding-top: 40px !important;
     flex-direction: column;
     justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
 }
 .card-category {
     position: absolute;
@@ -815,6 +955,8 @@ main {
 .card:hover .card-category {
     color: #f2eded;
     border-bottom-color: #f2eded;
+    transform: translateY(-8px);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.15);
 }
 /* =========================================
    TOMBOL CLEAR SEARCH (X)

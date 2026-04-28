@@ -324,79 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    const cardContainer = document.getElementById('cardContainer');
-    const prevBtn = document.querySelector('.prev-btn');
-    const nextBtn = document.querySelector('.next-btn');
-
-    // --- PENGECEKAN ELEMEN ---
-    // Jika elemen slider tidak ditemukan di halaman ini (seperti di tentang.php), 
-    // maka hentikan eksekusi script di titik ini agar tidak terjadi error.
-    if (!cardContainer || !prevBtn || !nextBtn) {
-        return; 
-    }
-
-    // --- JIKA ELEMEN ADA (di index.php), JALANKAN KODE DI BAWAH INI ---
-    const scrollAmount = 220; // Jarak geser saat tombol diklik
-    let autoScrollSpeed = 1; // Kecepatan gerakan (pixel)
-    let autoScrollInterval;
-    let resumeTimeout; // Variabel untuk jeda waktu
-    let isHovering = false; // Variabel untuk mengecek posisi mouse
-
-    // Fungsi Auto Scroll
-    function startAutoScroll() {
-        clearInterval(autoScrollInterval); 
-        autoScrollInterval = setInterval(() => {
-            cardContainer.scrollLeft += autoScrollSpeed;
-
-            if (cardContainer.scrollLeft >= (cardContainer.scrollWidth - cardContainer.offsetWidth)) {
-                cardContainer.scrollLeft = 0;
-            }
-        }, 20);
-    }
-
-    function stopAutoScroll() {
-        clearInterval(autoScrollInterval);
-    }
-
-    // Jalankan auto scroll pertama kali
-    startAutoScroll();
-
-    // Deteksi Hover Mouse
-    cardContainer.addEventListener('mouseenter', () => {
-        isHovering = true;
-        stopAutoScroll();
-    });
     
-    cardContainer.addEventListener('mouseleave', () => {
-        isHovering = false;
-        startAutoScroll();
-    });
-
-    // Fungsi Klik Manual
-    function manualScroll(amount) {
-        stopAutoScroll(); 
-        clearTimeout(resumeTimeout); 
-
-        cardContainer.scrollBy({
-            left: amount,
-            behavior: 'smooth'
-        });
-
-        resumeTimeout = setTimeout(() => {
-            if (!isHovering) {
-                startAutoScroll();
-            }
-        }, 800);//800ms setelah klik, auto scroll akan kembali berjalan jika mouse tidak sedang hover
-    }
-
-    // Event Listener Tombol
-    nextBtn.addEventListener('click', () => {
-        manualScroll(scrollAmount);
-    });
-
-    prevBtn.addEventListener('click', () => {
-        manualScroll(-scrollAmount);
-    });
     const formLoginManual = document.getElementById('formLoginManual');
     const loginError = document.getElementById('loginErrorMessage');
     if (formLoginManual) {

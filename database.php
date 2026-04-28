@@ -8,6 +8,24 @@ require_once 'config/configuration.php';
 $kategori = isset($_GET['kategori']) ? $_GET['kategori'] : 'peraturan';
 $search   = isset($_GET['search']) ? trim($_GET['search']) : '';
 
+// Trik UX: Jadikan kategori dari sidebar sebagai default dropdown filter, 
+// KECUALI user datang dari pencarian beranda (maka defaultnya 'all')
+if (isset($_GET['kategori_filter'])) {
+    $filter_kategori = $_GET['kategori_filter'];
+} else {
+    $filter_kategori = isset($_GET['search']) ? 'all' : $kategori;
+}
+
+$sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : 'terbaru';
+
+// 2. Ambil daftar kategori unik dari database untuk mengisi dropdown secara dinamis
+try {
+    $stmt_cats = $pdo->query("SELECT DISTINCT kategori FROM `databases` WHERE status = 1");
+    $kategori_list = $stmt_cats->fetchAll(PDO::FETCH_COLUMN);
+} catch(PDOException $e) {
+    $kategori_list = ['peraturan', 'putusan', 'monografi', 'artikel']; // Fallback
+}
+
 // 3. Set menu active
 $active_page = 'database';
 
@@ -24,52 +42,77 @@ if (!function_exists('tgl_indo')) {
 }
 
 // ==========================================
-// KONFIGURASI PAGINATION
+// KONFIGURASI PAGINATION & URL PARAMS
 // ==========================================
-$batas_per_halaman = 5; // Jumlah dokumen per halaman
+$batas_per_halaman = 5; 
 $halaman_aktif = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($halaman_aktif < 1) $halaman_aktif = 1;
 $offset = ($halaman_aktif - 1) * $batas_per_halaman;
 
 // Siapkan parameter URL tambahan agar tidak hilang saat pindah halaman
 $url_params = '';
-if ($search !== '') {
-    $url_params = '&search=' . urlencode($search);
-} else {
-    $url_params = '&kategori=' . urlencode($kategori);
+if ($search !== '') $url_params .= '&search=' . urlencode($search);
+if ($filter_kategori !== 'all') $url_params .= '&kategori_filter=' . urlencode($filter_kategori);
+if ($sort_by !== 'terbaru') $url_params .= '&sort_by=' . urlencode($sort_by);
+if ($search === '' && $filter_kategori === 'all') $url_params .= '&kategori=' . urlencode($kategori);
+
+// ==========================================
+// PENENTUAN URUTAN (ORDER BY)
+// ==========================================
+$sql_order = "ORDER BY tanggal_penetapan DESC"; // Default
+if ($sort_by === 'abjad_asc') {
+    $sql_order = "ORDER BY judul ASC";
+} elseif ($sort_by === 'abjad_desc') {
+    $sql_order = "ORDER BY judul DESC";
+} elseif ($sort_by === 'terpopuler') {
+    $sql_order = "ORDER BY views DESC";
 }
 
 // ==========================================
-// QUERY DATABASE DENGAN PAGINATION
+// QUERY DATABASE DINAMIS
 // ==========================================
 try {
     if ($search !== '') {
-        $title_display = 'Hasil Pencarian: "' . htmlspecialchars($search) . '"';
+        $title_display = 'Hasil Pencarian';
         
-        // A. Hitung total data pencarian
-        $stmt_count = $pdo->prepare("SELECT COUNT(*) FROM `databases` WHERE status = 1 AND (judul LIKE :search1 OR deskripsi LIKE :search2)");
-        $stmt_count->execute([':search1' => "%$search%", ':search2' => "%$search%"]);
+        // Racik klausa WHERE
+        $sql_where = "WHERE status = 1 AND (judul LIKE :search1 OR deskripsi LIKE :search2)";
+        if ($filter_kategori !== 'all') {
+            $sql_where .= " AND kategori = :filter_kat";
+        }
+
+        // A. Hitung total data
+        $stmt_count = $pdo->prepare("SELECT COUNT(*) FROM `databases` $sql_where");
+        $stmt_count->bindValue(':search1', "%$search%", PDO::PARAM_STR);
+        $stmt_count->bindValue(':search2', "%$search%", PDO::PARAM_STR);
+        if ($filter_kategori !== 'all') $stmt_count->bindValue(':filter_kat', $filter_kategori, PDO::PARAM_STR);
+        $stmt_count->execute();
         $total_data = $stmt_count->fetchColumn();
 
-        // B. Tarik data pencarian dengan Limit
-        $stmt_docs = $pdo->prepare("SELECT `databases`.*,(select count(*) from likes where likes.dokumen_id = `databases`.id) as total_likes FROM `databases` WHERE status = 1 AND (judul LIKE :search1 OR deskripsi LIKE :search2) ORDER BY tanggal_penetapan DESC LIMIT :limit OFFSET :offset");
+        // B. Tarik data utama
+        $stmt_docs = $pdo->prepare("SELECT `databases`.*, (SELECT COUNT(*) FROM likes WHERE likes.dokumen_id = `databases`.id) as total_likes FROM `databases` $sql_where $sql_order LIMIT :limit OFFSET :offset");
         $stmt_docs->bindValue(':search1', "%$search%", PDO::PARAM_STR);
         $stmt_docs->bindValue(':search2', "%$search%", PDO::PARAM_STR);
+        if ($filter_kategori !== 'all') $stmt_docs->bindValue(':filter_kat', $filter_kategori, PDO::PARAM_STR);
         
     } else {
+        // Jika pencarian kosong tapi filter kategori dipilih, timpa kategori yang aktif
+        if ($filter_kategori !== 'all') {
+            $kategori = $filter_kategori;
+        }
+        
         $title_display = 'Database: ' . ucwords(str_replace('-', ' ', $kategori));
         
-        // A. Hitung total data kategori
+        // A. Hitung total data
         $stmt_count = $pdo->prepare("SELECT COUNT(*) FROM `databases` WHERE kategori = :kategori AND status = 1");
         $stmt_count->execute([':kategori' => $kategori]);
         $total_data = $stmt_count->fetchColumn();
 
-        // B. Tarik data kategori dengan Limit
-        $stmt_docs = $pdo->prepare("SELECT `databases`.*,(select count(*) from likes where likes.dokumen_id = `databases`.id) as total_likes FROM `databases` WHERE kategori = :kategori AND status = 1 ORDER BY tanggal_penetapan DESC LIMIT :limit OFFSET :offset");
+        // B. Tarik data utama
+        $stmt_docs = $pdo->prepare("SELECT `databases`.*, (SELECT COUNT(*) FROM likes WHERE likes.dokumen_id = `databases`.id) as total_likes FROM `databases` WHERE kategori = :kategori AND status = 1 $sql_order LIMIT :limit OFFSET :offset");
         $stmt_docs->bindValue(':kategori', $kategori, PDO::PARAM_STR);
     }
     
-    // Binding limit & offset (harus integer)
     $stmt_docs->bindValue(':limit', $batas_per_halaman, PDO::PARAM_INT);
     $stmt_docs->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt_docs->execute();
@@ -81,12 +124,11 @@ try {
     die("Error mengambil dokumen: " . $e->getMessage());
 }
 
-// Sidebar: Tarik 3 Dokumen Terpopuler
+// Sidebar: Tarik 3 Dokumen Terpopuler & Rekomendasi
 $stmt_pop = $pdo->prepare("SELECT id, judul, views, kategori FROM `databases` WHERE status = 1 ORDER BY views DESC LIMIT 3");
 $stmt_pop->execute();
 $populer_list = $stmt_pop->fetchAll();
 
-// Sidebar: Tarik 3 Dokumen Rekomendasi
 $stmt_rec = $pdo->prepare("SELECT id, judul, deskripsi, kategori FROM `databases` WHERE status = 1 AND rekomendasi = 1 ORDER BY created_at DESC LIMIT 3");
 $stmt_rec->execute();
 $rekomendasi_list = $stmt_rec->fetchAll();
@@ -99,15 +141,60 @@ include 'navbar.php';
         <div class="news-container">
             
             <div class="news-main-column">
-                <h2 class="section-title"><?php echo $title_display; ?></h2>
-
-                <?php if (count($dokumen_list) > 0): ?>
+                
+                <form action="database.php" method="GET" id="searchFilterForm">
                     
-                    <?php if($search !== ''): ?>
-                        <p style="margin-top:-15px; margin-bottom:20px; color:#666; font-size:14px;">
+                    <div class="database-search-wrapper">
+                        
+                        <div class="search-input-group">
+                            <input type="text" name="search" class="search-input-custom" value="<?php echo htmlspecialchars($search); ?>" placeholder="Cari dokumen hukum, judul, atau kata kunci...">
+                            <button type="submit" class="btn-search-custom">
+                                <i class="fa-solid fa-magnifying-glass"></i> Cari
+                            </button>
+                        </div>
+
+                        <div class="filter-sort-group">
+                            <select name="kategori_filter" class="filter-select" onchange="this.form.submit()">
+                                <option value="all">-- Semua Kategori Dokumen --</option>
+                                <?php foreach($kategori_list as $kat): ?>
+                                    <option value="<?php echo htmlspecialchars($kat); ?>" <?php if($filter_kategori == $kat) echo 'selected'; ?>>
+                                        <?php echo ucwords(str_replace('-', ' ', $kat)); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            
+                            <select name="sort_by" class="sort-select" onchange="this.form.submit()">
+                                <option value="terbaru" <?php if($sort_by == 'terbaru') echo 'selected'; ?>>Urutkan: Terbaru</option>
+                                <option value="abjad_asc" <?php if($sort_by == 'abjad_asc') echo 'selected'; ?>>Urutkan: Abjad (A-Z)</option>
+                                <option value="abjad_desc" <?php if($sort_by == 'abjad_desc') echo 'selected'; ?>>Urutkan: Abjad (Z-A)</option>
+                                <option value="terpopuler" <?php if($sort_by == 'terpopuler') echo 'selected'; ?>>Urutkan: Terpopuler</option>
+                            </select>
+                        </div>
+
+                        <?php if($search !== '' || $filter_kategori !== 'all' || $sort_by !== 'terbaru'): ?>
+                            <div class="search-status-text">
+                                <span>Filter pencarian sedang aktif.</span>
+                                <a href="database.php" class="btn-reset-filter">
+                                    <i class="fa-solid fa-xmark"></i> Reset Semua
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                    </div>
+
+                    <h2 class="section-title"><?php echo $title_display; ?></h2>
+
+                    <?php if (count($dokumen_list) > 0 && ($search !== '' || $filter_kategori !== 'all')): ?>
+                        <p class="result-count-text">
                             Ditemukan <strong><?php echo $total_data; ?></strong> dokumen yang cocok.
                         </p>
+                    <?php elseif (count($dokumen_list) > 0 && $search === '' && $filter_kategori === 'all'): ?>
+                        <p class="result-count-text">
+                            Menampilkan <strong><?php echo $total_data; ?></strong> dokumen.
+                        </p>
                     <?php endif; ?>
+
+                </form> <?php if (count($dokumen_list) > 0): ?>
 
                     <?php foreach($dokumen_list as $doc): 
                         $doc_cat_name = ucwords(str_replace('-', ' ', $doc['kategori']));
@@ -143,7 +230,6 @@ include 'navbar.php';
 
                     <?php if ($total_halaman > 1): ?>
                     <div class="pagination">
-                        
                         <?php if ($halaman_aktif > 1): ?>
                             <a href="database.php?page=<?php echo $halaman_aktif - 1; ?><?php echo $url_params; ?>" class="page-btn prev"><i class="fa-solid fa-chevron-left"></i> Prev</a>
                         <?php endif; ?>
@@ -157,7 +243,6 @@ include 'navbar.php';
                         <?php if ($halaman_aktif < $total_halaman): ?>
                             <a href="database.php?page=<?php echo $halaman_aktif + 1; ?><?php echo $url_params; ?>" class="page-btn next">Next <i class="fa-solid fa-chevron-right"></i></a>
                         <?php endif; ?>
-                        
                     </div>
                     <?php endif; ?>
 
@@ -166,9 +251,9 @@ include 'navbar.php';
                         <i class="fa-solid fa-magnifying-glass" style="font-size: 40px; margin-bottom: 15px; color: #ddd;"></i>
                         <?php if($search !== ''): ?>
                             <p>Tidak ditemukan hasil untuk kata kunci <strong>"<?php echo htmlspecialchars($search); ?>"</strong>.</p>
-                            <p style="font-size:13px; margin-top:10px;">Coba gunakan kata kunci lain yang lebih umum.</p>
+                            <p style="font-size:13px; margin-top:10px;">Coba gunakan kata kunci lain yang lebih umum atau ubah filter kategorinya.</p>
                         <?php else: ?>
-                            <p>Belum ada dokumen di kategori ini.</p>
+                            <p>Belum ada dokumen yang sesuai dengan filter Anda.</p>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>

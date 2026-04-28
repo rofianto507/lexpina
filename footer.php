@@ -85,6 +85,66 @@
                     });
                 }
             } catch (err) { console.error("Error Trigger:", err); }
+            // ==========================================
+            // 2. BLOK ANIMASI SLIDER BERANDA (PING-PONG)
+            // ==========================================
+            try {
+                const cardContainer = document.getElementById('cardContainer');
+                const prevBtn = document.querySelector('.prev-btn');
+                const nextBtn = document.querySelector('.next-btn');
+
+                if (cardContainer) {
+                    let direction = 1;
+                    let autoScrollInterval;
+
+                    const scrollCard = (dir) => {
+                        const card = cardContainer.querySelector('.card');
+                        if (!card) return;
+                        const cardWidth = card.offsetWidth;
+                        const gap = parseInt(window.getComputedStyle(cardContainer).gap) || 20;
+                        cardContainer.scrollBy({ left: (cardWidth + gap) * dir, behavior: 'smooth' });
+                    };
+
+                    const startPingPongScroll = () => {
+                        clearInterval(autoScrollInterval); 
+                        autoScrollInterval = setInterval(() => {
+                            const maxScrollLeft = cardContainer.scrollWidth - cardContainer.clientWidth;
+                            if (direction === 1 && Math.ceil(cardContainer.scrollLeft) >= maxScrollLeft - 5) {
+                                direction = -1;
+                            } else if (direction === -1 && cardContainer.scrollLeft <= 5) {
+                                direction = 1;
+                            }
+                            scrollCard(direction);
+                        }, 3000); // Scroll setiap 3 detik
+                    };
+
+                    cardContainer.addEventListener('mouseenter', () => clearInterval(autoScrollInterval));
+                    cardContainer.addEventListener('mouseleave', startPingPongScroll);
+
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', () => {
+                            direction = 1;
+                            scrollCard(1);
+                            startPingPongScroll();
+                        });
+                    }
+
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', () => {
+                            direction = -1;
+                            scrollCard(-1);
+                            startPingPongScroll();
+                        });
+                    }
+
+                    startPingPongScroll();
+                }
+            } catch (err) {
+                console.error("Error pada Slider Ping-Pong Beranda:", err);
+            }
+                // ==========================================
+                // 3. BLOK FITUR LAINNYA (JIKA ADA NANTI)
+                // ==========================================
         });
     </script>
 </body>
