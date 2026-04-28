@@ -9,10 +9,80 @@ if (!isset($_SESSION['user_id'])) {
 
 require_once 'config/configuration.php';
 
+// Ambil data user awal untuk pengecekan tipe user
 try {
     $stmt_user = $pdo->prepare("SELECT * FROM users WHERE id = ?");
     $stmt_user->execute([$_SESSION['user_id']]);
-    $user = $stmt_user->fetch();
+    $user_awal = $stmt_user->fetch();
+} catch (PDOException $e) {
+    die("Error mengambil data user: " . $e->getMessage());
+}
+
+$is_manual_user = empty($user_awal['google_id']);
+
+// ==========================================
+// LOGIKA UPDATE PROFIL & PASSWORD
+// ==========================================
+$pesan = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    
+    // --- 1. PROSES UPDATE NAMA ---
+    if ($_POST['action'] == 'update_profil') {
+        $nama_baru = trim($_POST['nama']);
+        
+        if (!empty($nama_baru)) {
+            try {
+                $stmt_update = $pdo->prepare("UPDATE users SET nama = ? WHERE id = ?");
+                $stmt_update->execute([$nama_baru, $_SESSION['user_id']]);
+                
+                $_SESSION['user_nama'] = $nama_baru;
+                $_SESSION['nama'] = $nama_baru;
+                
+                $pesan = '<div style="background-color: #d4edda; color: #155724; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; border: 1px solid #c3e6cb;"><i class="fa-solid fa-circle-check"></i> Profil berhasil diperbarui!</div>';
+            } catch (PDOException $e) {
+                $pesan = '<div style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; border: 1px solid #f5c6cb;">Gagal menyimpan profil: ' . $e->getMessage() . '</div>';
+            }
+        } else {
+            $pesan = '<div style="background-color: #fff3cd; color: #856404; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; border: 1px solid #ffeeba;">Nama tidak boleh kosong!</div>';
+        }
+    }
+
+    // --- 2. PROSES UPDATE PASSWORD ---
+    if ($_POST['action'] == 'update_password' && $is_manual_user) {
+        $pass_lama = $_POST['pass_lama'];
+        $pass_baru = $_POST['pass_baru'];
+        $pass_konfirm = $_POST['pass_konfirm'];
+
+        // Cek apakah password lama cocok
+        if (password_verify($pass_lama, $user_awal['password'])) {
+            if ($pass_baru === $pass_konfirm) {
+                if (strlen($pass_baru) >= 6) {
+                    try {
+                        $hash_baru = password_hash($pass_baru, PASSWORD_DEFAULT);
+                        $stmt_pass = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+                        $stmt_pass->execute([$hash_baru, $_SESSION['user_id']]);
+                        
+                        $pesan = '<div style="background-color: #d4edda; color: #155724; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; border: 1px solid #c3e6cb;"><i class="fa-solid fa-circle-check"></i> Password berhasil diperbarui!</div>';
+                    } catch (PDOException $e) {
+                        $pesan = '<div style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; border: 1px solid #f5c6cb;">Gagal mengubah password: ' . $e->getMessage() . '</div>';
+                    }
+                } else {
+                    $pesan = '<div style="background-color: #fff3cd; color: #856404; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; border: 1px solid #ffeeba;">Password baru minimal harus 6 karakter.</div>';
+                }
+            } else {
+                $pesan = '<div style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; border: 1px solid #f5c6cb;">Konfirmasi password tidak cocok!</div>';
+            }
+        } else {
+            $pesan = '<div style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; border: 1px solid #f5c6cb;">Password lama yang Anda masukkan salah.</div>';
+        }
+    }
+}
+
+// Ambil data terbaru user setelah proses update (jika ada perubahan nama)
+try {
+    $stmt_user_updated = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt_user_updated->execute([$_SESSION['user_id']]);
+    $user = $stmt_user_updated->fetch();
 } catch (PDOException $e) {
     die("Error mengambil data user: " . $e->getMessage());
 }
@@ -36,7 +106,7 @@ include 'navbar.php';
                             <i class="fa-solid fa-circle-user"></i>
                         <?php endif; ?>
                     </div>
-                    <h3><?php echo htmlspecialchars($_SESSION['user_nama']); ?></h3>
+                    <h3><?php echo htmlspecialchars($user['nama']); ?></h3>
                     <p><?php echo htmlspecialchars($user['username']); ?></p>
                     
                    <?php if($user['akses'] == 'MEMBER'): ?>
@@ -55,6 +125,11 @@ include 'navbar.php';
 
                 <ul class="profile-nav-list">
                     <li><a href="profil.php?tab=profil" class="<?php echo ($tab == 'profil') ? 'active' : ''; ?>"><i class="fa-regular fa-user"></i> Informasi Pribadi</a></li>
+                    
+                    <?php if($is_manual_user): ?>
+                    <li><a href="profil.php?tab=password" class="<?php echo ($tab == 'password') ? 'active' : ''; ?>"><i class="fa-solid fa-key"></i> Ganti Password</a></li>
+                    <?php endif; ?>
+
                     <li><a href="profil.php?tab=transaksi" class="<?php echo ($tab == 'transaksi') ? 'active' : ''; ?>"><i class="fa-solid fa-file-invoice-dollar"></i> Riwayat Transaksi</a></li>
                     <li>
                         <a href="profil.php?tab=notifikasi" class="<?php echo ($tab == 'notifikasi') ? 'active' : ''; ?>" style="display: flex; justify-content: space-between; align-items: center;">
@@ -74,20 +149,58 @@ include 'navbar.php';
                     
                     <?php if ($tab == 'profil'): ?>
                         <h2 class="section-title">Informasi Pribadi</h2>
-                        <form class="form-profile">
+                        
+                        <?php echo $pesan; ?>
+
+                        <form class="form-profile" method="POST" action="profil.php?tab=profil">
+                            <input type="hidden" name="action" value="update_profil">
+                            
                             <div class="form-group">
                                 <label>Nama Lengkap</label>
-                                <input type="text" name="nama" value="<?php echo htmlspecialchars($user['nama']); ?>" class="form-input">
+                                <input type="text" name="nama" value="<?php echo htmlspecialchars($user['nama']); ?>" class="form-input" required>
                             </div>
                             
                             <div class="form-group">
                                 <label>Alamat Email (Username)</label>
                                 <input type="email" value="<?php echo htmlspecialchars($user['username']); ?>" class="form-input input-readonly" readonly>
-                                <span class="form-note">Email terhubung dengan Google SSO dan tidak dapat diubah.</span>
+                                <?php if($is_manual_user): ?>
+                                    <span class="form-note">Username/Email bersifat tetap dan tidak dapat diubah.</span>
+                                <?php else: ?>
+                                    <span class="form-note">Email terhubung dengan Google SSO dan tidak dapat diubah dari halaman ini.</span>
+                                <?php endif; ?>
                             </div>
 
                             <div class="form-actions">
                                 <button type="submit" class="btn-save-profile">Simpan Perubahan</button>
+                            </div>
+                        </form>
+
+                    <?php elseif ($tab == 'password' && $is_manual_user): ?>
+                        <h2 class="section-title">Ganti Password</h2>
+                        <p class="section-subtitle">Gunakan password yang kuat untuk menjaga keamanan akun Anda.</p>
+
+                        <?php echo $pesan; ?>
+
+                        <form class="form-profile" method="POST" action="profil.php?tab=password">
+                            <input type="hidden" name="action" value="update_password">
+                            
+                            <div class="form-group">
+                                <label>Password Lama</label>
+                                <input type="password" name="pass_lama" class="form-input" required placeholder="Masukkan password saat ini">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Password Baru</label>
+                                <input type="password" name="pass_baru" class="form-input" required minlength="6" placeholder="Minimal 6 karakter">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Konfirmasi Password Baru</label>
+                                <input type="password" name="pass_konfirm" class="form-input" required minlength="6" placeholder="Ketik ulang password baru">
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-save-profile" style="background-color: #f39c12;">Simpan Password Baru</button>
                             </div>
                         </form>
 

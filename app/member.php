@@ -157,8 +157,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $sekarang = date('Y-m-d H:i:s');
                     
                     while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                      $avatar = !empty($row['foto']) ? $row['foto'] : '../assets/img/team/avatar.png';
-                      
+                      $avatar = !empty($row['google_id']) ? $row['foto'] : '../public/img/user/' . ($row['foto'] ?? 'avatar.png');
+
                       // Cek status aktif/blokir
                       $status_akun = ($row['status'] == 1) ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-danger">Diblokir</span>';
 

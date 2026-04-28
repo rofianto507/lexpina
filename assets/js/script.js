@@ -247,26 +247,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const loginTriggers = document.querySelectorAll('.btn-login-trigger');
+    // ==========================================
+    // 1. TRIGGER MODAL DARI TOMBOL PILIH PAKET
+    // ==========================================
+    try {
+        const loginTriggers = document.querySelectorAll('.btn-login-trigger');
+        const loginModal = document.getElementById('loginModal'); // Pastikan ini didefinisikan!
+        
+        if(loginTriggers.length > 0) {
+            loginTriggers.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetUrl = this.getAttribute('data-checkout-url');
+                    localStorage.setItem('lexpina_redirect', targetUrl);
 
-    loginTriggers.forEach(button => {
-        button.addEventListener('click', function() {
-            // 1. Simpan URL tujuan ke localStorage
-            const targetUrl = this.getAttribute('data-checkout-url');
-            localStorage.setItem('lexpina_redirect', targetUrl);
-
-            // 2. Buka Modal Login
-            if (loginModal) {
-                loginModal.classList.add('show');
-                document.body.style.overflow = 'hidden';
-            }
-        });
-    });
-    if (btnOpenLogin) {
-        btnOpenLogin.addEventListener('click', () => {
-            localStorage.removeItem('lexpina_redirect');
-        });
-    }
+                    if (loginModal) {
+                        loginModal.classList.add('show');
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            });
+        }
+        
+        const btnOpenLogin = document.getElementById('btnOpenLogin');
+        if (btnOpenLogin) {
+            btnOpenLogin.addEventListener('click', () => {
+                localStorage.removeItem('lexpina_redirect');
+            });
+        }
+    } catch(err) { console.error("Error Trigger Modal:", err); }
     // --- FITUR FULL SCREEN PDF ---
     const btnFullscreen = document.getElementById('btnFullscreen');
     const pdfWrapper = document.getElementById('pdfWrapper');
@@ -378,7 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isHovering) {
                 startAutoScroll();
             }
-        }, 800);
+        }, 800);//800ms setelah klik, auto scroll akan kembali berjalan jika mouse tidak sedang hover
     }
 
     // Event Listener Tombol
@@ -431,12 +439,91 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-    // Navigasi ke Modal Sign Up (Nanti kita buat modalknya)
+    // ==========================================
+    // LOGIKA NAVIGASI MODAL LOGIN & REGISTER
+    // ==========================================
     const btnToSignUp = document.getElementById('btnToSignUp');
-    if(btnToSignUp) {
+    const btnToSignIn = document.getElementById('btnToSignIn');
+    const registerModal = document.getElementById('registerModal');
+    const btnCloseRegister = document.getElementById('btnCloseRegister');
+
+    // Pindah dari Login ke Register
+    if(btnToSignUp && loginModal && registerModal) {
         btnToSignUp.addEventListener('click', () => {
-            alert('Fitur Sign Up sedang disiapkan.'); // Sementara
-            // Logic untuk menutup modal login dan membuka modal signup
+            loginModal.classList.remove('show');
+            registerModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        });
+    }
+
+    // Pindah dari Register ke Login
+    if(btnToSignIn && loginModal && registerModal) {
+        btnToSignIn.addEventListener('click', () => {
+            registerModal.classList.remove('show');
+            loginModal.classList.add('show');
+        });
+    }
+
+    // Tutup Modal Register dari X atau background gelap
+    if(btnCloseRegister && registerModal) {
+        btnCloseRegister.addEventListener('click', () => {
+            registerModal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        });
+        
+        registerModal.addEventListener('click', (e) => {
+            if (e.target === registerModal) {
+                registerModal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+
+    // ==========================================
+    // PROSES SUBMIT FORM REGISTER MANUAL
+    // ==========================================
+    const formRegisterManual = document.getElementById('formRegisterManual');
+    const registerError = document.getElementById('registerErrorMessage');
+
+    if (formRegisterManual) {
+        formRegisterManual.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const btnSubmit = document.getElementById('btnSubmitRegister');
+            
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = 'Memproses...';
+            registerError.style.display = 'none';
+
+            fetch('proses_register.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Beri alert sukses, reset form, lalu pindah ke halaman Login
+                    alert('Pendaftaran berhasil! Silakan Sign In menggunakan akun baru Anda.');
+                    formRegisterManual.reset();
+                    registerModal.classList.remove('show');
+                    loginModal.classList.add('show');
+                } else {
+                    // Tampilkan pesan error (misal: email sudah terdaftar)
+                    registerError.innerText = data.message;
+                    registerError.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                registerError.innerText = 'Terjadi kesalahan sistem. Silakan coba lagi nanti.';
+                registerError.style.display = 'block';
+            })
+            .finally(() => {
+                // Kembalikan tombol ke keadaan semula
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = 'Daftar Sekarang';
+            });
         });
     }
 });

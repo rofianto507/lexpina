@@ -101,12 +101,9 @@ if(isset($_SESSION['user_id'])) {
             </a>
         </div>
         <div style="display: flex; align-items: center;">
-            
             <?php if(isset($_SESSION['user_id'])) { ?>
-            
             <div class="header-user-actions" style="display: flex; align-items: center; gap: 20px;">
-                
-                <?php if(isset($_SESSION['akses']) && $_SESSION['akses'] == 'PENGGUNA') { ?>
+                <?php if(empty($_SESSION['akses']) || $_SESSION['akses'] != 'MEMBER') { ?>
                     <a href="<?php echo $path; ?>langganan.php" class="btn-subscribe-header">Subscribe</a>
                 <?php } ?>
 
@@ -146,11 +143,10 @@ if(isset($_SESSION['user_id'])) {
             </div>
 
             <?php } else { ?>
-
-            <div class="auth-buttons">
+            <div class="auth-buttons" style="display: flex; align-items: center; gap: 10px;">
+                <a href="<?php echo $path; ?>langganan.php" class="btn-subscribe-header">Subscribe</a>
                 <button type="button" id="btnOpenLogin" class="btn-signin">Sign In</button>
             </div>
-
             <?php } ?>
             
             <button type="button" id="btnThemeToggle" class="btn-theme" title="Ubah Tema" style="margin-left: 20px;">
@@ -171,6 +167,7 @@ if(isset($_SESSION['user_id'])) {
 
             <div class="modal-body">
                 <form id="formLoginManual">
+                    
                     <div class="input-group-custom">
                         <label for="loginUserEmail">Username atau Email</label>
                         <input type="text" name="user_email" id="loginUserEmail" placeholder="Masukkan username atau email" required autocomplete="username">
@@ -200,7 +197,46 @@ if(isset($_SESSION['user_id'])) {
             </div>
         </div>
     </div>
+    <div id="registerModal" class="modal-overlay">
+        <div class="modal-content login-modal-content">
+            <button type="button" id="btnCloseRegister" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="modal-header">
+                <img src="<?php echo $path; ?>assets/img/icon.png" alt="LexPina Logo" class="modal-logo">
+                <h2>Buat Akun Baru</h2>
+                <p>Bergabunglah dengan LexPina sekarang</p>
+            </div>
 
+            <div class="modal-body">
+                <form id="formRegisterManual">
+                    <div class="input-group-custom">
+                        <label for="regNama">Nama Lengkap</label>
+                        <input type="text" name="nama" id="regNama" placeholder="Masukkan nama lengkap" required>
+                    </div>
+                    <div class="input-group-custom">
+                        <label for="regEmail">Alamat Email</label>
+                        <input type="email" name="email" id="regEmail" placeholder="Masukkan alamat email aktif" required>
+                    </div>
+                    <div class="input-group-custom">
+                        <label for="regPassword">Password</label>
+                        <input type="password" name="password" id="regPassword" placeholder="Minimal 6 karakter" required minlength="6">
+                    </div>
+                    <div class="input-group-custom">
+                        <label for="regPasswordConfirm">Konfirmasi Password</label>
+                        <input type="password" name="password_confirm" id="regPasswordConfirm" placeholder="Ketik ulang password" required minlength="6">
+                    </div>
+                    
+                    <div id="registerErrorMessage" class="login-error-message"></div>
+                    
+                    <button type="submit" id="btnSubmitRegister" class="btn-primary-block">Daftar Sekarang</button>
+                </form>
+            </div>
+
+            <div class="modal-footer login-modal-footer">
+                <p>Sudah punya akun? <a href="javascript:void(0)" id="btnToSignIn" class="link-signup">Sign In</a></p>
+            </div>
+        </div>
+    </div>
     <div id="logoutModal" class="modal-overlay">
         <div class="modal-content modal-sm">
             <div class="modal-icon-warning">
