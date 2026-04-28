@@ -1,20 +1,20 @@
-# 🗺️ PetaDigi — Peta Digital Kamtibmas Polda Sumsel
+# ⚖️ LexPina — Platform Hukum Digital Indonesia
 
-Aplikasi web berbasis PHP untuk menampilkan **Peta Digital Keamanan dan Ketertiban Masyarakat (Kamtibmas)** wilayah Polda Sumatera Selatan.
+**LexPina** adalah platform web berbasis PHP yang menyediakan layanan akses dokumen hukum, langganan premium, dan informasi hukum terkini untuk masyarakat Indonesia.
 
 ---
 
 ## ✨ Fitur Utama
 
-- **Peta Interaktif** — Visualisasi data Kamtibmas berbasis Leaflet.js per Kabupaten, Kecamatan, dan Desa
-- **Peta Kriminalitas** — Sebaran titik kejahatan, kategori, sub-kategori, tren, dan waktu
-- **Peta Kasus Menonjol** — Data kamtibmas dan konflik wilayah
-- **Peta Lalu Lintas** — Data kecelakaan dan pelanggaran lalu lintas
-- **Peta Bencana** — Data kejadian bencana alam
-- **Grafik & Statistik** — Chart ECharts untuk analisis data
-- **Manajemen Data** — CRUD data oleh Polda, Polres, dan Polsek
-- **Role-based Access** — POLDA, POLRES, POLSEK, DITLANTAS, dan Subdits
-- **Import Word** — Parsing laporan LP Model A/B dari file `.docx`
+- **Database Hukum** — Akses ribuan dokumen hukum (UU, PP, Perda, dll.) berdasarkan kategori
+- **Berita Hukum** — Artikel dan berita hukum terkini
+- **Langganan Premium** — Sistem membership berbayar dengan checkout & konfirmasi pembayaran
+- **Autentikasi** — Login biasa & Login dengan Google (OAuth)
+- **Dashboard Admin** — Manajemen data, transaksi, pengguna, dan statistik real-time
+- **Notifikasi** — Sistem notifikasi untuk pengguna terkait status langganan & saran
+- **Saran & Masukan** — Fitur pengiriman saran dari pengguna ke admin
+- **Profil Pengguna** — Manajemen akun dan data anggota
+- **CSRF Protection** — Keamanan form dengan token CSRF
 
 ---
 
@@ -25,10 +25,10 @@ Aplikasi web berbasis PHP untuk menampilkan **Peta Digital Keamanan dan Ketertib
 | Backend | PHP 8+, PDO MySQL |
 | Database | MySQL / MariaDB |
 | Frontend | Bootstrap 5, jQuery 3.7 |
-| Peta | Leaflet.js 1.9.4 |
 | Chart | Apache ECharts |
 | Tabel | DataTables 1.13.7 |
-| Word Parser | PHPWord |
+| Auth | Session PHP + Google OAuth |
+| Word | PHPWord |
 
 ---
 
@@ -42,8 +42,8 @@ Aplikasi web berbasis PHP untuk menampilkan **Peta Digital Keamanan dan Ketertib
 
 1. **Clone repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/petadigi.git
-   cd petadigi
+   git clone https://github.com/rofianto507/lexpina.git
+   cd lexpina
    ```
 
 2. **Salin file konfigurasi**
@@ -54,25 +54,24 @@ Aplikasi web berbasis PHP untuk menampilkan **Peta Digital Keamanan dan Ketertib
 3. **Edit konfigurasi database**
    ```php
    // config/configuration.php
-   $path = "http://localhost/pdk";  // sesuaikan URL
    $host = 'localhost';
-   $db   = 'petadigi_db';           // nama database Anda
+   $db   = 'lexpina_db';   // nama database Anda
    $user = 'root';
    $pass = '';
    ```
 
 4. **Import database**
-   - Buat database baru: `petadigi_db`
+   - Buat database baru: `lexpina_db`
    - Import file SQL yang tersedia
 
 5. **Buat folder uploads** (jika belum ada)
    ```bash
-   mkdir -p uploads app/uploads public/uploads
+   mkdir uploads
    ```
 
 6. **Akses aplikasi**
    ```
-   http://localhost/pdk
+   http://localhost/lexpina
    ```
 
 ---
@@ -80,15 +79,21 @@ Aplikasi web berbasis PHP untuk menampilkan **Peta Digital Keamanan dan Ketertib
 ## 📁 Struktur Folder
 
 ```
-pdk/
-├── app/            # Halaman PHP utama (index, kriminalitas, bencana, dll.)
+lexpina/
+├── app/            # Halaman admin (dashboard, database, transaksi, anggota, dll.)
 ├── assets/         # CSS, JS, gambar
 ├── config/         # Konfigurasi database (configuration.php)
-├── import/         # Script import GeoJSON wilayah
+├── api/            # Endpoint API (login anggota, dll.)
 ├── public/         # File publik
-├── uploads/        # File upload (foto, lampiran)
+├── uploads/        # File upload (bukti transfer, foto profil, dll.)
 ├── vendors/        # Library pihak ketiga
-└── index.php       # Entry point / halaman login
+├── PHPWord/        # Library parsing dokumen Word
+├── index.php       # Halaman utama / landing page
+├── login.php       # Halaman login
+├── langganan.php   # Halaman paket langganan
+├── checkout.php    # Halaman checkout pembayaran
+├── berita.php      # Halaman berita hukum
+└── logout.php      # Proses logout
 ```
 
 ---
@@ -97,11 +102,19 @@ pdk/
 
 | Role | Hak Akses |
 |---|---|
-| **POLDA** | Akses penuh semua data & fitur |
-| **POLRES** | Data wilayah Polres sendiri |
-| **POLSEK** | Data wilayah Polsek sendiri |
-| **DITLANTAS** | Data lalu lintas |
-| **Subdits** | Data sesuai subdit |
+| **ADMIN** | Akses penuh semua fitur & manajemen |
+| **MEMBER** | Akses dokumen premium & fitur lengkap |
+| **PENGGUNA** | Akses terbatas, perlu upgrade ke Member |
+
+---
+
+## 💳 Alur Langganan
+
+1. Pengguna memilih paket di halaman **Langganan**
+2. Diarahkan ke halaman **Checkout** dengan kode unik transfer
+3. Pengguna transfer sesuai nominal & upload bukti pembayaran
+4. Admin memvalidasi transaksi di dashboard
+5. Akses Member otomatis aktif setelah divalidasi
 
 ---
 
@@ -113,7 +126,7 @@ pdk/
 
 ## 📄 Lisensi
 
-Proyek ini dikembangkan untuk keperluan internal Polda Sumatera Selatan.
+© 2025 PT LexPina Hukum Indonesia. Seluruh hak cipta dilindungi undang-undang.
 
 ---
 

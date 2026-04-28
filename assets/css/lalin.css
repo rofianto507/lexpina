@@ -1,7 +1,0 @@
-#filter-polres,
-#filter-polsek { min-width: 180px; }
-#LalinTable { width: 100%; }
-#lalinMapTambah,
-#lalinMapEdit { height: 350px; border: 1px solid #ccc; }
-#previewFotoEditWrapper { display: none; }
-#previewFotoEdit { max-width: 120px; }

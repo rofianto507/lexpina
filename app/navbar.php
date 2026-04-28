@@ -6,8 +6,8 @@
               <button class="btn navbar-toggler-humburger-icon navbar-vertical-toggle" data-bs-toggle="tooltip" data-bs-placement="left" title="Toggle Navigation"><span class="navbar-toggle-icon"><span class="toggle-line"></span></span></button>
 
             </div><a class="navbar-brand" href="<?php 
-            if($akses=='POLSEK') {echo 'indexpolres'; }else if($akses=='POLRES') {echo 'indexpolres'; }else if($akses=='POLDA') {echo 'index'; }else{echo 'indexsubdit';} ?>">
-              <div class="d-flex align-items-center py-3"><img class="me-2" src="../assets/img/sumsel.png" alt="" width="40" /><span class="font-sans-serif">PetaDigi</span>
+           if($akses=='ADMIN') echo 'index'; ?>">
+              <div class="d-flex align-items-center py-3"><img class="me-2" src="../assets/img/icon.png" alt="" width="40" /><span class="font-sans-serif">LexPina</span>
               </div>
             </a>
           </div>
@@ -15,70 +15,110 @@
             <div class="navbar-vertical-content scrollbar">
               <ul class="navbar-nav flex-column mb-3" id="navbarVerticalNav">
                 <li class="nav-item">
-                  <?php if($akses == "POLDA" ): ?>
+                  <?php if($akses == "ADMIN" ): ?>
                   <a class="nav-link <?php echo ($menu=='dashboard') ? 'active' : ''; ?>" href="index" role="button"  aria-expanded="false" >
                     <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-pie-chart"></span></span><span class="nav-link-text ps-1">Dashboard</span>
                     </div>
                   </a>  
-                  <?php elseif($akses == "POLRES" ): ?>  
-                    <a class="nav-link <?php echo ($menu=='dashboardpolres') ? 'active' : ''; ?>" href="indexpolres" role="button"  aria-expanded="false" >
-                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-pie-chart"></span></span><span class="nav-link-text ps-1">Dashboard Polres</span>
-                    </div>
-                  </a>  
-                  <?php elseif($akses == "POLSEK" ): ?>  
-                    <a class="nav-link <?php echo ($menu=='dashboardpolsek') ? 'active' : ''; ?>" href="indexpolsek" role="button"  aria-expanded="false" >
-                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-pie-chart"></span></span><span class="nav-link-text ps-1">Dashboard Polsek</span>
-                    </div>
-                  </a>
-                  <?php else: ?>  
-                    <a class="nav-link <?php echo ($menu=='dashboardsubdit') ? 'active' : ''; ?>" href="indexpolsek" role="button"  aria-expanded="false" >
-                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-pie-chart"></span></span><span class="nav-link-text ps-1">Dashboard Subdit</span>
-                    </div>
-                  </a>
+                
                   <?php endif; ?>
                 </li>
+                 
+                
                 <li class="nav-item">
                   <!-- label-->
                   <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                    <div class="col-auto navbar-vertical-label">Peta Digital
+                    <div class="col-auto navbar-vertical-label">Data Base
                     </div>
                     <div class="col ps-0">
                       <hr class="mb-0 navbar-vertical-divider" />
                     </div>
                   </div>
-                  <a class="nav-link <?php echo ($menu=='kriminalitas') ? 'active' : ''; ?>" href="kriminalitas" role="button" aria-expanded="false">
-                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-user-secret"></span></span><span class="nav-link-text ps-1">Kriminalitas</span>
+                  <a class="nav-link <?php echo ($menu=='peraturan') ? 'active' : ''; ?>" href="database?kategori=peraturan" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-folder"></span></span><span class="nav-link-text ps-1">Peraturan</span>
                     </div>
                   </a>
-                   <a class="nav-link <?php echo ($menu=='kamtibmas') ? 'active' : ''; ?>" href="kamtibmas" role="button" aria-expanded="false">
-                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-bookmark"></span></span><span class="nav-link-text ps-1">Kasus Menonjol</span>
+                   <a class="nav-link <?php echo ($menu=='peraturan-konsolidasi') ? 'active' : ''; ?>" href="database?kategori=peraturan-konsolidasi" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-folder"></span></span><span class="nav-link-text ps-1">Peraturan Konsolidasi</span>
+                    </div>
+                  </a>                  
+                  <a class="nav-link <?php echo ($menu=='karya-ilmiah') ? 'active' : ''; ?>" href="database?kategori=karya-ilmiah" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-folder"></span></span><span class="nav-link-text ps-1">Karya Ilmiah</span>
                     </div>
                   </a>
-                  
-                  <a class="nav-link <?php echo ($menu=='bencana') ? 'active' : ''; ?>" href="bencana" role="button" aria-expanded="false">
-                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-flash"></span></span><span class="nav-link-text ps-1">Potensi Bencana</span>
-                    </div>
-                  </a>         
-                  
-                  <a class="nav-link <?php echo ($menu=='lokasi') ? 'active' : ''; ?> d-none" href="lokasi" role="button" aria-expanded="false">
-                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-thumbtack"></span></span><span class="nav-link-text ps-1">Lokasi Penting</span>
+                  <a class="nav-link <?php echo ($menu=='jurnal') ? 'active' : ''; ?>" href="database?kategori=jurnal" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-folder"></span></span><span class="nav-link-text ps-1">Jurnal</span>
                     </div>
                   </a>
-                  <a class="nav-link <?php echo ($menu=='lalu-lintas') ? 'active' : ''; ?>" href="lalu-lintas" role="button" aria-expanded="false">
-                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-road"></span></span><span class="nav-link-text ps-1">Lalu Lintas</span>
+                  <a class="nav-link <?php echo ($menu=='putusan') ? 'active' : ''; ?>" href="database?kategori=putusan" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-folder"></span></span><span class="nav-link-text ps-1">Putusan</span>
                     </div>
                   </a>
-                   <?php if($akses == "POLDA" ): ?>
-                  <a class="nav-link <?php echo ($menu=='lokasi') ? 'active' : ''; ?>" href="lokasi" role="button" aria-expanded="false">
-                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-map-signs"></span></span><span class="nav-link-text ps-1">Lokasi Penting</span>
+                  <a class="nav-link <?php echo ($menu=='template-perjanjian') ? 'active' : ''; ?>" href="database?kategori=template-perjanjian" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-folder"></span></span><span class="nav-link-text ps-1">Template Perjanjian</span>
                     </div>
                   </a>
-                  <?php endif; ?>  
-                
+                  <a class="nav-link <?php echo ($menu=='artikel') ? 'active' : ''; ?>" href="database?kategori=artikel" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-folder"></span></span><span class="nav-link-text ps-1">Artikel</span>
+                    </div>
+                  </a>
                 </li>
-                 <?php if($akses == "POLDA" ): ?>
-                 
-                <?php endif; ?>    
+                <li class="nav-item">
+                  <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
+                     
+                    <div class="col ps-0">
+                      <hr class="mb-0 navbar-vertical-divider" />
+                    </div>
+                  </div>
+                  <a class="nav-link dropdown-indicator" href="#transaksi" role="button" data-bs-toggle="collapse" aria-expanded="true" aria-controls="transaksi">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-shopping-cart"></span></span><span class="nav-link-text ps-1">Transaksi</span>
+                    </div>
+                  </a>
+                  <ul class="nav collapse show" id="transaksi">
+
+                    <li class="nav-item ">
+                        <a class="nav-link <?php echo ($menu=='transaksi-pending') ? 'active' : ''; ?>" href="transaksi?status=PENDING" aria-expanded="false">
+                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Pending</span>
+                        </div>
+                      </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link <?php echo ($menu=='transaksi-lunas') ? 'active' : ''; ?>" href="transaksi?status=LUNAS" aria-expanded="false">
+                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Lunas</span>
+                        </div>
+                      </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link <?php echo ($menu=='transaksi-ditolak') ? 'active' : ''; ?>" href="transaksi?status=DITOLAK" aria-expanded="false">
+                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Ditolak</span>
+                        </div>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <!-- label-->
+                  <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
+                    <div class="col-auto navbar-vertical-label">Interaksi
+                    </div>
+                    <div class="col ps-0">
+                      <hr class="mb-0 navbar-vertical-divider" />
+                    </div>
+                  </div>
+                  <a class="nav-link <?php echo ($menu=='berita') ? 'active' : ''; ?>" href="berita" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-newspaper-o"></span></span><span class="nav-link-text ps-1">Berita</span>
+                    </div>
+                  </a>
+                  <a class="nav-link <?php echo ($menu=='saran') ? 'active' : ''; ?>" href="saran" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-envelope"></span></span><span class="nav-link-text ps-1">Saran & Masukan</span>
+                    </div>
+                  </a>
+                  <a class="nav-link <?php echo ($menu=='banner') ? 'active' : ''; ?>" href="banner" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-bullhorn"></span></span><span class="nav-link-text ps-1">Banner Beranda</span>
+                    </div>
+                  </a>
+                </li>
+                  
                 <li class="nav-item">
                   <!-- label-->
                   <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
@@ -94,114 +134,27 @@
                     </div>
                   </a>
                   <ul class="nav collapse show" id="master">
-                    <?php if($akses == "POLDA" || $akses == "POLRES" ): ?>
+                
                     <li class="nav-item ">
-                        <a class="nav-link <?php echo ($menu=='polres') ? 'active' : ''; ?>" href="polres" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Polres</span>
+                        <a class="nav-link <?php echo ($menu=='kategori-berita') ? 'active' : ''; ?>" href="kategori-berita" aria-expanded="false">
+                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Kategori Berita</span>
                         </div>
                       </a>
                     </li>
-                      <?php endif; ?>
-                      <?php if($akses == "POLDA" || $akses == "POLRES" || $akses == "POLSEK"): ?>
                     <li class="nav-item ">
-                        <a class="nav-link <?php echo ($menu=='polsek') ? 'active' : ''; ?>" href="polsek" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Polsek</span>
+                        <a class="nav-link <?php echo ($menu=='produk') ? 'active' : ''; ?>" href="produk" aria-expanded="false">
+                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Data Produk</span>
                         </div>
                       </a>
                     </li>
-                      <?php endif; ?>
-                       <?php if($akses == "POLDA" || $akses == "POLRES" ): ?>
-                    <li class="nav-item ">
-                        <a class="nav-link <?php echo ($menu=='kabupaten') ? 'active' : ''; ?>" href="kabupaten" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Kabupaten</span>
-                        </div>
-                      </a>
-                    </li>
-                    <?php endif; ?>
-                     <?php if($akses == "POLDA" || $akses == "POLRES" || $akses == "POLSEK"): ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='kecamatan') ? 'active' : ''; ?>" href="kecamatan" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Kecamatan</span>
-                        </div>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='desa') ? 'active' : ''; ?>" href="desa" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Desa</span>
-                        </div>
-                      </a>
-                    </li>
-                    <?php endif; ?>
-                    <?php if($akses == "POLDA" ): ?>
-                     <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='sumber_dokumen') ? 'active' : ''; ?>" href="sumber-dokumen" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Sumber Dokumen</span>
-                        </div>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='kategori-kriminal') ? 'active' : ''; ?>" href="kategori-kriminal" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Kategori Kriminal</span>
-                        </div>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='sub-kategori-kriminal') ? 'active' : ''; ?>" href="sub-kategori-kriminal" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Sub Kategori Kriminal</span>
-                        </div>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='kategori-bencana') ? 'active' : ''; ?>" href="kategori-bencana" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Kategori Bencana</span>
-                        </div>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='kategori-kamtibmas') ? 'active' : ''; ?>" href="kategori-kamtibmas" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Kategori Kamtibmas</span>
-                        </div>
-                      </a>
-                    </li>
-                    
-                     <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='kategori-lalin') ? 'active' : ''; ?>" href="kategori-lalin" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Kategori Lalu Lintas</span>
-                        </div>
-                      </a>
-                    </li>
-                     <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='kategori-lokasi') ? 'active' : ''; ?>" href="kategori-lokasi" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Kategori Lokasi</span>
-                        </div>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='jenis-jalan') ? 'active' : ''; ?>" href="jenis-jalan" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Jenis Jalan</span>
-                        </div>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='modus-operandi') ? 'active' : ''; ?>" href="modus-operandi" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Modus Operandi</span>
-                        </div>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo ($menu=='jenis-tkp') ? 'active' : ''; ?>" href="jenis-tkp" aria-expanded="false">
-                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Jenis TKP</span>
-                        </div>
-                      </a>
-                    </li>
-                    <?php endif; ?>
+                      
                   </ul>
                   <a class="nav-link <?php echo ($menu=='pengguna') ? 'active' : ''; ?>" href="pengguna" role="button" aria-expanded="false">
                     <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-users"></span></span><span class="nav-link-text ps-1">Data Pengguna</span>
                     </div>
                   </a>
-                   <a class="nav-link <?php echo ($menu=='anggota') ? 'active' : ''; ?>" href="anggota" role="button" aria-expanded="false">
-                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-street-view"></span></span><span class="nav-link-text ps-1">Data Anggota</span>
+                   <a class="nav-link <?php echo ($menu=='member') ? 'active' : ''; ?>" href="member" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-star"></span></span><span class="nav-link-text ps-1">Data Member</span>
                     </div>
                   </a> 
                 </li>
