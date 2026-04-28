@@ -30,13 +30,13 @@ include 'navbar.php';
             <aside class="profile-sidebar">
                 <div class="profile-card-user">
                     <div class="avatar-large">
-                        <?php if(!empty($user['foto'])): ?>
-                            <img src="<?php echo $user['foto']; ?>" alt="Foto Profil" referrerpolicy="no-referrer" class="profile-img">
+                        <?php if(!empty($_SESSION['foto'])): ?>
+                            <img src="<?php echo $_SESSION['foto']; ?>" alt="Foto Profil" referrerpolicy="no-referrer" class="profile-img">
                         <?php else: ?>
                             <i class="fa-solid fa-circle-user"></i>
                         <?php endif; ?>
                     </div>
-                    <h3><?php echo htmlspecialchars($user['nama']); ?></h3>
+                    <h3><?php echo htmlspecialchars($_SESSION['user_nama']); ?></h3>
                     <p><?php echo htmlspecialchars($user['username']); ?></p>
                     
                    <?php if($user['akses'] == 'MEMBER'): ?>
@@ -77,7 +77,7 @@ include 'navbar.php';
                         <form class="form-profile">
                             <div class="form-group">
                                 <label>Nama Lengkap</label>
-                                <input type="text" value="<?php echo htmlspecialchars($user['nama']); ?>" class="form-input">
+                                <input type="text" name="nama" value="<?php echo htmlspecialchars($user['nama']); ?>" class="form-input">
                             </div>
                             
                             <div class="form-group">

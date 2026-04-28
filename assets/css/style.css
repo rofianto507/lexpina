@@ -246,7 +246,130 @@ main {
     box-shadow: 0 15px 30px rgba(0,0,0,0.5);
     display: block;
 }
+/* ==========================================
+   MODAL LOGIN & SIGN UP CUSTOM STYLES
+   ========================================== */
 
+/* Membatasi lebar modal khusus login agar tidak terlalu melebar */
+.login-modal-content {
+    max-width: 400px;
+}
+
+/* Styling untuk Input Group Manual Login */
+.input-group-custom {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.input-group-custom label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+.input-group-custom input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    width: 100%;
+}
+
+.input-group-custom input:focus {
+    border-color: #2c3e50; /* Sesuaikan dengan warna primer LexPina */
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+}
+
+/* Tombol Login Manual */
+.btn-primary-block {
+    width: 100%;
+    padding: 12px;
+    background-color: #2c3e50; /* Sesuaikan warna */
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 5px;
+}
+
+.btn-primary-block:hover {
+    background-color: #1a252f;
+}
+
+.btn-primary-block:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+/* Pesan Error Login */
+.login-error-message {
+    color: #e74c3c;
+    font-size: 13px;
+    margin-bottom: 12px;
+    display: none;
+    text-align: left;
+    background-color: #fadbd8;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border-left: 3px solid #e74c3c;
+}
+
+/* Wrapper Google Sign In */
+.google-signin-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+/* Footer Modal Login */
+.login-modal-footer {
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.link-signup {
+    color: #2c3e50;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.link-signup:hover {
+    color: #3498db;
+    text-decoration: underline;
+}
+
+/* Garis pembatas "atau" (Jika belum ada di CSS Anda) */
+.modal-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: #a0a0a0;
+    font-size: 13px;
+}
+
+.modal-divider::before,
+.modal-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-divider span {
+    padding: 0 10px;
+}
 /* --- Navigation --- */
 .main-nav {
     background-color: #444;

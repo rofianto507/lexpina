@@ -389,6 +389,56 @@ document.addEventListener('DOMContentLoaded', () => {
     prevBtn.addEventListener('click', () => {
         manualScroll(-scrollAmount);
     });
+    const formLoginManual = document.getElementById('formLoginManual');
+    const loginError = document.getElementById('loginErrorMessage');
+    if (formLoginManual) {
+        formLoginManual.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const btnSubmit = document.getElementById('btnSubmitLogin');
+            
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = 'Checking...';
+            loginError.style.display = 'none';
+
+            fetch('proses_login_manual.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Gunakan logika redirect yang sama dengan login Google
+                    const pendingRedirect = localStorage.getItem('lexpina_redirect');
+                    if (pendingRedirect) {
+                        localStorage.removeItem('lexpina_redirect');
+                        window.location.href = pendingRedirect;
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    loginError.innerText = data.message;
+                    loginError.style.display = 'block';
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerText = 'Sign In';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = 'Sign In';
+            });
+        });
+    }
+    // Navigasi ke Modal Sign Up (Nanti kita buat modalknya)
+    const btnToSignUp = document.getElementById('btnToSignUp');
+    if(btnToSignUp) {
+        btnToSignUp.addEventListener('click', () => {
+            alert('Fitur Sign Up sedang disiapkan.'); // Sementara
+            // Logic untuk menutup modal login dan membuka modal signup
+        });
+    }
 });
 // --- FUNGSI GOOGLE SSO CALLBACK ---
     

@@ -160,19 +160,43 @@ if(isset($_SESSION['user_id'])) {
     </header>
 
     <div id="loginModal" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal-content login-modal-content">
             <button type="button" id="btnCloseLogin" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+            
             <div class="modal-header">
                 <img src="<?php echo $path; ?>assets/img/icon.png" alt="LexPina Logo" class="modal-logo">
                 <h2>Selamat Datang</h2>
-                <p>Akses ribuan dokumen hukum dan putusan pengadilan dengan satu langkah mudah.</p>
+                <p>Masuk ke akun LexPina Anda</p>
             </div>
-            <div class="modal-body" style="display: flex; justify-content: center;">
-                <div id="g_id_onload" data-client_id="36354248807-n36q4bh9dnrau56roo9f13lrlfokb0nn.apps.googleusercontent.com" data-context="signin" data-ux_mode="popup" data-callback="handleGoogleLogin" data-auto_prompt="false"></div>
-                <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline" data-text="continue_with" data-size="large" data-logo_alignment="left" data-width="340"></div>
+
+            <div class="modal-body">
+                <form id="formLoginManual">
+                    <div class="input-group-custom">
+                        <label for="loginUserEmail">Username atau Email</label>
+                        <input type="text" name="user_email" id="loginUserEmail" placeholder="Masukkan username atau email" required autocomplete="username">
+                    </div>
+                    <div class="input-group-custom">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" name="password" id="loginPassword" placeholder="********" required autocomplete="current-password">
+                    </div>
+                    
+                    <div id="loginErrorMessage" class="login-error-message"></div>
+                    
+                    <button type="submit" id="btnSubmitLogin" class="btn-primary-block">Sign In</button>
+                </form>
+
+                <div class="modal-divider">
+                    <span>atau</span>
+                </div>
+
+                <div class="google-signin-wrapper">
+                    <div id="g_id_onload" data-client_id="36354248807-n36q4bh9dnrau56roo9f13lrlfokb0nn.apps.googleusercontent.com" data-context="signin" data-ux_mode="popup" data-callback="handleGoogleLogin" data-auto_prompt="false"></div>
+                    <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline" data-text="continue_with" data-size="large" data-logo_alignment="left" data-width="340"></div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <p>Dengan melanjutkan, Anda menyetujui <a href="#">Syarat Ketentuan</a> dan <a href="#">Kebijakan Privasi</a> LexPina.</p>
+
+            <div class="modal-footer login-modal-footer">
+                <p>Belum punya akun? <a href="javascript:void(0)" id="btnToSignUp" class="link-signup">Daftar Sekarang</a></p>
             </div>
         </div>
     </div>
