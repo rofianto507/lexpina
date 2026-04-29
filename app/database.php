@@ -53,7 +53,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $tgl_berlaku = $_POST['tanggal_berlaku'];
         $deskripsi = $_POST['deskripsi'];
         $dicabut = $_POST['dicabut'];
+        $dicabut_sebagian = $_POST['dicabut_sebagian'] ?? '';
         $mencabut = $_POST['mencabut'];
+        $mencabut_sebagian = $_POST['mencabut_sebagian'] ?? '';
+        $diubah = $_POST['diubah'] ?? '';
+        $diubah_sebagian = $_POST['diubah_sebagian'] ?? '';
+        $mengubah = $_POST['mengubah'] ?? '';
+        $mengubah_sebagian = $_POST['mengubah_sebagian'] ?? '';
+        $uji_materi = $_POST['uji_materi'] ?? '';
         $kategori_post = $_POST['kategori'];
         $rekomendasi = isset($_POST['rekomendasi']) ? 1 : 0;
         $file_url = ''; // Variabel untuk menyimpan path PDF
@@ -82,11 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         try {
             $stmt_tambah = $pdo->prepare("INSERT INTO `databases` 
-                (kategori, judul, sumber, tanggal_penetapan, tanggal_pengundangan, tanggal_berlaku, deskripsi, dicabut, mencabut, file_pdf, rekomendasi, status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
-            
+                (kategori, judul, sumber, tanggal_penetapan, tanggal_pengundangan, tanggal_berlaku, deskripsi, dicabut, dicabut_sebagian, mencabut, mencabut_sebagian, diubah, diubah_sebagian, mengubah, mengubah_sebagian, uji_materi, file_pdf, rekomendasi, status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
+
             $stmt_tambah->execute([
-                $kategori_post, $judul, $sumber, $tgl_penetapan, $tgl_pengundangan, $tgl_berlaku, $deskripsi, $dicabut, $mencabut, $file_url, $rekomendasi
+                $kategori_post, $judul, $sumber, $tgl_penetapan, $tgl_pengundangan, $tgl_berlaku, $deskripsi, $dicabut, $dicabut_sebagian, $mencabut, $mencabut_sebagian, $diubah, $diubah_sebagian, $mengubah, $mengubah_sebagian, $uji_materi, $file_url, $rekomendasi
             ]);
 
             header("Location: database?kategori=" . $kategori . "&status=sukses");
@@ -289,8 +296,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                       <textarea class="form-control form-control-sm" name="dicabut" rows="5"></textarea>
                     </div>
                     <div class="mb-3">
+                      <label class="form-label">Dicabut sebagian</label>
+                      <textarea class="form-control form-control-sm" name="dicabut_sebagian" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
                       <label class="form-label">Mencabut</label>
                       <textarea class="form-control form-control-sm" name="mencabut" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Mencabut sebagian</label>
+                      <textarea class="form-control form-control-sm" name="mencabut_sebagian" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Diubah</label>
+                      <textarea class="form-control form-control-sm" name="diubah" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Diubah sebagian</label>
+                      <textarea class="form-control form-control-sm" name="diubah_sebagian" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Mengubah</label>
+                      <textarea class="form-control form-control-sm" name="mengubah" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Mengubah sebagian</label>
+                      <textarea class="form-control form-control-sm" name="mengubah_sebagian" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Uji Materi</label>
+                      <textarea class="form-control form-control-sm" name="uji_materi" rows="5"></textarea>
                     </div>
                     <div class="mb-3 mt-4">
                       <div class="form-check form-switch">

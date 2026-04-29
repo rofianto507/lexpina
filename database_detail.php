@@ -74,6 +74,16 @@ try {
     $stmt_rec->execute();
     $rekomendasi_list = $stmt_rec->fetchAll();
 
+    // Tarik daftar Peraturan Konsolidasi terkait
+    $stmt_kon = $pdo->prepare("
+        SELECT d.id, d.judul, d.kategori 
+        FROM relasi_konsolidasi r
+        JOIN `databases` d ON r.konsolidasi_id = d.id
+        WHERE r.parent_id = ?
+    ");
+    $stmt_kon->execute([$id_dokumen]);
+    $list_konsolidasi = $stmt_kon->fetchAll();
+
 } catch (PDOException $e) {
     die("Error mengambil dokumen: " . $e->getMessage());
 }
@@ -160,6 +170,26 @@ include 'navbar.php';
                             </div>
                         </div>
                     </div>
+                    <?php if (count($list_konsolidasi) > 0): ?>
+                        <div class="konsolidasi-alert" style="background: #fff4e5; border-left: 5px solid #ffa117; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="fa-solid fa-circle-info" style="color: #ffa117; font-size: 20px;"></i>
+                                <div>
+                                    <strong style="display: block; margin-bottom: 5px; color: #663c00;">Tersedia Peraturan Konsolidasi</strong>
+                                    <p style="font-size: 14px; margin: 0; color: #663c00;">Dokumen ini telah dilengkapi dengan naskah konsolidasi terbaru:</p>
+                                    <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                                        <?php foreach ($list_konsolidasi as $kon): ?>
+                                            <li style="margin-bottom: 5px;">
+                                                <a href="database_detail.php?id=<?= $kon['id'] ?>&kategori=<?= $kon['kategori'] ?>" style="color: #e67e22; font-weight: bold; text-decoration: underline;">
+                                                    <?= htmlspecialchars($kon['judul']) ?>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <?php 
@@ -225,19 +255,60 @@ include 'navbar.php';
                     <div class="status-container">
                         
                         <?php if(!empty($doc['dicabut'])): ?>
-                        <div class="status-box dicabut">
-                            <span class="status-label"><i class="fa-solid fa-circle-xmark"></i> Dicabut Oleh</span>
-                            <?php echo $doc['dicabut']; ?> 
+                        <div class="status-box">
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Dicabut dengan : </span>
+                            <div class="status-konten"><?php echo $doc['dicabut']; ?></div> 
+                        </div>
+                        <?php endif; ?>
+                        <?php if(!empty($doc['dicabut_sebagian'])): ?>
+                        <div class="status-box">
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Dicabut sebagian dengan : </span>
+                            <div class="status-konten"><?php echo $doc['dicabut_sebagian']; ?></div> 
                         </div>
                         <?php endif; ?>
 
                         <?php if(!empty($doc['mencabut'])): ?>
-                        <div class="status-box mencabut">
-                            <span class="status-label"><i class="fa-solid fa-arrow-right-arrow-left"></i> Mencabut</span>
-                            <?php echo $doc['mencabut']; ?>
+                        <div class="status-box">
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Mencabut dengan :</span>
+                            <div class="status-konten"><?php echo $doc['mencabut']; ?></div>
                         </div>
                         <?php endif; ?>
-
+                        <?php if(!empty($doc['mencabut_sebagian'])): ?>
+                        <div class="status-box">
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Mencabut sebagian dengan :</span>
+                            <div class="status-konten"><?php echo $doc['mencabut_sebagian']; ?></div>
+                        </div>
+                        <?php endif; ?>
+                        <?php if(!empty($doc['diubah'])): ?>
+                        <div class="status-box">
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Diubah dengan :</span>
+                            <div class="status-konten"><?php echo $doc['diubah']; ?></div>
+                        </div>
+                        <?php endif; ?>
+                        <?php if(!empty($doc['diubah_sebagian'])): ?>
+                        <div class="status-box">
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Diubah sebagian dengan :</span>
+                            <div class="status-konten"><?php echo $doc['diubah_sebagian']; ?></div>
+                        </div>
+                        <?php endif; ?>
+                        <?php if(!empty($doc['mengubah'])): ?>
+                        <div class="status-box">
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Mengubah dengan :</span>
+                            <div class="status-konten"><?php echo $doc['mengubah']; ?></div>
+                        </div>
+                        <?php endif; ?>
+                        <?php if(!empty($doc['mengubah_sebagian'])): ?>
+                        <div class="status-box">
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Mengubah sebagian dengan :</span>
+                            <div class="status-konten"><?php echo $doc['mengubah_sebagian']; ?></div>
+                        </div>
+                        <?php endif; ?>
+                        <?php if(!empty($doc['uji_materi'])): ?>
+                        <div class="status-box">
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Uji Materi dengan :</span>
+                            <div class="status-konten"><?php echo $doc['uji_materi']; ?></div>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <?php endif; ?>

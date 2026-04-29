@@ -36,9 +36,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $tgl_berlaku      = $_POST['tanggal_berlaku'];
     $deskripsi        = $_POST['deskripsi'];
     $dicabut          = $_POST['dicabut'];
+    $dicabut_sebagian = $_POST['dicabut_sebagian'] ?? '';
     $mencabut         = $_POST['mencabut'];
+    $mencabut_sebagian   = $_POST['mencabut_sebagian'] ?? '';
+    $diubah          = $_POST['diubah'] ?? '';
+    $diubah_sebagian   = $_POST['diubah_sebagian'] ?? '';
+    $mengubah         = $_POST['mengubah'] ?? '';
+    $mengubah_sebagian   = $_POST['mengubah_sebagian'] ?? '';
+    $uji_materi       = $_POST['uji_materi'] ?? '';
     $kategori_post    = $_POST['kategori'];
     $rekomendasi      = isset($_POST['rekomendasi']) ? 1 : 0; 
+    
+    // Tangkap Array dari multi-select konsolidasi (Bisa kosong jika tidak ada yg dipilih)
+    $konsolidasi_ids  = isset($_POST['konsolidasi_ids']) ? $_POST['konsolidasi_ids'] : [];
 
     // Ambil nama file lama (jika user tidak upload PDF baru)
     $file_url = $_POST['file_lama']; 
@@ -66,21 +76,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     try {
+        // Mulai Transaksi Database agar aman (Update tabel utama & tabel relasi sekaligus)
+        $pdo->beginTransaction();
+
+        // 1. UPDATE TABEL UTAMA (databases)
         $stmt_update = $pdo->prepare("UPDATE `databases` SET 
             kategori = ?, judul = ?, sumber = ?, tanggal_penetapan = ?, 
             tanggal_pengundangan = ?, tanggal_berlaku = ?, deskripsi = ?, 
-            dicabut = ?, mencabut = ?, file_pdf = ?, rekomendasi = ? 
+            dicabut = ?, dicabut_sebagian = ?, mencabut = ?, mencabut_sebagian = ?, 
+            diubah = ?, diubah_sebagian = ?, mengubah = ?, mengubah_sebagian = ?, 
+            uji_materi = ?, file_pdf = ?, rekomendasi = ? 
             WHERE id = ?");
         
         $stmt_update->execute([
             $kategori_post, $judul, $sumber, $tgl_penetapan, $tgl_pengundangan, 
-            $tgl_berlaku, $deskripsi, $dicabut, $mencabut, $file_url, $rekomendasi, $id_dokumen
+            $tgl_berlaku, $deskripsi, $dicabut, $dicabut_sebagian, $mencabut, $mencabut_sebagian, $diubah, $diubah_sebagian, $mengubah, $mengubah_sebagian, $uji_materi, $file_url, $rekomendasi, $id_dokumen
         ]);
+
+        // 2. UPDATE TABEL RELASI (relasi_konsolidasi)
+        // Cara termudah: Hapus semua relasi lama, lalu Insert yang baru
+        $stmt_del_rel = $pdo->prepare("DELETE FROM relasi_konsolidasi WHERE parent_id = ?");
+        $stmt_del_rel->execute([$id_dokumen]);
+
+        if (!empty($konsolidasi_ids)) {
+            $stmt_ins_rel = $pdo->prepare("INSERT INTO relasi_konsolidasi (parent_id, konsolidasi_id) VALUES (?, ?)");
+            foreach ($konsolidasi_ids as $k_id) {
+                // Validasi agar tidak merelasikan ke dirinya sendiri (jika dia sendiri adalah peraturan konsolidasi)
+                if ($k_id != $id_dokumen) {
+                    $stmt_ins_rel->execute([$id_dokumen, $k_id]);
+                }
+            }
+        }
+
+        // Simpan semua perubahan
+        $pdo->commit();
 
         // Redirect kembali ke halaman list kategori
         header("Location: database?kategori=" . $kategori_post . "&status=sukses_edit");
         exit;
     } catch (PDOException $e) {
+        $pdo->rollBack(); // Batalkan semua jika ada error
         die("Error mengubah data: " . $e->getMessage());
     }
 }
@@ -97,10 +132,19 @@ try {
         die("Dokumen tidak ditemukan!");
     }
 
-    // Variabel fallback jika kolom ini belum ada di tabel Anda agar tidak error
     $views = isset($doc['views']) ? $doc['views'] : 0;
     $likes = isset($doc['likes']) ? $doc['likes'] : 0;
     $bookmarks = isset($doc['bookmarks']) ? $doc['bookmarks'] : 0;
+
+    // AMBIL SEMUA DOKUMEN BERKATEGORI KONSOLIDASI (Untuk Opsi Dropdown)
+    $stmt_all_kon = $pdo->prepare("SELECT id, judul FROM `databases` WHERE kategori = 'peraturan-konsolidasi' AND status = 1 ORDER BY judul ASC");
+    $stmt_all_kon->execute();
+    $semua_konsolidasi = $stmt_all_kon->fetchAll(PDO::FETCH_ASSOC);
+
+    // AMBIL RELASI YANG SUDAH ADA (Untuk di-select otomatis)
+    $stmt_curr_rel = $pdo->prepare("SELECT konsolidasi_id FROM relasi_konsolidasi WHERE parent_id = ?");
+    $stmt_curr_rel->execute([$id_dokumen]);
+    $relasi_saat_ini = $stmt_curr_rel->fetchAll(PDO::FETCH_COLUMN); // Mengembalikan array flat: [10, 15, 20]
 
 } catch (PDOException $e) {
     die("Error mengambil data: " . $e->getMessage());
@@ -216,14 +260,80 @@ try {
                         <textarea class="form-control" name="deskripsi" rows="4"><?php echo htmlspecialchars($doc['deskripsi'] ?? ''); ?></textarea>
                       </div>
 
+                      <div class="col-md-12 mt-4 mb-2">
+                        <div class="p-3 border rounded" style="background-color: #fff4e5; border-color: #ffa117 !important;">
+                            <label class="form-label fw-bold text-warning"><i class="fa fa-link"></i> Hubungkan ke Peraturan Konsolidasi</label>
+                            
+                            <div style="max-height: 200px; overflow-y: auto; background: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                                <?php if(empty($semua_konsolidasi)): ?>
+                                    <p class="text-muted mb-0 small">Belum ada dokumen Peraturan Konsolidasi di sistem.</p>
+                                <?php else: ?>
+                                    <?php foreach($semua_konsolidasi as $kon): ?>
+                                        <?php if($kon['id'] != $doc['id']): ?>
+                                            <?php 
+                                            // Cek apakah dokumen ini sudah terhubung
+                                            $is_linked = in_array($kon['id'], $relasi_saat_ini); 
+                                            ?>
+                                            <div class="form-check" style=" border-bottom: 1px solid #f8f9fa; margin-bottom: 0;">
+                                                <input class="form-check-input" type="checkbox" name="konsolidasi_ids[]" value="<?php echo $kon['id']; ?>" id="kon_<?php echo $kon['id']; ?>" <?php echo $is_linked ? 'checked' : ''; ?>>
+                                                
+                                                <label class="form-check-label w-100 d-flex justify-content-between align-items-center" for="kon_<?php echo $kon['id']; ?>" style="cursor: pointer; font-size: 14px;">
+                                                    <span class="<?php echo $is_linked ? 'fw-bold text-dark' : 'text-muted'; ?>">
+                                                        <?php echo htmlspecialchars($kon['judul']); ?>
+                                                    </span>
+                                                    
+                                                    <?php if($is_linked): ?>
+                                                        <i class="fa fa-check-circle text-success fs-2" title="Telah Terhubung"></i>
+                                                    <?php endif; ?>
+                                                </label>
+                                            </div>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+
+                            <small class="text-muted d-block mt-2">
+                                * Centang kotak untuk menghubungkan dokumen. Anda bisa memilih lebih dari satu.<br>
+                                * Ikon centang hijau (<i class="fa fa-check-circle text-success"></i>) menandakan dokumen saat ini sudah terhubung.
+                            </small>
+                        </div>
+                      </div>
                       <div class="col-md-6">
-                        <label class="form-label">Status: Mencabut</label>
-                        <textarea class="form-control" name="mencabut" rows="3"><?php echo htmlspecialchars($doc['mencabut'] ?? ''); ?></textarea>
+                        <label class="form-label">Status: <b>Dicabut</b></label>
+                        <textarea class="form-control" name="dicabut" rows="3"><?php echo htmlspecialchars($doc['dicabut'] ?? ''); ?></textarea>
                       </div>
 
                       <div class="col-md-6">
-                        <label class="form-label">Status: Dicabut</label>
-                        <textarea class="form-control" name="dicabut" rows="3"><?php echo htmlspecialchars($doc['dicabut'] ?? ''); ?></textarea>
+                        <label class="form-label">Status: <b>Dicabut Sebagian</b></label>
+                        <textarea class="form-control" name="dicabut_sebagian" rows="3"><?php echo htmlspecialchars($doc['dicabut_sebagian'] ?? ''); ?></textarea>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Status: <b>Mencabut</b></label>
+                        <textarea class="form-control" name="mencabut" rows="3"><?php echo htmlspecialchars($doc['mencabut'] ?? ''); ?></textarea>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Status: <b>Mencabut Sebagian</b></label>
+                        <textarea class="form-control" name="mencabut_sebagian" rows="3"><?php echo htmlspecialchars($doc['mencabut_sebagian'] ?? ''); ?></textarea>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Status: <b>Diubah</b></label>
+                        <textarea class="form-control" name="diubah" rows="3"><?php echo htmlspecialchars($doc['diubah'] ?? ''); ?></textarea>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Status: <b>Diubah Sebagian</b></label>
+                        <textarea class="form-control" name="diubah_sebagian" rows="3"><?php echo htmlspecialchars($doc['diubah_sebagian'] ?? ''); ?></textarea>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Status: <b>Mengubah</b></label>
+                        <textarea class="form-control" name="mengubah" rows="3"><?php echo htmlspecialchars($doc['mengubah'] ?? ''); ?></textarea>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Status: <b>Mengubah Sebagian</b></label>
+                        <textarea class="form-control" name="mengubah_sebagian" rows="3"><?php echo htmlspecialchars($doc['mengubah_sebagian'] ?? ''); ?></textarea>
+                      </div>
+                      <div class="col-md-12">
+                        <label class="form-label">Status: <b>Uji Materi</b></label>
+                        <textarea class="form-control" name="uji_materi" rows="3"><?php echo htmlspecialchars($doc['uji_materi'] ?? ''); ?></textarea>
                       </div>
 
                       <div class="col-md-12 mt-4">

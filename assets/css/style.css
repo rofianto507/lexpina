@@ -2023,26 +2023,12 @@ main {
     border-radius: 6px;
     border-left: 4px solid #ccc; /* Garis warna default */
 }
-
-/* Desain khusus status Dicabut */
-.status-box.dicabut {
-    background-color: #fdf5f4; /* Background merah sangat muda */
-    border-left-color: #e74c3c; /* Garis merah tegas */
+.status-konten{
+    font-size: 13px;
+    color: #555;
+    line-height: 1.5;
 }
-
-.status-box.dicabut .status-label {
-    color: #e74c3c;
-}
-
-/* Desain khusus status Mencabut */
-.status-box.mencabut {
-    background-color: #f4f9fd; /* Background biru sangat muda */
-    border-left-color: #3498db; /* Garis biru tegas */
-}
-
-.status-box.mencabut .status-label {
-    color: #3498db;
-}
+ 
 
 .status-label {
     display: block;

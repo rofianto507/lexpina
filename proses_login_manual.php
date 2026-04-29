@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Cari user berdasarkan username ATAU email
-        $stmt = $pdo->prepare("SELECT id, username, password, nama, akses,foto, status FROM users WHERE username = ? OR username = ? LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id, username, password, nama, akses,foto, status FROM users WHERE (username = ? OR username = ?) and akses !='ADMIN' LIMIT 1");
         $stmt->execute([$user_email, $user_email]);
         $user = $stmt->fetch();
 
