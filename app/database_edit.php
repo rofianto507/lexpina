@@ -47,13 +47,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $kategori_post    = $_POST['kategori'];
     $rekomendasi      = isset($_POST['rekomendasi']) ? 1 : 0; 
     
-    // Tangkap Array dari multi-select konsolidasi (Bisa kosong jika tidak ada yg dipilih)
+    // Tangkap Array dari multi-select konsolidasi
     $konsolidasi_ids  = isset($_POST['konsolidasi_ids']) ? $_POST['konsolidasi_ids'] : [];
 
-    // Ambil nama file lama (jika user tidak upload PDF baru)
+    // Ambil nama file lama 
     $file_url = $_POST['file_lama']; 
 
-    // Logika Upload File PDF Baru (Jika Ada)
+    // Logika Upload File PDF Baru 
     if (isset($_FILES['file_pdf']) && $_FILES['file_pdf']['error'] == 0) {
         $ext = pathinfo($_FILES['file_pdf']['name'], PATHINFO_EXTENSION);
         if (strtolower($ext) == 'pdf') {
@@ -64,11 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $target_file = $upload_dir . $file_name;
             
             if (move_uploaded_file($_FILES['file_pdf']['tmp_name'], $target_file)) {
-                // Hapus file lama jika file baru berhasil diupload
                 if(!empty($file_url) && file_exists($upload_dir . $file_url)) {
                     unlink($upload_dir . $file_url);
                 }
-                $file_url = $file_name; // Gunakan file baru
+                $file_url = $file_name; 
             }
         } else {
             die("Hanya file PDF yang diizinkan!");
@@ -76,7 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     try {
-        // Mulai Transaksi Database agar aman (Update tabel utama & tabel relasi sekaligus)
         $pdo->beginTransaction();
 
         // 1. UPDATE TABEL UTAMA (databases)
@@ -93,35 +91,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $tgl_berlaku, $deskripsi, $dicabut, $dicabut_sebagian, $mencabut, $mencabut_sebagian, $diubah, $diubah_sebagian, $mengubah, $mengubah_sebagian, $uji_materi, $file_url, $rekomendasi, $id_dokumen
         ]);
 
-        // 2. UPDATE TABEL RELASI (relasi_konsolidasi)
-        // Cara termudah: Hapus semua relasi lama, lalu Insert yang baru
+        // 2. UPDATE TABEL RELASI 
         $stmt_del_rel = $pdo->prepare("DELETE FROM relasi_konsolidasi WHERE parent_id = ?");
         $stmt_del_rel->execute([$id_dokumen]);
 
         if (!empty($konsolidasi_ids)) {
             $stmt_ins_rel = $pdo->prepare("INSERT INTO relasi_konsolidasi (parent_id, konsolidasi_id) VALUES (?, ?)");
             foreach ($konsolidasi_ids as $k_id) {
-                // Validasi agar tidak merelasikan ke dirinya sendiri (jika dia sendiri adalah peraturan konsolidasi)
                 if ($k_id != $id_dokumen) {
                     $stmt_ins_rel->execute([$id_dokumen, $k_id]);
                 }
             }
         }
 
-        // Simpan semua perubahan
         $pdo->commit();
 
-        // Redirect kembali ke halaman list kategori
+        // Redirect jika sukses
         header("Location: database?kategori=" . $kategori_post . "&status=sukses_edit");
         exit;
     } catch (PDOException $e) {
-        $pdo->rollBack(); // Batalkan semua jika ada error
+        $pdo->rollBack();
         die("Error mengubah data: " . $e->getMessage());
     }
 }
 
 // ==========================================
-// AMBIL DATA DOKUMEN SAAT INI UNTUK DIEDIT
+// AMBIL DATA DOKUMEN SAAT INI 
 // ==========================================
 try {
     $stmt = $pdo->prepare("SELECT * FROM `databases` WHERE id = ?");
@@ -136,15 +131,13 @@ try {
     $likes = isset($doc['likes']) ? $doc['likes'] : 0;
     $bookmarks = isset($doc['bookmarks']) ? $doc['bookmarks'] : 0;
 
-    // AMBIL SEMUA DOKUMEN BERKATEGORI KONSOLIDASI (Untuk Opsi Dropdown)
     $stmt_all_kon = $pdo->prepare("SELECT id, judul FROM `databases` WHERE kategori = 'peraturan-konsolidasi' AND status = 1 ORDER BY judul ASC");
     $stmt_all_kon->execute();
     $semua_konsolidasi = $stmt_all_kon->fetchAll(PDO::FETCH_ASSOC);
 
-    // AMBIL RELASI YANG SUDAH ADA (Untuk di-select otomatis)
     $stmt_curr_rel = $pdo->prepare("SELECT konsolidasi_id FROM relasi_konsolidasi WHERE parent_id = ?");
     $stmt_curr_rel->execute([$id_dokumen]);
-    $relasi_saat_ini = $stmt_curr_rel->fetchAll(PDO::FETCH_COLUMN); // Mengembalikan array flat: [10, 15, 20]
+    $relasi_saat_ini = $stmt_curr_rel->fetchAll(PDO::FETCH_COLUMN);
 
 } catch (PDOException $e) {
     die("Error mengambil data: " . $e->getMessage());
@@ -164,8 +157,6 @@ try {
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png">
     <link rel="shortcut icon" type="image/x-icon" href="../assets/img/favicons/favicon.ico">
-    <link rel="manifest" href="../assets/img/favicons/manifest.json">
-    <meta name="msapplication-TileImage" content="../assets/img/favicons/mstile-150x150.png">
     <meta name="theme-color" content="#ffffff">
     <script src="../assets/js/config.js"></script>
     <script src="../vendors/overlayscrollbars/OverlayScrollbars.min.js"></script>
@@ -176,21 +167,6 @@ try {
     <link href="../assets/css/theme.min.css" rel="stylesheet" id="style-default">
     <link href="../assets/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl">
     <link href="../assets/css/user.min.css" rel="stylesheet" id="user-style-default">
-        <script>
-    var isRTL = JSON.parse(localStorage.getItem('isRTL'));
-    if (isRTL) {
-      var linkDefault = document.getElementById('style-default');
-      var userLinkDefault = document.getElementById('user-style-default');
-      linkDefault.setAttribute('disabled', true);
-      userLinkDefault.setAttribute('disabled', true);
-      document.querySelector('html').setAttribute('dir', 'rtl');
-    } else {
-      var linkRTL = document.getElementById('style-rtl');
-      var userLinkRTL = document.getElementById('user-style-rtl');
-      linkRTL.setAttribute('disabled', true);
-      userLinkRTL.setAttribute('disabled', true);
-    }
-    </script>
   </head>
   <body>
     <main class="main" id="top">
@@ -207,7 +183,8 @@ try {
             </div>
           </div>
 
-          <form method="POST" action="" enctype="multipart/form-data">
+          <!-- PERUBAHAN 1: Tambahkan ID pada Form -->
+          <form id="formEditDokumen" method="POST" action="" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <input type="hidden" name="file_lama" value="<?php echo htmlspecialchars($doc['file_pdf']); ?>">
 
@@ -270,18 +247,13 @@ try {
                                 <?php else: ?>
                                     <?php foreach($semua_konsolidasi as $kon): ?>
                                         <?php if($kon['id'] != $doc['id']): ?>
-                                            <?php 
-                                            // Cek apakah dokumen ini sudah terhubung
-                                            $is_linked = in_array($kon['id'], $relasi_saat_ini); 
-                                            ?>
+                                            <?php $is_linked = in_array($kon['id'], $relasi_saat_ini); ?>
                                             <div class="form-check" style=" border-bottom: 1px solid #f8f9fa; margin-bottom: 0;">
                                                 <input class="form-check-input" type="checkbox" name="konsolidasi_ids[]" value="<?php echo $kon['id']; ?>" id="kon_<?php echo $kon['id']; ?>" <?php echo $is_linked ? 'checked' : ''; ?>>
-                                                
                                                 <label class="form-check-label w-100 d-flex justify-content-between align-items-center" for="kon_<?php echo $kon['id']; ?>" style="cursor: pointer; font-size: 14px;">
                                                     <span class="<?php echo $is_linked ? 'fw-bold text-dark' : 'text-muted'; ?>">
                                                         <?php echo htmlspecialchars($kon['judul']); ?>
                                                     </span>
-                                                    
                                                     <?php if($is_linked): ?>
                                                         <i class="fa fa-check-circle text-success fs-2" title="Telah Terhubung"></i>
                                                     <?php endif; ?>
@@ -291,50 +263,18 @@ try {
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
-
-                            <small class="text-muted d-block mt-2">
-                                * Centang kotak untuk menghubungkan dokumen. Anda bisa memilih lebih dari satu.<br>
-                                * Ikon centang hijau (<i class="fa fa-check-circle text-success"></i>) menandakan dokumen saat ini sudah terhubung.
-                            </small>
                         </div>
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Status: <b>Dicabut</b></label>
-                        <textarea class="form-control" name="dicabut" rows="3"><?php echo htmlspecialchars($doc['dicabut'] ?? ''); ?></textarea>
-                      </div>
 
-                      <div class="col-md-6">
-                        <label class="form-label">Status: <b>Dicabut Sebagian</b></label>
-                        <textarea class="form-control" name="dicabut_sebagian" rows="3"><?php echo htmlspecialchars($doc['dicabut_sebagian'] ?? ''); ?></textarea>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Status: <b>Mencabut</b></label>
-                        <textarea class="form-control" name="mencabut" rows="3"><?php echo htmlspecialchars($doc['mencabut'] ?? ''); ?></textarea>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Status: <b>Mencabut Sebagian</b></label>
-                        <textarea class="form-control" name="mencabut_sebagian" rows="3"><?php echo htmlspecialchars($doc['mencabut_sebagian'] ?? ''); ?></textarea>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Status: <b>Diubah</b></label>
-                        <textarea class="form-control" name="diubah" rows="3"><?php echo htmlspecialchars($doc['diubah'] ?? ''); ?></textarea>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Status: <b>Diubah Sebagian</b></label>
-                        <textarea class="form-control" name="diubah_sebagian" rows="3"><?php echo htmlspecialchars($doc['diubah_sebagian'] ?? ''); ?></textarea>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Status: <b>Mengubah</b></label>
-                        <textarea class="form-control" name="mengubah" rows="3"><?php echo htmlspecialchars($doc['mengubah'] ?? ''); ?></textarea>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Status: <b>Mengubah Sebagian</b></label>
-                        <textarea class="form-control" name="mengubah_sebagian" rows="3"><?php echo htmlspecialchars($doc['mengubah_sebagian'] ?? ''); ?></textarea>
-                      </div>
-                      <div class="col-md-12">
-                        <label class="form-label">Status: <b>Uji Materi</b></label>
-                        <textarea class="form-control" name="uji_materi" rows="3"><?php echo htmlspecialchars($doc['uji_materi'] ?? ''); ?></textarea>
-                      </div>
+                      <div class="col-md-6"><label class="form-label">Status: <b>Dicabut</b></label><textarea class="form-control" name="dicabut" rows="3"><?php echo htmlspecialchars($doc['dicabut'] ?? ''); ?></textarea></div>
+                      <div class="col-md-6"><label class="form-label">Status: <b>Dicabut Sebagian</b></label><textarea class="form-control" name="dicabut_sebagian" rows="3"><?php echo htmlspecialchars($doc['dicabut_sebagian'] ?? ''); ?></textarea></div>
+                      <div class="col-md-6"><label class="form-label">Status: <b>Mencabut</b></label><textarea class="form-control" name="mencabut" rows="3"><?php echo htmlspecialchars($doc['mencabut'] ?? ''); ?></textarea></div>
+                      <div class="col-md-6"><label class="form-label">Status: <b>Mencabut Sebagian</b></label><textarea class="form-control" name="mencabut_sebagian" rows="3"><?php echo htmlspecialchars($doc['mencabut_sebagian'] ?? ''); ?></textarea></div>
+                      <div class="col-md-6"><label class="form-label">Status: <b>Diubah</b></label><textarea class="form-control" name="diubah" rows="3"><?php echo htmlspecialchars($doc['diubah'] ?? ''); ?></textarea></div>
+                      <div class="col-md-6"><label class="form-label">Status: <b>Diubah Sebagian</b></label><textarea class="form-control" name="diubah_sebagian" rows="3"><?php echo htmlspecialchars($doc['diubah_sebagian'] ?? ''); ?></textarea></div>
+                      <div class="col-md-6"><label class="form-label">Status: <b>Mengubah</b></label><textarea class="form-control" name="mengubah" rows="3"><?php echo htmlspecialchars($doc['mengubah'] ?? ''); ?></textarea></div>
+                      <div class="col-md-6"><label class="form-label">Status: <b>Mengubah Sebagian</b></label><textarea class="form-control" name="mengubah_sebagian" rows="3"><?php echo htmlspecialchars($doc['mengubah_sebagian'] ?? ''); ?></textarea></div>
+                      <div class="col-md-12"><label class="form-label">Status: <b>Uji Materi</b></label><textarea class="form-control" name="uji_materi" rows="3"><?php echo htmlspecialchars($doc['uji_materi'] ?? ''); ?></textarea></div>
 
                       <div class="col-md-12 mt-4">
                         <div class="p-3 bg-light rounded border">
@@ -352,38 +292,6 @@ try {
               </div>
 
               <div class="col-lg-4">
-                
-                <div class="card mb-3">
-                  <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fa fa-bar-chart text-info me-2"></i>Statistik Keterlibatan</h6>
-                  </div>
-                  <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <div class="d-flex align-items-center">
-                        <div class="icon-item icon-item-sm bg-soft-primary shadow-none me-2"><i class="fa fa-eye text-primary"></i></div>
-                        <h6 class="mb-0 text-700">Dilihat</h6>
-                      </div>
-                      <h4 class="mb-0 text-primary"><?php echo number_format($views, 0, ',', '.'); ?></h4>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <div class="d-flex align-items-center">
-                        <div class="icon-item icon-item-sm bg-soft-danger shadow-none me-2"><i class="fa fa-heart text-danger"></i></div>
-                        <h6 class="mb-0 text-700">Disukai (Likes)</h6>
-                      </div>
-                      <h4 class="mb-0 text-danger"><?php echo number_format($likes, 0, ',', '.'); ?></h4>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div class="d-flex align-items-center">
-                        <div class="icon-item icon-item-sm bg-soft-warning shadow-none me-2"><i class="fa fa-bookmark text-warning"></i></div>
-                        <h6 class="mb-0 text-700">Disimpan</h6>
-                      </div>
-                      <h4 class="mb-0 text-warning"><?php echo number_format($bookmarks, 0, ',', '.'); ?></h4>
-                    </div>
-                  </div>
-                </div>
-
                 <div class="card mb-3">
                   <div class="card-header bg-light">
                     <h6 class="mb-0"><i class="fa fa-cogs text-secondary me-2"></i>Pengaturan</h6>
@@ -391,15 +299,13 @@ try {
                   <div class="card-body">
                     <div class="form-check form-switch mb-3">
                       <input class="form-check-input" type="checkbox" id="rekomendasiCheck" name="rekomendasi" value="1" <?php echo ($doc['rekomendasi'] == 1) ? 'checked' : ''; ?>>
-                      <label class="form-check-label fw-bold text-dark" for="rekomendasiCheck">
-                         Jadikan Rekomendasi
-                      </label>
+                      <label class="form-check-label fw-bold text-dark" for="rekomendasiCheck">Jadikan Rekomendasi</label>
                     </div>
 
                     <hr class="my-4">
                     
                     <div class="alert alert-info py-2 fs--1" role="alert">
-                      <i class="fa fa-info-circle me-1"></i> <strong>Petunjuk:</strong> Pastikan tanggal diisi dengan benar. Form <i>Mencabut</i> dan <i>Dicabut</i> bisa dibiarkan kosong jika dokumen berdiri sendiri.
+                      <i class="fa fa-info-circle me-1"></i> <strong>Petunjuk:</strong> Form akan memproses file secara visual. Mohon jangan tutup tab browser saat progress bar berjalan.
                     </div>
 
                     <div class="d-grid gap-2">
@@ -420,6 +326,23 @@ try {
         </div>
       </div>
     </main>
+
+    <!-- PERUBAHAN 2: Tampilan Visual Layar Progress Bar -->
+    <div id="progressOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div style="width: 80%; max-width: 500px; text-align: center; background: #fff; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <i class="fa fa-cloud-upload text-primary mb-3" style="font-size: 60px;"></i>
+            <h3 class="mb-2 text-dark fw-bold">Menyimpan Dokumen</h3>
+            <p class="text-muted mb-4">Sedang mengunggah data ke server LexPina...</p>
+            
+            <div class="progress" style="height: 25px; border-radius: 15px; background-color: #e9ecef; box-shadow: inset 0 1px 2px rgba(0,0,0,.1);">
+                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%; font-weight: bold; font-size: 14px;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+            </div>
+            
+            <p id="progressText" class="mt-3 fw-bold text-primary fs-5">0% Terunggah</p>
+            <small class="text-danger fw-bold"><i class="fa fa-warning"></i> Jangan tutup atau _refresh_ jendela ini!</small>
+        </div>
+    </div>
+
     <script src="../vendors/jquery/jquery-3.7.0.min.js"></script>
     <script src="../vendors/popper/popper.min.js"></script>
     <script src="../vendors/bootstrap/bootstrap.min.js"></script>
@@ -429,5 +352,62 @@ try {
     <script src="../vendors/lodash/lodash.min.js"></script>
     <script src="../vendors/list.js/list.min.js"></script>
     <script src="../assets/js/theme.js"></script>
+
+    <!-- PERUBAHAN 3: Skrip AJAX Pencegat Form & Penggerak Progress Bar -->
+    <script>
+    $(document).ready(function() {
+        $('#formEditDokumen').on('submit', function(e) {
+            e.preventDefault(); // Hentikan form reload halaman bawaan browser
+
+            var form = $(this);
+            var formData = new FormData(this); // Tarik semua data termasuk PDF
+
+            // 1. Munculkan Layar Putih Progress
+            $('#progressOverlay').css('display', 'flex').hide().fadeIn();
+
+            // 2. Eksekusi Upload Background via AJAX
+            $.ajax({
+                xhr: function() {
+                    var xhr = new window.XMLHttpRequest();
+                    
+                    // Sensor pemantau proses upload
+                    xhr.upload.addEventListener("progress", function(evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = Math.round((evt.loaded / evt.total) * 100);
+                            
+                            // Animasi bar dan teks
+                            $('#progressBar').css('width', percentComplete + '%');
+                            $('#progressBar').attr('aria-valuenow', percentComplete);
+                            $('#progressBar').text(percentComplete + '%');
+                            $('#progressText').text(percentComplete + '% Data Terunggah');
+
+                            // Jika file sudah terupload sepenuhnya, tunggu respon PHP (simpan ke database)
+                            if(percentComplete === 100) {
+                                $('#progressText').text('Menyimpan ke Database... Mohon tunggu.');
+                                $('#progressBar').removeClass('progress-bar-striped').addClass('bg-success');
+                            }
+                        }
+                    }, false);
+                    return xhr;
+                },
+                type: 'POST',
+                url: form.attr('action'),
+                data: formData,
+                processData: false, // Matikan agar string bawaan JS tidak merusak PDF
+                contentType: false, // Matikan agar form otomatis menyusun boundary multipart
+                success: function(response) {
+                    // Berhasil! Lempar ke halaman kategori terkait
+                    var kategori = $('select[name="kategori"]').val();
+                    window.location.href = "database?kategori=" + kategori + "&status=sukses_edit";
+                },
+                error: function(xhr, status, error) {
+                    // Jika Nginx menolak (413) atau error lain, matikan layar dan munculkan notif
+                    $('#progressOverlay').fadeOut();
+                    alert('Terjadi kesalahan saat mengunggah. Pastikan pengaturan Nginx (client_max_body_size) server Anda cukup untuk ukuran file ini.');
+                }
+            });
+        });
+    });
+    </script>
   </body>
 </html>
