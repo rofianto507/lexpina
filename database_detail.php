@@ -84,6 +84,19 @@ try {
     $stmt_kon->execute([$id_dokumen]);
     $list_konsolidasi = $stmt_kon->fetchAll();
 
+    // ==========================================
+    // PERBAIKAN PATH UNTUK PDF MOBILE (ROOT-RELATIVE)
+    // ==========================================
+    // Cari tahu posisi root folder LexPina Anda
+    $base_dir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); 
+    if ($base_dir == '/') $base_dir = '';
+    
+    // 1. Buat path ke file PDF (cth: /lexpina/public/upload/documents/file.pdf)
+    $pdf_file_path = $base_dir . "/public/upload/documents/" . $doc['file_pdf'];
+    
+    // 2. Buat path ke file viewer.html PDF.js
+    $viewer_path = $base_dir . "/assets/pdfjs/web/viewer.html";
+
 } catch (PDOException $e) {
     die("Error mengambil dokumen: " . $e->getMessage());
 }
@@ -170,22 +183,25 @@ include 'navbar.php';
                             </div>
                         </div>
                     </div>
+                    
                     <?php if (count($list_konsolidasi) > 0): ?>
-                        <div class="konsolidasi-alert" style="background: #fff4e5; border-left: 5px solid #ffa117; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <i class="fa-solid fa-circle-info" style="color: #ffa117; font-size: 20px;"></i>
-                                <div>
-                                    <strong style="display: block; margin-bottom: 5px; color: #663c00;">Tersedia Peraturan Konsolidasi</strong>
-                                    <p style="font-size: 14px; margin: 0; color: #663c00;">Dokumen ini telah dilengkapi dengan naskah konsolidasi terbaru:</p>
-                                    <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                        <div class="konsolidasi-alert" style="background: #f8fff9; border: 1px solid #c3e6cb; border-left: 5px solid #2ecc71; padding: 15px; margin-bottom: 20px; border-radius: 6px;">
+                            <div style="display: flex; align-items: flex-start; gap: 12px;">
+                                <i class="fa-solid fa-circle-info" style="color: #27ae60; font-size: 20px; margin-top: 3px;"></i>
+                                <div style="flex: 1;">
+                                    <strong style="display: block; margin-bottom: 5px; color: #1e8449; font-size: 16px;">Tersedia Peraturan Konsolidasi</strong>
+                                    <p style="font-size: 14px; margin: 0 0 12px 0; color: #2e4053;">Dokumen ini telah dilengkapi dengan naskah konsolidasi yang menggabungkan seluruh perubahannya:</p>
+                                    
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
                                         <?php foreach ($list_konsolidasi as $kon): ?>
-                                            <li style="margin-bottom: 5px;">
-                                                <a href="database_detail.php?id=<?= $kon['id'] ?>&kategori=<?= $kon['kategori'] ?>" style="color: #e67e22; font-weight: bold; text-decoration: underline;">
+                                            <div style="display: flex; align-items: center; gap: 10px; background: #fff; padding: 10px 15px; border-radius: 6px; border: 1px solid #e8f8f5; box-shadow: 0 2px 4px rgba(46, 204, 113, 0.05);">
+                                                <i class="fa-solid fa-circle-check" style="color: #2ecc71; font-size: 18px;"></i>
+                                                <a href="database_detail.php?id=<?= $kon['id'] ?>&kategori=<?= $kon['kategori'] ?>" style="color: #2c3e50; font-weight: 700; text-decoration: none; font-size: 14px;">
                                                     <?= htmlspecialchars($kon['judul']) ?>
                                                 </a>
-                                            </li>
+                                            </div>
                                         <?php endforeach; ?>
-                                    </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -203,25 +219,329 @@ include 'navbar.php';
                 }
                 ?>
 
-                <?php if ($boleh_lihat): ?>
-                    <div class="pdf-wrapper" id="pdfWrapper">
-                        <div class="pdf-controls">
-                            <button id="btnFullscreen" class="btn-control">
-                                <i class="fa-solid fa-expand"></i> Layar Penuh
-                            </button>
-                        </div>
-                        
-                        <div class="pdf-container">
-                            <iframe 
-                                src="assets/pdfjs/web/viewer.html?file=../../../public/upload/documents/<?php echo urlencode($doc['file_pdf']); ?>" 
-                                id="pdfIframe"
-                                width="100%" 
-                                height="800px" 
-                                style="border: none;">
-                            </iframe>
-                        </div>
-                    </div>
-                <?php else: ?>
+              <?php if ($boleh_lihat): ?>
+
+<style>
+#pdf-main-wrapper {
+    width: 100%;
+    background: #525659;
+    border-radius: 8px;
+    padding: 10px;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+}
+#pdf-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: #3a3d40;
+    padding: 8px 12px;
+    border-radius: 6px 6px 0 0;
+    color: #fff;
+}
+#pdf-toolbar .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+#pdf-toolbar button {
+    background: #555;
+    color: #fff;
+    border: none;
+    padding: 7px 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+#pdf-toolbar button:hover    { background: #777; }
+#pdf-toolbar button:disabled { opacity: 0.4; cursor: not-allowed; }
+#pdf-page-info  { font-size: 13px; color: #ccc; white-space: nowrap; }
+#zoom-level     { font-size: 13px; color: #ccc; min-width: 45px; text-align: center; }
+#pdf-canvas-container {
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #525659;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+}
+#pdf-canvas-container canvas {
+    display: block;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    background: #fff;
+    max-width: 100%;
+    height: auto !important;
+}
+#pdf-status {
+    color: #ccc;
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 15px;
+    width: 100%;
+}
+#pdf-status i {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 10px;
+}
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+#pdf-main-wrapper:-webkit-full-screen #pdf-canvas-container { max-height: 95vh; }
+#pdf-main-wrapper:fullscreen          #pdf-canvas-container { max-height: 95vh; }
+</style>
+
+<!-- =====================================================
+     PENTING: Gunakan legacy build (NON-module) agar
+     kompatibel di Android lama / Samsung Browser / UC Browser
+     ===================================================== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<div id="pdf-main-wrapper" oncontextmenu="return false;">
+
+    <div id="pdf-toolbar">
+        <div class="toolbar-group">
+            <button id="btn-first"  title="Pertama"><i class="fa-solid fa-backward-step"></i></button>
+            <button id="btn-prev"   title="Sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>
+            <span id="pdf-page-info">-</span>
+            <button id="btn-next"   title="Selanjutnya"><i class="fa-solid fa-chevron-right"></i></button>
+            <button id="btn-last"   title="Terakhir"><i class="fa-solid fa-forward-step"></i></button>
+        </div>
+        <div class="toolbar-group">
+            <button id="btn-zoom-out"  title="Perkecil"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+            <span id="zoom-level">100%</span>
+            <button id="btn-zoom-in"   title="Perbesar"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+            <button id="btn-zoom-fit"  title="Fit Lebar">Fit</button>
+            <button id="btn-fullscreen" title="Layar Penuh"><i class="fa-solid fa-expand"></i></button>
+        </div>
+    </div>
+
+    <div id="pdf-canvas-container">
+        <div id="pdf-status">
+            <i class="fa-solid fa-spinner spin"></i>
+            Memuat dokumen, mohon tunggu...
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    // ── Konfigurasi ──────────────────────────────────────────
+    // Gunakan PHP Proxy agar tidak ada CORS & path file tidak terekspos
+    var PDF_URL    = 'pdf_proxy.php?id=<?php echo (int)$doc['id']; ?>';
+ var WORKER_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    var BASE_DIR   = '<?php echo $base_dir; ?>';
+    // ─────────────────────────────────────────────────────────
+
+    // Tunggu pdfjsLib siap (legacy build attach ke window)
+    if (typeof pdfjsLib === 'undefined') {
+        document.getElementById('pdf-status').innerHTML =
+            '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c"></i>' +
+            '<p style="color:#e74c3c">Gagal memuat library PDF.js.<br>Coba refresh halaman.</p>';
+        return;
+    }
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
+
+    var container   = document.getElementById('pdf-canvas-container');
+    var statusEl    = document.getElementById('pdf-status');
+    var pageInfoEl  = document.getElementById('pdf-page-info');
+    var zoomEl      = document.getElementById('zoom-level');
+
+    var pdfDoc      = null;
+    var currentPage = 1;
+    var totalPages  = 0;
+    var scale       = 1.0;
+    var isRendering = false;
+    var renderQueue = null;
+
+    // ── Helper: tampilkan status ──────────────────────────────
+    function showStatus(html) {
+        statusEl.style.display = 'block';
+        statusEl.innerHTML = html;
+    }
+    function hideStatus() {
+        statusEl.style.display = 'none';
+    }
+
+    // ── Load PDF via proxy ────────────────────────────────────
+    var loadingTask = pdfjsLib.getDocument(PDF_URL);
+
+    loadingTask.onProgress = function (data) {
+        if (data.total > 0) {
+            var pct = Math.round((data.loaded / data.total) * 100);
+            showStatus(
+                '<i class="fa-solid fa-spinner spin"></i>' +
+                'Memuat dokumen... ' + pct + '%'
+            );
+        }
+    };
+
+    loadingTask.promise.then(function (pdf) {
+        pdfDoc     = pdf;
+        totalPages = pdf.numPages;
+        hideStatus();
+        fitWidth();
+
+    }).catch(function (err) {
+        console.error('PDF.js error:', err);
+        showStatus(
+            '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c"></i>' +
+            '<p style="color:#e74c3c">Gagal memuat dokumen.<br>' +
+            '<small>' + (err.message || 'Unknown error') + '</small></p>' +
+            '<button onclick="location.reload()" style="margin-top:10px;padding:8px 16px;' +
+            'background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;">' +
+            'Coba Lagi</button>'
+        );
+    });
+
+    // ── Fit width ke lebar kontainer ─────────────────────────
+    function fitWidth() {
+        pdfDoc.getPage(1).then(function (page) {
+            var viewport    = page.getViewport({ scale: 1.0 });
+            var containerW  = container.clientWidth - 24;
+            scale = containerW / viewport.width;
+            scale = Math.max(0.4, Math.min(scale, 3.0));
+            zoomEl.textContent = Math.round(scale * 100) + '%';
+            renderPage(currentPage);
+        });
+    }
+
+    // ── Render halaman ke canvas ──────────────────────────────
+    function renderPage(pageNum) {
+        if (isRendering) {
+            renderQueue = pageNum;
+            return;
+        }
+        isRendering = true;
+
+        pdfDoc.getPage(pageNum).then(function (page) {
+            var viewport = page.getViewport({ scale: scale });
+            var dpr      = window.devicePixelRatio || 1;
+
+            // Hapus canvas lama, buat baru
+            container.innerHTML = '';
+            var canvas    = document.createElement('canvas');
+            var ctx       = canvas.getContext('2d');
+            canvas.width  = Math.floor(viewport.width  * dpr);
+            canvas.height = Math.floor(viewport.height * dpr);
+            canvas.style.width  = Math.floor(viewport.width)  + 'px';
+            canvas.style.height = Math.floor(viewport.height) + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            container.appendChild(canvas);
+
+            return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+                currentPage            = pageNum;
+                pageInfoEl.textContent = 'Hal ' + currentPage + ' / ' + totalPages;
+                updateButtons();
+                isRendering = false;
+
+                if (renderQueue !== null) {
+                    var next    = renderQueue;
+                    renderQueue = null;
+                    renderPage(next);
+                }
+            });
+
+        }).catch(function (err) {
+            console.error('Render error:', err);
+            isRendering = false;
+        });
+    }
+
+    // ── Update state tombol navigasi ─────────────────────────
+    function updateButtons() {
+        document.getElementById('btn-first').disabled = (currentPage <= 1);
+        document.getElementById('btn-prev').disabled  = (currentPage <= 1);
+        document.getElementById('btn-next').disabled  = (currentPage >= totalPages);
+        document.getElementById('btn-last').disabled  = (currentPage >= totalPages);
+    }
+
+    // ── Event: Navigasi ──────────────────────────────────────
+    document.getElementById('btn-first').addEventListener('click', function () {
+        if (currentPage > 1) renderPage(1);
+    });
+    document.getElementById('btn-prev').addEventListener('click', function () {
+        if (currentPage > 1) renderPage(currentPage - 1);
+    });
+    document.getElementById('btn-next').addEventListener('click', function () {
+        if (currentPage < totalPages) renderPage(currentPage + 1);
+    });
+    document.getElementById('btn-last').addEventListener('click', function () {
+        if (currentPage < totalPages) renderPage(totalPages);
+    });
+
+    // ── Event: Zoom ──────────────────────────────────────────
+    document.getElementById('btn-zoom-in').addEventListener('click', function () {
+        scale = Math.min(scale + 0.2, 3.0);
+        zoomEl.textContent = Math.round(scale * 100) + '%';
+        renderPage(currentPage);
+    });
+    document.getElementById('btn-zoom-out').addEventListener('click', function () {
+        scale = Math.max(scale - 0.2, 0.4);
+        zoomEl.textContent = Math.round(scale * 100) + '%';
+        renderPage(currentPage);
+    });
+    document.getElementById('btn-zoom-fit').addEventListener('click', function () {
+        fitWidth();
+    });
+
+    // ── Event: Fullscreen ────────────────────────────────────
+    document.getElementById('btn-fullscreen').addEventListener('click', function () {
+        var wrapper = document.getElementById('pdf-main-wrapper');
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            (wrapper.requestFullscreen || wrapper.webkitRequestFullscreen).call(wrapper);
+        } else {
+            (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        }
+    });
+
+    // ── Event: Keyboard ──────────────────────────────────────
+    document.addEventListener('keydown', function (e) {
+        if (!pdfDoc) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            if (currentPage < totalPages) renderPage(currentPage + 1);
+        }
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            if (currentPage > 1) renderPage(currentPage - 1);
+        }
+    });
+
+    // ── Event: Swipe mobile ───────────────────────────────────
+    var touchStartX = 0;
+    container.addEventListener('touchstart', function (e) {
+        touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    container.addEventListener('touchend', function (e) {
+        var diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) {
+            if (diff > 0 && currentPage < totalPages) renderPage(currentPage + 1);
+            if (diff < 0 && currentPage > 1)          renderPage(currentPage - 1);
+        }
+    }, { passive: true });
+
+    // ── Event: Resize / orientasi berubah ────────────────────
+    window.addEventListener('resize', function () {
+        if (pdfDoc) fitWidth();
+    });
+
+})();
+</script>
+
+<?php else: ?>
                     <div class="premium-lock-box">
                         <div class="lock-content">
                             <div class="lock-icon">
