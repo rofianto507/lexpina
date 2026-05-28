@@ -82,8 +82,8 @@ include 'navbar.php';
                         <img src="assets/img/bca.png" alt="Logo BCA" class="bank-logo">
                         <div class="bank-details">
                             <span class="bank-name">Bank Central Asia (BCA)</span>
-                            <span class="bank-account">8213 5840 605</span>
-                            <span class="bank-owner">a.n. PT LexPina Hukum Indonesia</span>
+                            <span class="bank-account">5230288854</span>
+                            <span class="bank-owner">a.n. RENDY CLAUDIO KRISNA IROTH</span>
                         </div>
                     </div>
 
