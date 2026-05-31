@@ -1910,7 +1910,7 @@ main {
     transform: translateY(-2px);
     background: #d4ac0d;
 }
-/* --- Styling Khusus Database Dokumen (Tanpa Gambar) --- */
+/* --- Styling Khusus Database Dokumen (Tanpa Gambar)fff --- */
 .doc-card {
     background: #fff;
     padding: 20px 0;
@@ -3272,6 +3272,12 @@ main {
 }
 
 .btn-confirm-payment:hover {
+    background-color: #f1c40f;
+    color: #111;
+}
+
+
+.btn-promo:hover {
     background-color: #f1c40f;
     color: #111;
 }

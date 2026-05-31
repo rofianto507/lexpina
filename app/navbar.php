@@ -147,7 +147,12 @@
                         </div>
                       </a>
                     </li>
-                      
+                    <li class="nav-item ">
+                        <a class="nav-link <?php echo ($menu=='promo') ? 'active' : ''; ?>" href="promo" aria-expanded="false">
+                        <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Data Promo</span>
+                        </div>
+                      </a>
+                    </li>  
                   </ul>
                   <a class="nav-link <?php echo ($menu=='pengguna') ? 'active' : ''; ?>" href="pengguna" role="button" aria-expanded="false">
                     <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fa fa-users"></span></span><span class="nav-link-text ps-1">Data Pengguna</span>
