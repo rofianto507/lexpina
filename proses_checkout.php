@@ -17,6 +17,8 @@ $user_id        = $_SESSION['user_id'];
 $produk_id      = $_POST['id_produk'];
 $total_transfer = $_POST['total_transfer'];
 $nama_pengirim  = htmlspecialchars($_POST['nama_pengirim']); // Mencegah serangan XSS
+$kode_promo     = isset($_POST['kode_promo']) && $_POST['kode_promo'] !== '' ? strtoupper(trim($_POST['kode_promo'])) : null;
+$diskon_nominal = isset($_POST['diskon_nominal']) ? (float)$_POST['diskon_nominal'] : 0;
 
 // Proses Upload Bukti Transfer
 $nama_file_asli = $_FILES['bukti_transfer']['name'];
@@ -44,8 +46,7 @@ if ($ukuran_file > 5000000) {
     die("<script>alert('Ukuran file terlalu besar! Maksimal 5 MB.'); window.history.back();</script>");
 }
 
-// Rename nama file agar unik (Contoh: BUKTI_1_1694200000.jpg)
-// Ini mencegah file tertimpa jika ada 2 user mengupload nama file yang sama (misal: screenshot.jpg)
+// Rename nama file agar unik
 $nama_file_baru = 'BUKTI_' . $user_id . '_' . time() . '.' . $ekstensi_file;
 $direktori_tujuan = 'public/upload/bukti/' . $nama_file_baru;
 
@@ -54,8 +55,9 @@ try {
     if (move_uploaded_file($tmp_name, $direktori_tujuan)) {
         
         // Jika file berhasil pindah, masukkan data ke tabel transaksis
-        $stmt = $pdo->prepare("INSERT INTO transaksis (user_id, produk_id, total_transfer, nama_pengirim, bukti_transfer, status) VALUES (?, ?, ?, ?, ?, 'PENDING')");
-        $stmt->execute([$user_id, $produk_id, $total_transfer, $nama_pengirim, $nama_file_baru]);
+        // Simpan juga kode_promo dan diskon_nominal jika tersedia (kolom sudah ditambahkan secara manual di DB)
+        $stmt = $pdo->prepare("INSERT INTO transaksis (user_id, produk_id, total_transfer, nama_pengirim, bukti_transfer, kode_promo, diskon_nominal, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDING')");
+        $stmt->execute([$user_id, $produk_id, $total_transfer, $nama_pengirim, $nama_file_baru, $kode_promo, $diskon_nominal]);
 
         // Berhasil! Lempar ke halaman sukses (atau profil)
         echo "<script>

@@ -179,7 +179,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   </thead>
                   <tbody>
                   <?php
-                    $stmt = $pdo->query("SELECT * FROM promos ORDER BY id DESC");                    $no = 1;
+                    // Ambil data promos sekaligus jumlah penggunaan kode dari tabel transaksis
+                    $stmt = $pdo->query("SELECT promos.*, (SELECT COUNT(*) FROM transaksis t WHERE t.kode_promo = promos.kode) AS usage_count FROM promos ORDER BY id DESC");
+                    $no = 1;
                     while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                         $expired = $row['expired_at'] ? date('d/m/Y H:i', strtotime($row['expired_at'])) : '-';
                         $nominal    = $row['nominal']    !== null ? 'Rp ' . number_format($row['nominal'], 0, ',', '.') : '-';
@@ -199,6 +201,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             ? '<span class="badge bg-success">Aktif</span>'
                             : '<span class="badge bg-secondary">Tidak Aktif</span>';
 
+                        // badge kecil yang menampilkan jumlah pengguna promo
+                        $usage_badge = '<span class="badge bg-info ms-1">'.(int)
+                            ($row['usage_count'] ?? 0).'</span>';
+
                         echo "<tr>
                             <td class='text-center'>".$no++."</td>
                             <td><span class='badge badge-soft-primary text-uppercase fw-bold' style='font-size:13px;letter-spacing:1px;'>".htmlspecialchars($row['kode'])."</span></td>
@@ -215,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     data-nominal='".($row['nominal'] ?? '')."'
                                     data-persentase='".($row['persentase'] ?? '')."'
                                     data-keterangan='".htmlspecialchars($row['keterangan'], ENT_QUOTES)."'
-                                    data-expired='".($row['expired_at'] ? date('Y-m-d\TH:i', strtotime($row['expired_at'])) : '')."'
+                                    data-expired='".($row['expired_at'] ? date('Y-m-d\\TH:i', strtotime($row['expired_at'])) : '')."'
                                     data-status='".$row['status']."'
                                     data-kode='".htmlspecialchars($row['kode'], ENT_QUOTES)."'
                                 >Edit</button>
@@ -223,10 +229,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     data-id='".$row['id']."'
                                     data-nama='".htmlspecialchars($row['nama'], ENT_QUOTES)."'
                                 >Hapus</button>
+                                <button class='btn btn-sm btn-secondary btnUsers' 
+                                    data-kode='".htmlspecialchars($row['kode'], ENT_QUOTES)."' 
+                                    data-nama='".htmlspecialchars($row['nama'], ENT_QUOTES)."'
+                                >Pengguna $usage_badge</button>
                             </td>
                         </tr>";
-                    }
-                  ?>
+                     }
+                   ?>
                   </tbody>
                 </table>
               </div>
@@ -366,6 +376,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
           </div>
 
+          <!-- Modal Pengguna Promo -->
+          <div class="modal fade" id="modalPenggunaPromo" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h6 class="modal-title">Pengguna Promo: <span id="modalPenggunaKode"></span></h6>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div id="penggunaPromoList">
+                    <table class="table table-sm table-striped">
+                      <thead>
+                        <tr>
+                          <th>No</th>
+                          <th>Nama</th>
+                          <th>Username</th>
+                          <th>Total Transfer</th>
+                          <th>Diskon</th>
+                          <th>Status</th>
+                          <th>Tanggal</th>
+                        </tr>
+                      </thead>
+                      <tbody id="penggunaPromoTbody"></tbody>
+                    </table>
+                    <div id="penggunaPromoEmpty" class="text-center text-muted" style="display:none;">Belum ada pengguna yang memakai kode ini.</div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                   <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <?php include_once("footer.php") ?>
         </div>
       </div>
@@ -398,6 +442,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $('#form_hapus_id').val($(this).data('id'));
         $('#label_hapus_nama').text($(this).data('nama'));
         $('#modalHapus').modal('show');
+      });
+
+      // Trigger Pengguna Modal (AJAX)
+      $(document).on('click', '.btnUsers', function() {
+        var kode = $(this).data('kode');
+        $('#modalPenggunaKode').text(kode);
+        $('#penggunaPromoTbody').html('');
+        $('#penggunaPromoEmpty').hide();
+        $('#modalPenggunaPromo').modal('show');
+
+        $.getJSON('get_promo_users.php', { kode: kode }, function(data) {
+          if (data && data.length) {
+            var html = '';
+            $.each(data, function(i, row) {
+              var total = row.total_transfer ? 'Rp ' + Number(row.total_transfer).toLocaleString('id-ID') : '-';
+              var diskon = row.diskon_nominal ? 'Rp ' + Number(row.diskon_nominal).toLocaleString('id-ID') : '-';
+              html += '<tr>'+
+                        '<td>'+(i+1)+'</td>'+ 
+                        '<td>'+(row.nama ? row.nama : '-')+'</td>'+ 
+                        '<td>'+(row.username ? row.username : '-')+'</td>'+ 
+                        '<td>'+total+'</td>'+ 
+                        '<td>'+diskon+'</td>'+ 
+                        '<td>'+(row.status ? row.status : '-')+'</td>'+ 
+                        '<td>'+(row.created_at ? row.created_at : '-')+'</td>'+ 
+                      '</tr>';
+            });
+            $('#penggunaPromoTbody').html(html);
+          } else {
+            $('#penggunaPromoEmpty').show();
+          }
+        }).fail(function(){
+          $('#penggunaPromoEmpty').show();
+        });
       });
     });
     </script>
