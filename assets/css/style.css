@@ -754,9 +754,13 @@ main {
     border-radius: 50%;
     width: 35px;
     height: 35px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     font-size: 16px;
-    padding: 5px;
+    padding: 0;
 }
 /* ==========================================
    PENCARIAN & FILTER DATABASE CANGGIH
@@ -935,6 +939,11 @@ main {
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
 }
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.15);
+}
+
 .card-category {
     position: absolute;
     top: 15px;
@@ -955,8 +964,6 @@ main {
 .card:hover .card-category {
     color: #f2eded;
     border-bottom-color: #f2eded;
-    transform: translateY(-8px);
-    box-shadow: 0 15px 25px rgba(0,0,0,0.15);
 }
 /* =========================================
    TOMBOL CLEAR SEARCH (X)
