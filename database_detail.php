@@ -300,6 +300,74 @@ include 'navbar.php';
 
 #pdf-main-wrapper:-webkit-full-screen #pdf-canvas-container { max-height: 95vh; }
 #pdf-main-wrapper:fullscreen          #pdf-canvas-container { max-height: 95vh; }
+
+/* ── Pencarian teks dalam dokumen ─────────────────────────── */
+#pdf-search-bar {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: #3a3d40;
+    color: #ccc;
+    padding: 8px 12px;
+    border-top: 1px solid #555;
+}
+#pdf-search-bar i.fa-magnifying-glass { color: #999; font-size: 13px; }
+#pdf-search-input {
+    flex: 1;
+    min-width: 120px;
+    background: #2c2f31;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+}
+#pdf-search-input:focus { border-color: #f1c40f; }
+#pdf-search-count {
+    font-size: 12px;
+    color: #ccc;
+    white-space: nowrap;
+    min-width: 90px;
+    text-align: center;
+}
+#pdf-search-bar button {
+    background: #555;
+    color: #fff;
+    border: none;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+#pdf-search-bar button:hover    { background: #777; }
+#pdf-search-bar button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Text layer transparan di atas canvas, hanya untuk pencarian (bukan seleksi/copy,
+   konsisten dengan proteksi user-select:none & anti klik-kanan pada wrapper) */
+#pdf-page-wrapper { position: relative; }
+.textLayer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    line-height: 1;
+    pointer-events: none;
+}
+.textLayer span {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    transform-origin: 0% 0%;
+}
+.textLayer .pdf-search-highlight {
+    background: rgba(255, 213, 0, 0.4);
+    border-radius: 2px;
+}
+.textLayer .pdf-search-highlight.current {
+    background: rgba(255, 130, 0, 0.8);
+}
 </style>
 
 <!-- =====================================================
@@ -316,6 +384,7 @@ include 'navbar.php';
             <span id="pdf-page-info">-</span>
             <button id="btn-next"   title="Selanjutnya"><i class="fa-solid fa-chevron-right"></i></button>
             <button id="btn-last"   title="Terakhir"><i class="fa-solid fa-forward-step"></i></button>
+            <button id="btn-search-toggle" title="Cari Teks"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
         <div class="toolbar-group">
             <button id="btn-zoom-out"  title="Perkecil"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
@@ -324,6 +393,15 @@ include 'navbar.php';
             <button id="btn-zoom-fit"  title="Fit Lebar">Fit</button>
             <button id="btn-fullscreen" title="Layar Penuh"><i class="fa-solid fa-expand"></i></button>
         </div>
+    </div>
+
+    <div id="pdf-search-bar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="pdf-search-input" placeholder="Cari teks dalam dokumen..." autocomplete="off">
+        <span id="pdf-search-count"></span>
+        <button id="btn-search-prev" title="Sebelumnya" disabled><i class="fa-solid fa-chevron-up"></i></button>
+        <button id="btn-search-next" title="Berikutnya" disabled><i class="fa-solid fa-chevron-down"></i></button>
+        <button id="btn-search-close" title="Tutup"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
     <div id="pdf-canvas-container">
@@ -368,6 +446,20 @@ include 'navbar.php';
     var isRendering = false;
     var renderQueue = null;
 
+    // ── State pencarian teks ──────────────────────────────────
+    var searchToggleBtn   = document.getElementById('btn-search-toggle');
+    var searchBar         = document.getElementById('pdf-search-bar');
+    var searchInput       = document.getElementById('pdf-search-input');
+    var searchCountEl     = document.getElementById('pdf-search-count');
+    var btnSearchPrev     = document.getElementById('btn-search-prev');
+    var btnSearchNext     = document.getElementById('btn-search-next');
+    var btnSearchClose    = document.getElementById('btn-search-close');
+
+    var pagesText        = {};  // pageNum -> { fullTextLower, offsets:[{start,end}], itemCount }
+    var searchMatches     = []; // [{ pageNum, start, end }] urut per halaman & posisi
+    var currentMatchIdx   = -1;
+    var currentSearchTerm = '';
+
     // ── Helper: tampilkan status ──────────────────────────────
     function showStatus(html) {
         statusEl.style.display = 'block';
@@ -410,7 +502,9 @@ include 'navbar.php';
 
     // ── Fit width ke lebar kontainer ─────────────────────────
     function fitWidth() {
-        pdfDoc.getPage(1).then(function (page) {
+        // Pakai halaman yang sedang tampil (bukan selalu halaman 1) karena
+        // ukuran/orientasi tiap halaman dalam satu dokumen bisa berbeda-beda
+        pdfDoc.getPage(currentPage).then(function (page) {
             var viewport    = page.getViewport({ scale: 1.0 });
             var containerW  = container.clientWidth - 24;
             scale = containerW / viewport.width;
@@ -432,8 +526,13 @@ include 'navbar.php';
             var viewport = page.getViewport({ scale: scale });
             var dpr      = window.devicePixelRatio || 1;
 
-            // Hapus canvas lama, buat baru
+            // Hapus halaman lama, buat wrapper baru (canvas + text layer)
             container.innerHTML = '';
+            var pageWrapper = document.createElement('div');
+            pageWrapper.id  = 'pdf-page-wrapper';
+            pageWrapper.style.width  = Math.floor(viewport.width)  + 'px';
+            pageWrapper.style.height = Math.floor(viewport.height) + 'px';
+
             var canvas    = document.createElement('canvas');
             var ctx       = canvas.getContext('2d');
             canvas.width  = Math.floor(viewport.width  * dpr);
@@ -441,21 +540,44 @@ include 'navbar.php';
             canvas.style.width  = Math.floor(viewport.width)  + 'px';
             canvas.style.height = Math.floor(viewport.height) + 'px';
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            container.appendChild(canvas);
+
+            var textLayerDiv = document.createElement('div');
+            textLayerDiv.className    = 'textLayer';
+            textLayerDiv.style.width  = Math.floor(viewport.width)  + 'px';
+            textLayerDiv.style.height = Math.floor(viewport.height) + 'px';
+            textLayerDiv.style.setProperty('--scale-factor', viewport.scale);
+
+            pageWrapper.appendChild(canvas);
+            pageWrapper.appendChild(textLayerDiv);
+            container.appendChild(pageWrapper);
 
             return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
                 currentPage            = pageNum;
                 pageInfoEl.textContent = 'Hal ' + currentPage + ' / ' + totalPages;
                 updateButtons();
-                isRendering = false;
 
-                if (renderQueue !== null) {
-                    var next    = renderQueue;
-                    renderQueue = null;
-                    renderPage(next);
-                }
+                // Render text layer (dipakai untuk fitur pencarian teks)
+                return page.getTextContent().then(function (textContent) {
+                    cachePageText(pageNum, textContent);
+                    return pdfjsLib.renderTextLayer({
+                        textContentSource: textContent,
+                        container: textLayerDiv,
+                        viewport: viewport
+                    }).promise;
+                }).then(function () {
+                    applyHighlightsOnPage(textLayerDiv, pageNum);
+                }).catch(function (err) {
+                    console.error('Text layer error:', err);
+                });
             });
 
+        }).then(function () {
+            isRendering = false;
+            if (renderQueue !== null) {
+                var next    = renderQueue;
+                renderQueue = null;
+                renderPage(next);
+            }
         }).catch(function (err) {
             console.error('Render error:', err);
             isRendering = false;
@@ -500,7 +622,9 @@ include 'navbar.php';
     });
 
     // ── Event: Fullscreen ────────────────────────────────────
-    document.getElementById('btn-fullscreen').addEventListener('click', function () {
+    var fullscreenBtn = document.getElementById('btn-fullscreen');
+
+    fullscreenBtn.addEventListener('click', function () {
         var wrapper = document.getElementById('pdf-main-wrapper');
         if (!document.fullscreenElement && !document.webkitFullscreenElement) {
             (wrapper.requestFullscreen || wrapper.webkitRequestFullscreen).call(wrapper);
@@ -508,6 +632,28 @@ include 'navbar.php';
             (document.exitFullscreen || document.webkitExitFullscreen).call(document);
         }
     });
+
+    // Ikon & title disinkronkan lewat event ini (bukan di dalam click handler)
+    // supaya tetap update walau fullscreen ditutup lewat tombol Esc bawaan browser
+    function updateFullscreenBtn() {
+        var isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        fullscreenBtn.innerHTML = isFullscreen
+            ? '<i class="fa-solid fa-compress"></i>'
+            : '<i class="fa-solid fa-expand"></i>';
+        fullscreenBtn.title = isFullscreen ? 'Keluar Layar Penuh' : 'Layar Penuh';
+
+        // Hitung ulang fit-width setelah transisi fullscreen benar-benar selesai.
+        // Tidak cukup mengandalkan event 'resize' saja karena timing-nya bisa
+        // mendahului browser selesai reflow ukuran container, sehingga canvas
+        // sempat dirender dengan skala lama yang meluber dari kontainer.
+        if (pdfDoc) {
+            requestAnimationFrame(function () {
+                requestAnimationFrame(fitWidth);
+            });
+        }
+    }
+    document.addEventListener('fullscreenchange', updateFullscreenBtn);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
 
     // ── Event: Keyboard ──────────────────────────────────────
     document.addEventListener('keydown', function (e) {
@@ -537,6 +683,218 @@ include 'navbar.php';
     window.addEventListener('resize', function () {
         if (pdfDoc) fitWidth();
     });
+
+    // ── Pencarian teks dalam dokumen ──────────────────────────
+    function cachePageText(pageNum, textContent) {
+        if (pagesText[pageNum]) return;
+        // PDF.js hanya membuat <span> untuk item dengan teks (str tidak kosong),
+        // jadi item kosong dilewati agar offsets tetap selaras index-nya dengan span hasil render
+        var items   = textContent.items;
+        var offsets = [];
+        var full    = '';
+        for (var i = 0; i < items.length; i++) {
+            var str = items[i].str || '';
+            if (str.length === 0) continue;
+            offsets.push({ start: full.length, end: full.length + str.length });
+            full += str + ' ';
+        }
+        pagesText[pageNum] = { fullTextLower: full.toLowerCase(), offsets: offsets, itemCount: offsets.length };
+    }
+
+    // Ekstrak teks semua halaman yang belum ter-cache (dibutuhkan agar pencarian
+    // mencakup seluruh dokumen, bukan cuma halaman yang sudah pernah dibuka)
+    function ensureAllPagesTextCached(onProgress) {
+        var pending = [];
+        for (var p = 1; p <= totalPages; p++) {
+            if (!pagesText[p]) pending.push(p);
+        }
+        if (pending.length === 0) return Promise.resolve();
+
+        var idx = 0;
+        function next() {
+            if (idx >= pending.length) return Promise.resolve();
+            var p = pending[idx++];
+            return pdfDoc.getPage(p).then(function (page) {
+                return page.getTextContent();
+            }).then(function (textContent) {
+                cachePageText(p, textContent);
+                if (onProgress) onProgress(idx, pending.length);
+                return next();
+            });
+        }
+        return next();
+    }
+
+    function computeMatches(term) {
+        var list      = [];
+        var termLower = term.toLowerCase();
+        if (!termLower) return list;
+        for (var p = 1; p <= totalPages; p++) {
+            var data = pagesText[p];
+            if (!data) continue;
+            var text    = data.fullTextLower;
+            var fromIdx = 0;
+            var idx;
+            while ((idx = text.indexOf(termLower, fromIdx)) !== -1) {
+                list.push({ pageNum: p, start: idx, end: idx + termLower.length });
+                fromIdx = idx + termLower.length;
+            }
+        }
+        return list;
+    }
+
+    function updateSearchCount() {
+        if (!currentSearchTerm) { searchCountEl.textContent = ''; return; }
+        if (searchMatches.length === 0) { searchCountEl.textContent = 'Tidak ditemukan'; return; }
+        searchCountEl.textContent = (currentMatchIdx + 1) + ' / ' + searchMatches.length;
+    }
+
+    // Tandai semua kecocokan pada halaman yang sedang tampil; kecocokan aktif
+    // (currentMatchIdx) diberi warna berbeda & di-scroll ke tampilan
+    function applyHighlightsOnPage(textLayerDiv, pageNum) {
+        var oldMarks = textLayerDiv.querySelectorAll('.pdf-search-highlight');
+        for (var m = 0; m < oldMarks.length; m++) {
+            oldMarks[m].classList.remove('pdf-search-highlight', 'current');
+        }
+
+        if (!currentSearchTerm || searchMatches.length === 0) return;
+
+        var spans = textLayerDiv.querySelectorAll('span');
+        var data  = pagesText[pageNum];
+        if (!data || spans.length !== data.itemCount) return;
+
+        var activeMatch     = searchMatches[currentMatchIdx];
+        var firstHighlightEl = null;
+
+        for (var i = 0; i < searchMatches.length; i++) {
+            var match = searchMatches[i];
+            if (match.pageNum !== pageNum) continue;
+            var isCurrent = (match === activeMatch);
+
+            for (var s = 0; s < data.offsets.length; s++) {
+                var off = data.offsets[s];
+                if (off.start < match.end && off.end > match.start) {
+                    spans[s].classList.add('pdf-search-highlight');
+                    if (isCurrent) {
+                        spans[s].classList.add('current');
+                        if (!firstHighlightEl) firstHighlightEl = spans[s];
+                    }
+                }
+            }
+        }
+
+        if (firstHighlightEl) {
+            firstHighlightEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+    }
+
+    function goToMatch(idx) {
+        if (searchMatches.length === 0) return;
+        idx = ((idx % searchMatches.length) + searchMatches.length) % searchMatches.length;
+        currentMatchIdx = idx;
+        updateSearchCount();
+        btnSearchPrev.disabled = false;
+        btnSearchNext.disabled = false;
+
+        var match = searchMatches[idx];
+        if (match.pageNum === currentPage) {
+            var wrapper      = document.getElementById('pdf-page-wrapper');
+            var textLayerDiv = wrapper ? wrapper.querySelector('.textLayer') : null;
+            if (textLayerDiv) applyHighlightsOnPage(textLayerDiv, currentPage);
+        } else {
+            renderPage(match.pageNum);
+        }
+    }
+
+    function doSearch(term) {
+        term = term.trim();
+        currentSearchTerm = term;
+        currentMatchIdx   = -1;
+        searchMatches     = [];
+
+        if (!term) {
+            updateSearchCount();
+            return;
+        }
+
+        searchCountEl.textContent   = 'Mencari...';
+        btnSearchPrev.disabled = true;
+        btnSearchNext.disabled = true;
+
+        ensureAllPagesTextCached(function (done, total) {
+            searchCountEl.textContent = 'Mencari... ' + done + '/' + total;
+        }).then(function () {
+            if (term !== currentSearchTerm) return; // query sudah berubah, batalkan
+            searchMatches = computeMatches(term);
+
+            if (searchMatches.length === 0) {
+                searchCountEl.textContent = 'Tidak ditemukan';
+                return;
+            }
+
+            var startIdx = 0;
+            for (var i = 0; i < searchMatches.length; i++) {
+                if (searchMatches[i].pageNum >= currentPage) { startIdx = i; break; }
+            }
+            goToMatch(startIdx);
+        }).catch(function (err) {
+            console.error('Search error:', err);
+            searchCountEl.textContent = 'Gagal mencari';
+        });
+    }
+
+    function clearSearch() {
+        currentSearchTerm = '';
+        searchMatches     = [];
+        currentMatchIdx   = -1;
+        searchInput.value = '';
+        searchCountEl.textContent  = '';
+        btnSearchPrev.disabled = true;
+        btnSearchNext.disabled = true;
+
+        var wrapper      = document.getElementById('pdf-page-wrapper');
+        var textLayerDiv = wrapper ? wrapper.querySelector('.textLayer') : null;
+        if (textLayerDiv) {
+            var marks = textLayerDiv.querySelectorAll('.pdf-search-highlight');
+            for (var m = 0; m < marks.length; m++) {
+                marks[m].classList.remove('pdf-search-highlight', 'current');
+            }
+        }
+    }
+
+    searchToggleBtn.addEventListener('click', function () {
+        var showing = (searchBar.style.display === 'flex');
+        if (showing) {
+            searchBar.style.display = 'none';
+            clearSearch();
+        } else {
+            searchBar.style.display = 'flex';
+            searchInput.focus();
+        }
+    });
+
+    btnSearchClose.addEventListener('click', function () {
+        searchBar.style.display = 'none';
+        clearSearch();
+    });
+
+    searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            var sameQuery = (searchMatches.length > 0 && currentSearchTerm === searchInput.value.trim());
+            if (sameQuery) {
+                goToMatch(currentMatchIdx + (e.shiftKey ? -1 : 1));
+            } else {
+                doSearch(searchInput.value);
+            }
+        } else if (e.key === 'Escape') {
+            searchBar.style.display = 'none';
+            clearSearch();
+        }
+    });
+
+    btnSearchNext.addEventListener('click', function () { goToMatch(currentMatchIdx + 1); });
+    btnSearchPrev.addEventListener('click', function () { goToMatch(currentMatchIdx - 1); });
 
 })();
 </script>
@@ -589,13 +947,13 @@ include 'navbar.php';
 
                         <?php if(!empty($doc['mencabut'])): ?>
                         <div class="status-box">
-                            <span class="status-label"><i class="fa-solid fa-check"></i> Mencabut dengan :</span>
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Mencabut :</span>
                             <div class="status-konten"><?php echo $doc['mencabut']; ?></div>
                         </div>
                         <?php endif; ?>
                         <?php if(!empty($doc['mencabut_sebagian'])): ?>
                         <div class="status-box">
-                            <span class="status-label"><i class="fa-solid fa-check"></i> Mencabut sebagian dengan :</span>
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Mencabut sebagian :</span>
                             <div class="status-konten"><?php echo $doc['mencabut_sebagian']; ?></div>
                         </div>
                         <?php endif; ?>
@@ -613,13 +971,13 @@ include 'navbar.php';
                         <?php endif; ?>
                         <?php if(!empty($doc['mengubah'])): ?>
                         <div class="status-box">
-                            <span class="status-label"><i class="fa-solid fa-check"></i> Mengubah dengan :</span>
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Mengubah :</span>
                             <div class="status-konten"><?php echo $doc['mengubah']; ?></div>
                         </div>
                         <?php endif; ?>
                         <?php if(!empty($doc['mengubah_sebagian'])): ?>
                         <div class="status-box">
-                            <span class="status-label"><i class="fa-solid fa-check"></i> Mengubah sebagian dengan :</span>
+                            <span class="status-label"><i class="fa-solid fa-check"></i> Mengubah sebagian :</span>
                             <div class="status-konten"><?php echo $doc['mengubah_sebagian']; ?></div>
                         </div>
                         <?php endif; ?>

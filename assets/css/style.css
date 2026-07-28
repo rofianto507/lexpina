@@ -1196,6 +1196,7 @@ main {
 /* --- Kolom Kiri (Utama) --- */
 .news-main-column {
     flex: 7; /* Mengambil rasio 7 bagian */
+    min-width: 0; /* Cegah konten lebar (mis. canvas PDF) memaksa seluruh baris melebar */
     background: #fff;
     padding: 30px;
     border-radius: 8px;
