@@ -165,7 +165,14 @@ include 'navbar.php';
                     <div class="doc-info-box">
                         <div class="info-row full-width">
                             <span class="info-label">Sumber Dokumen</span>
-                            <span class="info-value"><?php echo htmlspecialchars($doc['sumber']); ?></span>
+                            <div class="info-value-with-badge">
+                                <span class="info-value"><?php echo htmlspecialchars($doc['sumber']); ?></span>
+                                <?php if (($doc['status_berlaku'] ?? 'berlaku') === 'tidak_berlaku'): ?>
+                                    <span class="status-badge badge-ditolak"><i class="fa-solid fa-circle-xmark"></i> Tidak Berlaku</span>
+                                <?php else: ?>
+                                    <span class="status-badge badge-lunas"><i class="fa-solid fa-circle-check"></i> Berlaku</span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         
                         <div class="info-grid">
@@ -918,6 +925,13 @@ include 'navbar.php';
                     </div>
                 <?php endif; ?>
 
+                <?php if(!empty($doc['uji_materi'])): ?>
+                <div class="doc-description">
+                    <h3>Uji Materi</h3>
+                    <p><?php echo nl2br($doc['uji_materi']); ?></p>
+                </div>
+                <?php endif; ?>
+
                 <div class="doc-description">
                     <h3>Keterangan Tambahan</h3>
                     <p><?php echo nl2br(htmlspecialchars($doc['deskripsi'])); ?></p>
@@ -935,56 +949,50 @@ include 'navbar.php';
                         <?php if(!empty($doc['dicabut'])): ?>
                         <div class="status-box">
                             <span class="status-label"><i class="fa-solid fa-check"></i> Dicabut dengan : </span>
-                            <div class="status-konten"><?php echo $doc['dicabut']; ?></div> 
+                            <div class="status-konten"><?php echo nl2br($doc['dicabut']); ?></div>
                         </div>
                         <?php endif; ?>
                         <?php if(!empty($doc['dicabut_sebagian'])): ?>
                         <div class="status-box">
                             <span class="status-label"><i class="fa-solid fa-check"></i> Dicabut sebagian dengan : </span>
-                            <div class="status-konten"><?php echo $doc['dicabut_sebagian']; ?></div> 
+                            <div class="status-konten"><?php echo nl2br($doc['dicabut_sebagian']); ?></div>
                         </div>
                         <?php endif; ?>
 
                         <?php if(!empty($doc['mencabut'])): ?>
                         <div class="status-box">
                             <span class="status-label"><i class="fa-solid fa-check"></i> Mencabut :</span>
-                            <div class="status-konten"><?php echo $doc['mencabut']; ?></div>
+                            <div class="status-konten"><?php echo nl2br($doc['mencabut']); ?></div>
                         </div>
                         <?php endif; ?>
                         <?php if(!empty($doc['mencabut_sebagian'])): ?>
                         <div class="status-box">
                             <span class="status-label"><i class="fa-solid fa-check"></i> Mencabut sebagian :</span>
-                            <div class="status-konten"><?php echo $doc['mencabut_sebagian']; ?></div>
+                            <div class="status-konten"><?php echo nl2br($doc['mencabut_sebagian']); ?></div>
                         </div>
                         <?php endif; ?>
                         <?php if(!empty($doc['diubah'])): ?>
                         <div class="status-box">
                             <span class="status-label"><i class="fa-solid fa-check"></i> Diubah dengan :</span>
-                            <div class="status-konten"><?php echo $doc['diubah']; ?></div>
+                            <div class="status-konten"><?php echo nl2br($doc['diubah']); ?></div>
                         </div>
                         <?php endif; ?>
                         <?php if(!empty($doc['diubah_sebagian'])): ?>
                         <div class="status-box">
                             <span class="status-label"><i class="fa-solid fa-check"></i> Diubah sebagian dengan :</span>
-                            <div class="status-konten"><?php echo $doc['diubah_sebagian']; ?></div>
+                            <div class="status-konten"><?php echo nl2br($doc['diubah_sebagian']); ?></div>
                         </div>
                         <?php endif; ?>
                         <?php if(!empty($doc['mengubah'])): ?>
                         <div class="status-box">
                             <span class="status-label"><i class="fa-solid fa-check"></i> Mengubah :</span>
-                            <div class="status-konten"><?php echo $doc['mengubah']; ?></div>
+                            <div class="status-konten"><?php echo nl2br($doc['mengubah']); ?></div>
                         </div>
                         <?php endif; ?>
                         <?php if(!empty($doc['mengubah_sebagian'])): ?>
                         <div class="status-box">
                             <span class="status-label"><i class="fa-solid fa-check"></i> Mengubah sebagian :</span>
-                            <div class="status-konten"><?php echo $doc['mengubah_sebagian']; ?></div>
-                        </div>
-                        <?php endif; ?>
-                        <?php if(!empty($doc['uji_materi'])): ?>
-                        <div class="status-box">
-                            <span class="status-label"><i class="fa-solid fa-check"></i> Uji Materi dengan :</span>
-                            <div class="status-konten"><?php echo $doc['uji_materi']; ?></div>
+                            <div class="status-konten"><?php echo nl2br($doc['mengubah_sebagian']); ?></div>
                         </div>
                         <?php endif; ?>
                     </div>

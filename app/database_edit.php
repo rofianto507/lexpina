@@ -45,8 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $mengubah_sebagian   = $_POST['mengubah_sebagian'] ?? '';
     $uji_materi       = $_POST['uji_materi'] ?? '';
     $kategori_post    = $_POST['kategori'];
-    $rekomendasi      = isset($_POST['rekomendasi']) ? 1 : 0; 
-    
+    $rekomendasi      = isset($_POST['rekomendasi']) ? 1 : 0;
+    $status_berlaku   = ($_POST['status_berlaku'] ?? '') === 'tidak_berlaku' ? 'tidak_berlaku' : 'berlaku';
+
     // Tangkap Array dari multi-select konsolidasi
     $konsolidasi_ids  = isset($_POST['konsolidasi_ids']) ? $_POST['konsolidasi_ids'] : [];
 
@@ -78,17 +79,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $pdo->beginTransaction();
 
         // 1. UPDATE TABEL UTAMA (databases)
-        $stmt_update = $pdo->prepare("UPDATE `databases` SET 
-            kategori = ?, judul = ?, sumber = ?, tanggal_penetapan = ?, 
-            tanggal_pengundangan = ?, tanggal_berlaku = ?, deskripsi = ?, 
-            dicabut = ?, dicabut_sebagian = ?, mencabut = ?, mencabut_sebagian = ?, 
-            diubah = ?, diubah_sebagian = ?, mengubah = ?, mengubah_sebagian = ?, 
-            uji_materi = ?, file_pdf = ?, rekomendasi = ? 
+        $stmt_update = $pdo->prepare("UPDATE `databases` SET
+            kategori = ?, judul = ?, sumber = ?, tanggal_penetapan = ?,
+            tanggal_pengundangan = ?, tanggal_berlaku = ?, deskripsi = ?,
+            dicabut = ?, dicabut_sebagian = ?, mencabut = ?, mencabut_sebagian = ?,
+            diubah = ?, diubah_sebagian = ?, mengubah = ?, mengubah_sebagian = ?,
+            uji_materi = ?, file_pdf = ?, rekomendasi = ?, status_berlaku = ?
             WHERE id = ?");
-        
+
         $stmt_update->execute([
-            $kategori_post, $judul, $sumber, $tgl_penetapan, $tgl_pengundangan, 
-            $tgl_berlaku, $deskripsi, $dicabut, $dicabut_sebagian, $mencabut, $mencabut_sebagian, $diubah, $diubah_sebagian, $mengubah, $mengubah_sebagian, $uji_materi, $file_url, $rekomendasi, $id_dokumen
+            $kategori_post, $judul, $sumber, $tgl_penetapan, $tgl_pengundangan,
+            $tgl_berlaku, $deskripsi, $dicabut, $dicabut_sebagian, $mencabut, $mencabut_sebagian, $diubah, $diubah_sebagian, $mengubah, $mengubah_sebagian, $uji_materi, $file_url, $rekomendasi, $status_berlaku, $id_dokumen
         ]);
 
         // 2. UPDATE TABEL RELASI 
@@ -145,6 +146,7 @@ try {
 
   $nama=$_SESSION["nama"];
   $_SESSION["menu"]=$doc['kategori'];
+  $menu=$_SESSION["menu"];
 ?>
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
@@ -167,6 +169,21 @@ try {
     <link href="../assets/css/theme.min.css" rel="stylesheet" id="style-default">
     <link href="../assets/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl">
     <link href="../assets/css/user.min.css" rel="stylesheet" id="user-style-default">
+    <script>
+    var isRTL = JSON.parse(localStorage.getItem('isRTL'));
+    if (isRTL) {
+      var linkDefault = document.getElementById('style-default');
+      var userLinkDefault = document.getElementById('user-style-default');
+      linkDefault.setAttribute('disabled', true);
+      userLinkDefault.setAttribute('disabled', true);
+      document.querySelector('html').setAttribute('dir', 'rtl');
+    } else {
+      var linkRTL = document.getElementById('style-rtl');
+      var userLinkRTL = document.getElementById('user-style-rtl');
+      linkRTL.setAttribute('disabled', true);
+      userLinkRTL.setAttribute('disabled', true);
+    }
+    </script>
   </head>
   <body>
     <main class="main" id="top">
@@ -219,15 +236,22 @@ try {
                         <input type="text" class="form-control" name="sumber" value="<?php echo htmlspecialchars($doc['sumber']); ?>" required>
                       </div>
 
-                      <div class="col-md-4">
+                      <div class="col-md-3">
+                        <label class="form-label">Status Peraturan</label>
+                        <select class="form-select" name="status_berlaku">
+                          <option value="berlaku" <?php if(($doc['status_berlaku'] ?? 'berlaku') == 'berlaku') echo 'selected'; ?>>Berlaku</option>
+                          <option value="tidak_berlaku" <?php if(($doc['status_berlaku'] ?? '') == 'tidak_berlaku') echo 'selected'; ?>>Tidak Berlaku</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3">
                         <label class="form-label">Tanggal Penetapan</label>
                         <input type="date" class="form-control" name="tanggal_penetapan" value="<?php echo $doc['tanggal_penetapan']; ?>" required>
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-3">
                         <label class="form-label">Tanggal Pengundangan</label>
                         <input type="date" class="form-control" name="tanggal_pengundangan" value="<?php echo $doc['tanggal_pengundangan']; ?>" required>
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-3">
                         <label class="form-label">Tanggal Berlaku</label>
                         <input type="date" class="form-control" name="tanggal_berlaku" value="<?php echo $doc['tanggal_berlaku']; ?>" required>
                       </div>

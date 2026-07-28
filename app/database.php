@@ -63,7 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $uji_materi = $_POST['uji_materi'] ?? '';
         $kategori_post = $_POST['kategori'];
         $rekomendasi = isset($_POST['rekomendasi']) ? 1 : 0;
-        
+        $status_berlaku = ($_POST['status_berlaku'] ?? '') === 'tidak_berlaku' ? 'tidak_berlaku' : 'berlaku';
+
         // Tangkap Array dari multi-select konsolidasi
         $konsolidasi_ids  = isset($_POST['konsolidasi_ids']) ? $_POST['konsolidasi_ids'] : [];
         $file_url = ''; 
@@ -95,12 +96,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $pdo->beginTransaction();
 
             // 1. Simpan ke tabel databases
-            $stmt_tambah = $pdo->prepare("INSERT INTO `databases` 
-                (kategori, judul, sumber, tanggal_penetapan, tanggal_pengundangan, tanggal_berlaku, deskripsi, dicabut, dicabut_sebagian, mencabut, mencabut_sebagian, diubah, diubah_sebagian, mengubah, mengubah_sebagian, uji_materi, file_pdf, rekomendasi, status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
+            $stmt_tambah = $pdo->prepare("INSERT INTO `databases`
+                (kategori, judul, sumber, tanggal_penetapan, tanggal_pengundangan, tanggal_berlaku, deskripsi, dicabut, dicabut_sebagian, mencabut, mencabut_sebagian, diubah, diubah_sebagian, mengubah, mengubah_sebagian, uji_materi, file_pdf, rekomendasi, status_berlaku, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
 
             $stmt_tambah->execute([
-                $kategori_post, $judul, $sumber, $tgl_penetapan, $tgl_pengundangan, $tgl_berlaku, $deskripsi, $dicabut, $dicabut_sebagian, $mencabut, $mencabut_sebagian, $diubah, $diubah_sebagian, $mengubah, $mengubah_sebagian, $uji_materi, $file_url, $rekomendasi
+                $kategori_post, $judul, $sumber, $tgl_penetapan, $tgl_pengundangan, $tgl_berlaku, $deskripsi, $dicabut, $dicabut_sebagian, $mencabut, $mencabut_sebagian, $diubah, $diubah_sebagian, $mengubah, $mengubah_sebagian, $uji_materi, $file_url, $rekomendasi, $status_berlaku
             ]);
 
             // Ambil ID yang baru saja digenerate oleh MySQL
@@ -313,9 +314,18 @@ try {
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                      <label class="form-label">Sumber</label>
-                      <input type="text" class="form-control form-control-sm" name="sumber" required>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Sumber</label>
+                          <input type="text" class="form-control form-control-sm" name="sumber" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Status Peraturan</label>
+                          <select class="form-select form-select-sm" name="status_berlaku">
+                            <option value="berlaku">Berlaku</option>
+                            <option value="tidak_berlaku">Tidak Berlaku</option>
+                          </select>
+                        </div>
                     </div>
                       <div class="mb-3">
                         <label class="form-label">File PDF (URL)</label>
@@ -336,9 +346,9 @@ try {
                                     <p class="text-muted mb-0 small">Belum ada dokumen Peraturan Konsolidasi di sistem.</p>
                                 <?php else: ?>
                                     <?php foreach($semua_konsolidasi as $kon): ?>
-                                        <div class="form-check" style=" border-bottom: 1px solid #f8f9fa; margin-bottom: 0; padding: 5px 10px;">
+                                        <div class="form-check" style="border-bottom: 1px solid #f8f9fa; margin-bottom: 0; padding-top: 8px; padding-bottom: 8px; padding-right: 10px;">
                                             <input class="form-check-input" type="checkbox" name="konsolidasi_ids[]" value="<?php echo $kon['id']; ?>" id="kon_add_<?php echo $kon['id']; ?>">
-                                            <label class="form-check-label w-100" for="kon_add_<?php echo $kon['id']; ?>" style="cursor: pointer; font-size: 14px;">
+                                            <label class="form-check-label w-100 d-flex align-items-center" for="kon_add_<?php echo $kon['id']; ?>" style="cursor: pointer; font-size: 14px;">
                                                 <span class="text-secondary hover-text-dark">
                                                     <?php echo htmlspecialchars($kon['judul']); ?>
                                                 </span>

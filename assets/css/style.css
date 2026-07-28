@@ -2099,6 +2099,14 @@ main {
     font-weight: 600;
 }
 
+.info-value-with-badge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 .info-value i {
     color: #f1c40f;
     margin-right: 5px;
