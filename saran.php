@@ -9,6 +9,9 @@ $active_page = '';
 include 'header.php'; 
 include 'navbar.php'; 
 $req_judul = isset($_GET['req']) ? 'Request Dokumen: ' . htmlspecialchars($_GET['req']) : '';
+
+$kategori_options = ['Penambahan Peraturan', 'Performa Website', 'Pembayaran'];
+$req_kategori = isset($_GET['kategori']) && in_array($_GET['kategori'], $kategori_options, true) ? $_GET['kategori'] : '';
 ?>
 
     <main class="saran-page">
@@ -35,6 +38,15 @@ $req_judul = isset($_GET['req']) ? 'Request Dokumen: ' . htmlspecialchars($_GET[
                     <div class="form-group">
                         <label>Judul / Topik Pembahasan</label>
                         <input type="text" name="judul" class="form-control" required placeholder="Contoh: Request penambahan UU Hak Cipta terbaru" value="<?php echo $req_judul; ?>">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kategori Saran</label>
+                        <select name="kategori" class="form-control" required>
+                            <?php foreach ($kategori_options as $opt): ?>
+                                <option value="<?php echo $opt; ?>" <?php echo ($req_kategori === $opt) ? 'selected' : ''; ?>><?php echo $opt; ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
 
                     <div class="form-group form-group-textarea">

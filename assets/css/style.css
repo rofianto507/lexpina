@@ -1984,6 +1984,40 @@ main {
     padding: 40px; text-align: center; color: #888; background: #fff; border-radius: 8px; border: 1px dashed #ccc;
 }
 
+/* Kartu ajakan "Minta Dokumen" di bawah hasil pencarian */
+.request-doc-box {
+    margin-top: 20px;
+    padding: 40px 20px;
+    text-align: center;
+    background: #fafafa;
+    border: 2px dashed #ddd;
+    border-radius: 10px;
+}
+
+.request-doc-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: #999;
+    margin-bottom: 20px;
+}
+
+.btn-request-doc {
+    display: inline-block;
+    padding: 14px 36px;
+    background: #3f37c9;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 30px;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-request-doc:hover {
+    background: #322db0;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
 /* Widget Rekomendasi di Sidebar */
 .recommend-list {
     list-style: none;
@@ -2528,6 +2562,12 @@ main {
 .badge-reviewed {
     background: #d4edda;
     color: #155724;
+}
+
+.badge-category {
+    background: #eef1f5;
+    color: #5a6472;
+    margin-left: 10px;
 }
 
 .history-date {

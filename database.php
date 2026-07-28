@@ -258,6 +258,15 @@ include 'navbar.php';
                     </div>
                 <?php endif; ?>
 
+                <?php if ($search !== ''): ?>
+                    <div class="request-doc-box">
+                        <p class="request-doc-text">Tidak menemukan peraturan yang dicari?</p>
+                        <a href="saran.php?req=<?php echo urlencode($search); ?>&kategori=Penambahan+Peraturan" class="btn-request-doc">
+                            Minta disini!!!
+                        </a>
+                    </div>
+                <?php endif; ?>
+
             </div>
 
             <aside class="news-sidebar">

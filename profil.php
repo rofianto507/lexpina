@@ -347,6 +347,7 @@ include 'navbar.php';
                                         </div>
                                         <div class="history-date">
                                             <i class="fa-regular fa-calendar"></i> <?php echo date('d M Y, H:i', strtotime($saran['created_at'])); ?>
+                                            <span class="history-badge badge-category"><i class="fa-solid fa-tag"></i> <?php echo htmlspecialchars($saran['kategori']); ?></span>
                                         </div>
                                         <div class="history-content">
                                             <?php echo nl2br(htmlspecialchars($saran['konten'])); ?>

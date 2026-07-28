@@ -141,8 +141,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                       <th>ID</th>
                       <th>Tanggal</th>
                       <th>Judul</th>
-                      <th>Pengguna</th>    
-                      <th>Status</th>                
+                      <th>Kategori</th>
+                      <th>Pengguna</th>
+                      <th>Status</th>
                       <th>Aksi</th>
                     </tr>
                   </thead>
@@ -151,7 +152,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                       <th></th>
                       <th></th>
                       <th></th>
-                      <th></th>              
+                      <th></th>
+                      <th></th>
                       <th></th>
                       <th></th>
                     </tr>
@@ -167,12 +169,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <td>".$row['id']."</td>
                         <td>".htmlspecialchars(date('d/m/Y H:i', strtotime($row['created_at'])))."</td>
                         <td>".htmlspecialchars($row['judul'])."</td>
-                        <td>".htmlspecialchars($row['pengguna_nama'])."</td>                      
+                        <td>".htmlspecialchars($row['kategori'])."</td>
+                        <td>".htmlspecialchars($row['pengguna_nama'])."</td>
                         <td>".htmlspecialchars($row['status']==1 ? 'Ditinjau' : 'Belum Ditinjau')."</td>
                         <td>
-                          <button class='btn btn-sm btn-info btnEditSaran' 
-                          data-id='{$row['id']}' 
-                          data-judul='".htmlspecialchars($row['judul'],ENT_QUOTES)."' 
+                          <button class='btn btn-sm btn-info btnEditSaran'
+                          data-id='{$row['id']}'
+                          data-judul='".htmlspecialchars($row['judul'],ENT_QUOTES)."'
+                          data-kategori='".htmlspecialchars($row['kategori'],ENT_QUOTES)."'
                           data-pengguna-nama='{$row['pengguna_nama']}'
                           data-pengguna-id='{$row['user_id']}'
                           data-status='{$row['status']}'
@@ -227,6 +231,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                           <label for="edit_judul" class="form-label">Judul</label>
                           <input type="text" class="form-control" id="edit_judul" name="edit_judul" readonly required>
                         </div>
+                        <div class="mb-3">
+                          <label for="edit_kategori" class="form-label">Kategori</label>
+                          <input type="text" class="form-control" id="edit_kategori" name="edit_kategori" readonly required>
+                        </div>
                           <div class="mb-3">
                             <label for="edit_konten" class="form-label">Konten</label>
                             <textarea class="form-control" id="edit_konten" name="edit_konten" rows="5" required readonly></textarea>
@@ -263,7 +271,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         "autoWidth": false,
         "order": [[ 0, "desc" ]], 
          initComplete: function () {
-            this.api().columns([3, 4]).every( function () {
+            this.api().columns([3, 4, 5]).every( function () {
               var column = this;
               var select = $('<select class="form-control form-control-sm"><option value="">- Semua -</option></select>')
                 .appendTo( $(column.footer()).empty() )
@@ -291,6 +299,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
      $(document).on('click', '.btnEditSaran', function() {
         var id = $(this).data('id');
         var judul = $(this).data('judul');
+        var kategori = $(this).data('kategori');
         var pengguna_nama = $(this).data('pengguna-nama');
         var pengguna_id = $(this).data('pengguna-id');
         var konten = $(this).data('konten');
@@ -307,6 +316,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
          // Set nilai ke form edit
         $('#edit_id').val(id);
         $('#edit_judul').val(judul);
+        $('#edit_kategori').val(kategori);
         $('#pengguna_nama_edit').val(pengguna_nama);
         $('#pengguna_id_edit').val(pengguna_id);
         $('#edit_konten').val(konten);
