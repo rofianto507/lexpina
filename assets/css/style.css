@@ -1003,30 +1003,24 @@ main {
     padding: 80px 20px;
 }
 
-.stats-section h2 {
-    font-size: 22px;
-    letter-spacing: 4px;
-    margin-bottom: 50px;
-}
-
-.stats-grid {
+.konsolidasi-images-row {
     display: flex;
+    align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 50px;
-    margin-bottom: 50px;
+    gap: 30px;
+    margin-bottom: 40px;
 }
 
-.stat-item h3 {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 10px;
+.konsolidasi-img {
+    max-width: 30%;
+    height: auto;
 }
 
-.stat-item p {
-    font-size: 28px;
-    font-weight: bold;
-    color: #f1c40f; /* Menambahkan warna emas pada angka */
+@media (max-width: 768px) {
+    .konsolidasi-img {
+        max-width: 90%;
+    }
 }
 
 .btn-tentang {

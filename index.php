@@ -17,22 +17,7 @@ try {
     $slider_docs = [];
 }
 
-// ==========================================
-// 2. QUERY UNTUK STAT-SECTION (PENGHITUNG OTOMATIS)
-// ==========================================
-function countKategori($pdo, $kategori) {
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM `databases` WHERE kategori = ? AND status = 1");
-    $stmt->execute([$kategori]);
-    return $stmt->fetchColumn();
-}
-
-$count_peraturan = countKategori($pdo, 'peraturan');
-$count_putusan    = countKategori($pdo, 'putusan');
-// Untuk Perjanjian dan Karya Ilmiah, jika belum ada di DB, kita beri nilai default atau 0
-$count_perjanjian = countKategori($pdo, 'perjanjian'); 
-$count_ilmiah     = countKategori($pdo, 'karya-ilmiah');
-
-include 'header.php'; 
+include 'header.php';
 include 'navbar.php'; 
 ?>
 
@@ -79,24 +64,9 @@ include 'navbar.php';
         </section>
 
         <section class="stats-section">
-            <h2>SMARTER, MORE EFFICIENT,<br>AND ALWAYS POWERFUL</h2>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <h3>Peraturan</h3>
-                    <p><?php echo number_format($count_peraturan, 0, ',', '.'); ?></p>
-                </div>
-                <div class="stat-item">
-                    <h3>Perjanjian</h3>
-                    <p><?php echo number_format($count_perjanjian, 0, ',', '.'); ?></p>
-                </div>
-                <div class="stat-item">
-                    <h3>Putusan</h3>
-                    <p><?php echo number_format($count_putusan, 0, ',', '.'); ?></p>
-                </div>
-                <div class="stat-item">
-                    <h3>Karya Ilmiah</h3>
-                    <p><?php echo number_format($count_ilmiah, 0, ',', '.'); ?></p>
-                </div>
+            <div class="konsolidasi-images-row">
+                <img src="assets/img/ilustrasi-konsolidasi.png" alt="Ilustrasi Peraturan Konsolidasi" class="konsolidasi-img">
+                <img src="assets/img/penjelasan-konsolidasi.png" alt="Penjelasan Peraturan Konsolidasi" class="konsolidasi-img">
             </div>
             <button class="btn-tentang" onclick="location.href='tentang.php'">TENTANG KAMI</button>
         </section>
