@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once 'config/configuration.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: index");
     exit();
 }
 
@@ -41,11 +41,12 @@ if ($dokumen_id > 0) {
 }
 
 // Redirect kembali ke halaman detail dokumen
-$stmt_cat = $pdo->prepare("SELECT kategori FROM `databases` WHERE id = ?");
+$stmt_cat = $pdo->prepare("SELECT kategori, slug FROM `databases` WHERE id = ?");
 $stmt_cat->execute([$dokumen_id]);
 $doc = $stmt_cat->fetch();
 $kategori = $doc ? $doc['kategori'] : 'peraturan';
+$slug = $doc ? $doc['slug'] : '';
 
-header("Location: database_detail.php?id=" . $dokumen_id . "&kategori=" . $kategori);
+header("Location: database-detail?id=" . $dokumen_id . "&slug=" . $slug . "&kategori=" . $kategori);
 exit();
 ?>

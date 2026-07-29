@@ -6,7 +6,7 @@ require_once 'config/configuration.php';
 
 // Pastikan user sudah login
 if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: index");
     exit();
 }
 
@@ -34,15 +34,16 @@ if ($dokumen_id > 0) {
 // Redirect kembali ke halaman yang tepat
 if ($ref == 'profil') {
     // Jika dihapus dari halaman profil
-    header("Location: profil.php?tab=bookmark");
+    header("Location: profil?tab=bookmark");
 } else {
-    // Jika ditambahkan/dihapus dari halaman detail dokumen (ambil kategori dokumennya dulu untuk URL)
-    $stmt_cat = $pdo->prepare("SELECT kategori FROM `databases` WHERE id = ?");
+    // Jika ditambahkan/dihapus dari halaman detail dokumen (ambil kategori & slug dokumennya dulu untuk URL)
+    $stmt_cat = $pdo->prepare("SELECT kategori, slug FROM `databases` WHERE id = ?");
     $stmt_cat->execute([$dokumen_id]);
     $doc = $stmt_cat->fetch();
     $kategori = $doc ? $doc['kategori'] : 'peraturan';
-    
-    header("Location: database_detail.php?id=" . $dokumen_id . "&kategori=" . $kategori);
+    $slug = $doc ? $doc['slug'] : '';
+
+    header("Location: database-detail?id=" . $dokumen_id . "&slug=" . $slug . "&kategori=" . $kategori);
 }
 exit();
 ?>

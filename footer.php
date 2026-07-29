@@ -14,7 +14,7 @@
             <p>lexpina.help@gmail.com</p>
             <p>+62 82135840605</p>
             <p>Jl. Pengadegan Barat VII No. E/3, Pengadegan, Pancoran, Jakarta Selatan.</p>
-            <button class="btn-saran" onclick="window.location.href='saran.php'">Saran & Masukan</button>
+            <button class="btn-saran" onclick="window.location.href='saran'">Saran & Masukan</button>
         </div>
     </footer>
     <div class="copyright">

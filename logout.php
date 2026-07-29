@@ -5,6 +5,6 @@ session_unset();
 session_destroy();
 
 // Tendang kembali ke halaman Beranda
-header("Location: index.php");
+header("Location: index");
 exit();
 ?>

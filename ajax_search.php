@@ -6,8 +6,8 @@ $katakunci = isset($_GET['q']) ? trim($_GET['q']) : '';
 if (strlen($katakunci) > 1) {
     try {
        $stmt = $pdo->prepare("
-            SELECT id, judul, kategori, sumber, deskripsi 
-            FROM `databases` 
+            SELECT id, judul, slug, kategori, sumber, deskripsi
+            FROM `databases`
             WHERE status = 1 
             AND (judul LIKE ? OR sumber LIKE ? OR deskripsi LIKE ?) 
             ORDER BY created_at DESC 
@@ -46,7 +46,7 @@ if (strlen($katakunci) > 1) {
                 }
 
                 echo '
-                <a href="database_detail.php?id='.$row['id'].'&kategori='.$row['kategori'].'" class="live-search-item">
+                <a href="database-detail?id='.$row['id'].'&slug='.$row['slug'].'&kategori='.$row['kategori'].'" class="live-search-item">
                     <div class="ls-kategori">'.$kategori_format . $sumber_format.'</div>
                     <div class="ls-judul">'.$judul_highlight.'</div>';
                 
@@ -59,7 +59,7 @@ if (strlen($katakunci) > 1) {
             }
             
             // Tombol lihat semua hasil
-            echo '<a href="database.php?search='.urlencode($katakunci).'" class="live-search-more">Lihat semua hasil pencarian &raquo;</a>';
+            echo '<a href="database?search='.urlencode($katakunci).'" class="live-search-more">Lihat semua hasil pencarian &raquo;</a>';
             
         } else {
             // TAMPILAN JIKA DATA KOSONG + TOMBOL REQUEST
@@ -67,7 +67,7 @@ if (strlen($katakunci) > 1) {
             <div class="live-search-empty" style="padding: 25px 15px;">
                 <i class="fa-solid fa-file-circle-question" style="font-size: 30px; margin-bottom: 12px; color: #ddd;"></i>
                 <p style="margin-bottom: 15px; color: #666; font-size: 14px;">Dokumen dengan kata kunci <strong>"'.htmlspecialchars($katakunci).'"</strong> tidak ditemukan.</p>
-                <a href="saran.php?req='.urlencode($katakunci).'" class="btn-request-doc">
+                <a href="saran?req='.urlencode($katakunci).'" class="btn-request-doc">
                     <i class="fa-solid fa-paper-plane"></i> Request Dokumen Ini
                 </a>
             </div>';

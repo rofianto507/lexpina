@@ -2,8 +2,12 @@
 // 1. Definisikan halaman yang sedang aktif
 $active_page = 'tentang';
 
+// SEO: title & meta description
+$page_title = 'Tentang Kami';
+$page_description = 'Kenali lebih dekat LexPina, platform basis data hukum Indonesia yang menyediakan akses peraturan, putusan, dan informasi hukum terpercaya.';
+
 // 2. Panggil Header dan Navbar
-include 'header.php'; 
+include 'header.php';
 include 'navbar.php'; 
 ?>
 

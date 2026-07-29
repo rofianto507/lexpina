@@ -96,16 +96,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $pdo->beginTransaction();
 
             // 1. Simpan ke tabel databases
+            $slug_awal = slugify($judul);
             $stmt_tambah = $pdo->prepare("INSERT INTO `databases`
-                (kategori, judul, sumber, tanggal_penetapan, tanggal_pengundangan, tanggal_berlaku, deskripsi, dicabut, dicabut_sebagian, mencabut, mencabut_sebagian, diubah, diubah_sebagian, mengubah, mengubah_sebagian, uji_materi, file_pdf, rekomendasi, status_berlaku, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
+                (kategori, judul, slug, sumber, tanggal_penetapan, tanggal_pengundangan, tanggal_berlaku, deskripsi, dicabut, dicabut_sebagian, mencabut, mencabut_sebagian, diubah, diubah_sebagian, mengubah, mengubah_sebagian, uji_materi, file_pdf, rekomendasi, status_berlaku, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
 
             $stmt_tambah->execute([
-                $kategori_post, $judul, $sumber, $tgl_penetapan, $tgl_pengundangan, $tgl_berlaku, $deskripsi, $dicabut, $dicabut_sebagian, $mencabut, $mencabut_sebagian, $diubah, $diubah_sebagian, $mengubah, $mengubah_sebagian, $uji_materi, $file_url, $rekomendasi, $status_berlaku
+                $kategori_post, $judul, $slug_awal, $sumber, $tgl_penetapan, $tgl_pengundangan, $tgl_berlaku, $deskripsi, $dicabut, $dicabut_sebagian, $mencabut, $mencabut_sebagian, $diubah, $diubah_sebagian, $mengubah, $mengubah_sebagian, $uji_materi, $file_url, $rekomendasi, $status_berlaku
             ]);
 
             // Ambil ID yang baru saja digenerate oleh MySQL
             $new_dokumen_id = $pdo->lastInsertId();
+
+            // Sisipkan ID ke akhir slug agar dijamin unik (mis. "uu-no-40-2007-15")
+            $pdo->prepare("UPDATE `databases` SET slug = ? WHERE id = ?")
+                ->execute([$slug_awal . '-' . $new_dokumen_id, $new_dokumen_id]);
 
             // 2. Simpan ke tabel relasi_konsolidasi (jika ada yang dicentang)
             if (!empty($konsolidasi_ids)) {

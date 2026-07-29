@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Proteksi: Hanya yang sudah login dan mengirim data POST yang boleh akses
 if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] != 'POST') {
-    header("Location: index.php");
+    header("Location: index");
     exit();
 }
 
@@ -62,7 +62,7 @@ try {
         // Berhasil! Lempar ke halaman sukses (atau profil)
         echo "<script>
                 alert('Berhasil! Bukti pembayaran Anda sedang kami proses.');
-                window.location.href = 'profil.php?tab=transaksi'; 
+                window.location.href = 'profil?tab=transaksi';
               </script>";
         exit();
 

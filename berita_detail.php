@@ -10,7 +10,7 @@ $active_page = 'berita';
 $slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
 
 if(empty($slug)) {
-    header("Location: berita.php");
+    header("Location: berita");
     exit();
 }
 
@@ -30,7 +30,7 @@ try {
     $berita = $stmt->fetch();
 
     if (!$berita) {
-        echo "<script>alert('Berita tidak ditemukan!'); window.location.href='berita.php';</script>";
+        echo "<script>alert('Berita tidak ditemukan!'); window.location.href='berita';</script>";
         exit();
     }
 
@@ -81,23 +81,71 @@ try {
     die("Error memuat berita: " . $e->getMessage());
 }
 
-$current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+// URL selalu bentuk bersih (berita-detail), meski halaman diakses lewat URL lama berita_detail.php
+$current_url = $path . 'berita-detail?slug=' . urlencode($slug);
 $share_fb = "https://www.facebook.com/sharer/sharer.php?u=" . urlencode($current_url);
 $share_x  = "https://twitter.com/intent/tweet?url=" . urlencode($current_url) . "&text=" . urlencode($berita['judul']);
 $share_wa = "https://api.whatsapp.com/send?text=" . urlencode($berita['judul'] . " - Baca selengkapnya di: " . $current_url);
 
-include 'header.php'; 
-include 'navbar.php'; 
+// ==========================================
+// SEO: title & meta description dinamis (dipakai oleh header.php)
+// ==========================================
+$page_title = $berita['judul'];
+$meta_desc_raw = trim(strip_tags($berita['konten']));
+$page_description = mb_strlen($meta_desc_raw) > 160 ? mb_substr($meta_desc_raw, 0, 157) . '...' : $meta_desc_raw;
+$page_canonical = $current_url;
+if (!empty($berita['gambar'])) {
+    $page_og_image = $path . 'public/upload/news/' . $berita['gambar'];
+}
+
+include 'header.php';
+include 'navbar.php';
+
+// ==========================================
+// SEO: Structured data (JSON-LD) - Article + Breadcrumb
+// ==========================================
+$ld_article = [
+    '@context' => 'https://schema.org',
+    '@type' => 'Article',
+    'headline' => $berita['judul'],
+    'description' => $page_description,
+    'url' => $current_url,
+    'datePublished' => date('c', strtotime($berita['created_at'])),
+    'dateModified' => date('c', strtotime($berita['updated_at'] ?: $berita['created_at'])),
+    'author' => ['@type' => 'Organization', 'name' => $app_name],
+    'publisher' => [
+        '@type' => 'Organization',
+        'name' => $app_name,
+        'logo' => ['@type' => 'ImageObject', 'url' => $path . 'assets/img/logo.png'],
+    ],
+    'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $current_url],
+];
+if (!empty($berita['gambar'])) {
+    $ld_article['image'] = $path . 'public/upload/news/' . $berita['gambar'];
+}
+
+$ld_breadcrumb = [
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Beranda', 'item' => $path . 'index'],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Berita', 'item' => $path . 'berita'],
+        ['@type' => 'ListItem', 'position' => 3, 'name' => $berita['nama_kategori'], 'item' => $path . 'berita-kategori?slug=' . $berita['slug_kategori']],
+        ['@type' => 'ListItem', 'position' => 4, 'name' => $berita['judul'], 'item' => $current_url],
+    ],
+];
 ?>
+<script type="application/ld+json"><?php echo json_encode($ld_article, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?></script>
+<script type="application/ld+json"><?php echo json_encode($ld_breadcrumb, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?></script>
 
     <main class="news-page">
         <div class="news-container">
             <div class="news-main-column">
                 
                 <nav class="breadcrumb">
-                    <a href="index.php">Beranda</a> &raquo; 
-                    <a href="berita.php">Berita</a> &raquo; 
-                    <a href="berita_kategori.php?slug=<?php echo $berita['slug_kategori']; ?>"><?php echo htmlspecialchars($berita['nama_kategori']); ?></a> &raquo; 
+                    <a href="index">Beranda</a> &raquo;
+                    <a href="berita">Berita</a> &raquo;
+                    <a href="berita-kategori?slug=<?php echo $berita['slug_kategori']; ?>"><?php echo htmlspecialchars($berita['nama_kategori']); ?></a> &raquo; 
                     <span>Detail</span>
                 </nav>
 
@@ -193,17 +241,17 @@ include 'navbar.php';
                         <?php if ($total_halaman_komentar > 1): ?>
                         <div class="pagination comment-pagination">
                             <?php if ($halaman_komentar > 1): ?>
-                                <a href="berita_detail.php?slug=<?php echo urlencode($slug); ?>&cp=<?php echo $halaman_komentar - 1; ?>#kolom-komentar" class="page-btn prev"><i class="fa-solid fa-chevron-left"></i> Prev</a>
+                                <a href="berita-detail?slug=<?php echo urlencode($slug); ?>&cp=<?php echo $halaman_komentar - 1; ?>#kolom-komentar" class="page-btn prev"><i class="fa-solid fa-chevron-left"></i> Prev</a>
                             <?php endif; ?>
 
                             <?php for ($i = 1; $i <= $total_halaman_komentar; $i++): ?>
-                                <a href="berita_detail.php?slug=<?php echo urlencode($slug); ?>&cp=<?php echo $i; ?>#kolom-komentar" class="page-num <?php echo ($i == $halaman_komentar) ? 'active' : ''; ?>">
+                                <a href="berita-detail?slug=<?php echo urlencode($slug); ?>&cp=<?php echo $i; ?>#kolom-komentar" class="page-num <?php echo ($i == $halaman_komentar) ? 'active' : ''; ?>">
                                     <?php echo $i; ?>
                                 </a>
                             <?php endfor; ?>
 
                             <?php if ($halaman_komentar < $total_halaman_komentar): ?>
-                                <a href="berita_detail.php?slug=<?php echo urlencode($slug); ?>&cp=<?php echo $halaman_komentar + 1; ?>#kolom-komentar" class="page-btn next">Next <i class="fa-solid fa-chevron-right"></i></a>
+                                <a href="berita-detail?slug=<?php echo urlencode($slug); ?>&cp=<?php echo $halaman_komentar + 1; ?>#kolom-komentar" class="page-btn next">Next <i class="fa-solid fa-chevron-right"></i></a>
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
@@ -223,7 +271,7 @@ include 'navbar.php';
                     <h3 class="widget-title">Kategori</h3>
                     <ul class="category-list">
                         <?php foreach($kategoris as $cat): ?>
-                        <li><a href="berita_kategori.php?slug=<?php echo $cat['slug_kategori']; ?>"><?php echo $cat['nama_kategori']; ?> <span>(<?php echo $cat['jumlah_berita']; ?>)</span></a></li>
+                        <li><a href="berita-kategori?slug=<?php echo $cat['slug_kategori']; ?>"><?php echo $cat['nama_kategori']; ?> <span>(<?php echo $cat['jumlah_berita']; ?>)</span></a></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
@@ -237,7 +285,7 @@ include 'navbar.php';
                         <div class="popular-item">
                             <div class="pop-number"><?php echo $no++; ?></div>
                             <div class="pop-text">
-                                <h4><a href="berita_detail.php?slug=<?php echo $pop['slug']; ?>"><?php echo htmlspecialchars($pop['judul']); ?></a></h4>
+                                <h4><a href="berita-detail?slug=<?php echo $pop['slug']; ?>"><?php echo htmlspecialchars($pop['judul']); ?></a></h4>
                                 <span><i class="fa-solid fa-eye"></i> <?php echo number_format($pop['views'], 0, ',', '.'); ?> Views</span>
                             </div>
                         </div>

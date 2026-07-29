@@ -1,7 +1,7 @@
 <?php 
 session_start();
 if(!isset($_SESSION['user_id']) && !isset($_SESSION['id'])) {
-    header("Location: langganan.php");
+    header("Location: langganan");
     exit();
 }
 
@@ -18,7 +18,7 @@ try {
 
     // Jika user iseng memasukkan ID abal-abal di URL
     if(!$paket) {
-        die("<div style='text-align:center; padding:50px; font-family:sans-serif;'><h2>Paket tidak ditemukan.</h2><a href='langganan.php'>Kembali</a></div>");
+        die("<div style='text-align:center; padding:50px; font-family:sans-serif;'><h2>Paket tidak ditemukan.</h2><a href='langganan'>Kembali</a></div>");
     }
 
     // Generate Kode Unik

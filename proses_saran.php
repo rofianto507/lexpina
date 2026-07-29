@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Cek ulang apakah user benar-benar login
     if (!isset($_SESSION['user_id'])) {
-        header("Location: index.php");
+        header("Location: index");
         exit();
     }
 
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute();
 
             // Berhasil! Kembalikan ke form dengan parameter status=sukses
-            header("Location: saran.php?status=sukses");
+            header("Location: saran?status=sukses");
             exit();
 
         } catch (PDOException $e) {
@@ -48,13 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } else {
         // Jika ada field kosong, paksa kembali ke form
-        header("Location: saran.php");
+        header("Location: saran");
         exit();
     }
 
 } else {
     // Tendang jika diakses langsung lewat URL
-    header("Location: index.php");
+    header("Location: index");
     exit();
 }
 ?>

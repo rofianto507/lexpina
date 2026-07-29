@@ -69,7 +69,13 @@ try {
     die("Gagal memuat data: " . $e->getMessage());
 }
 
-include 'header.php'; 
+// ==========================================
+// SEO: title & meta description dinamis (dipakai oleh header.php)
+// ==========================================
+$page_title = 'Berita Hukum';
+$page_description = 'Kumpulan berita dan informasi hukum terkini seputar peraturan, undang-undang, dan putusan pengadilan di Indonesia.';
+
+include 'header.php';
 include 'navbar.php'; 
 ?>
 
@@ -92,14 +98,14 @@ include 'navbar.php';
                                 <span><i class="fa-regular fa-comments"></i> <?php echo $row['total_komentar']; ?> Komentar</span>
                             </div>
                             <h3 class="news-title">
-                                <a href="berita_detail.php?slug=<?php echo $row['slug']; ?>">
+                                <a href="berita-detail?slug=<?php echo $row['slug']; ?>">
                                     <?php echo htmlspecialchars($row['judul']); ?>
                                 </a>
                             </h3>
                             <p class="news-excerpt">
                                 <?php echo substr(strip_tags($row['konten']), 0, 160); ?>...
                             </p>
-                            <a href="berita_detail.php?slug=<?php echo $row['slug']; ?>" class="read-more">Baca Selengkapnya &raquo;</a>
+                            <a href="berita-detail?slug=<?php echo $row['slug']; ?>" class="read-more">Baca Selengkapnya &raquo;</a>
                         </div>
                     </article>
                     <?php endforeach; ?>
@@ -108,17 +114,17 @@ include 'navbar.php';
                     <div class="pagination">
                         
                         <?php if ($halaman_aktif > 1): ?>
-                            <a href="berita.php?page=<?php echo $halaman_aktif - 1; ?>" class="page-btn prev"><i class="fa-solid fa-chevron-left"></i> Prev</a>
+                            <a href="berita?page=<?php echo $halaman_aktif - 1; ?>" class="page-btn prev"><i class="fa-solid fa-chevron-left"></i> Prev</a>
                         <?php endif; ?>
 
                         <?php for ($i = 1; $i <= $total_halaman; $i++): ?>
-                            <a href="berita.php?page=<?php echo $i; ?>" class="page-num <?php echo ($i == $halaman_aktif) ? 'active' : ''; ?>">
+                            <a href="berita?page=<?php echo $i; ?>" class="page-num <?php echo ($i == $halaman_aktif) ? 'active' : ''; ?>">
                                 <?php echo $i; ?>
                             </a>
                         <?php endfor; ?>
 
                         <?php if ($halaman_aktif < $total_halaman): ?>
-                            <a href="berita.php?page=<?php echo $halaman_aktif + 1; ?>" class="page-btn next">Next <i class="fa-solid fa-chevron-right"></i></a>
+                            <a href="berita?page=<?php echo $halaman_aktif + 1; ?>" class="page-btn next">Next <i class="fa-solid fa-chevron-right"></i></a>
                         <?php endif; ?>
                         
                     </div>
@@ -136,7 +142,7 @@ include 'navbar.php';
                     <h3 class="widget-title">Kategori</h3>
                     <ul class="category-list">
                         <?php foreach($kategoris as $cat): ?>
-                        <li><a href="berita_kategori.php?slug=<?php echo $cat['slug_kategori']; ?>"><?php echo $cat['nama_kategori']; ?> <span>(<?php echo $cat['jumlah_berita']; ?>)</span></a></li>
+                        <li><a href="berita-kategori?slug=<?php echo $cat['slug_kategori']; ?>"><?php echo $cat['nama_kategori']; ?> <span>(<?php echo $cat['jumlah_berita']; ?>)</span></a></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
@@ -150,7 +156,7 @@ include 'navbar.php';
                         <div class="popular-item">
                             <div class="pop-number"><?php echo $no++; ?></div>
                             <div class="pop-text">
-                                <h4><a href="berita_detail.php?slug=<?php echo $pop['slug']; ?>"><?php echo htmlspecialchars($pop['judul']); ?></a></h4>
+                                <h4><a href="berita-detail?slug=<?php echo $pop['slug']; ?>"><?php echo htmlspecialchars($pop['judul']); ?></a></h4>
                                 <span><i class="fa-solid fa-eye"></i> <?php echo number_format($pop['views'], 0, ',', '.'); ?> Views</span>
                             </div>
                         </div>

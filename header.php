@@ -61,21 +61,45 @@ if(isset($_SESSION['user_id'])) {
             // Force logout jika user ternyata dihapus oleh admin
             session_unset();
             session_destroy();
-            header("Location: " . $path . "index.php");
+            header("Location: " . $path . "index");
             exit();
         }
     } catch (PDOException $e) {
         // Biarkan kosong agar website tidak nge-blank jika ada error minor
     }
 }
+// ==========================================
+// SEO: Title, meta description & canonical dinamis
+// Halaman bisa override dengan set $page_title / $page_description /
+// $page_canonical / $page_og_image SEBELUM include header.php
+// ==========================================
+$seo_title       = isset($page_title) ? $page_title . ' | ' . $app_name : $app_name . ' - ' . $app_description;
+$seo_description = isset($page_description) ? $page_description : $app_description;
+$seo_url_scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+$seo_current_url = $seo_url_scheme . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+$seo_canonical   = isset($page_canonical) ? $page_canonical : $seo_current_url;
+$seo_og_image    = isset($page_og_image) ? $page_og_image : $path . 'assets/img/logo.png';
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $app_name; ?> - <?php echo $app_description; ?></title>
-    
+    <title><?php echo htmlspecialchars($seo_title); ?></title>
+    <meta name="description" content="<?php echo htmlspecialchars($seo_description); ?>">
+    <link rel="canonical" href="<?php echo htmlspecialchars($seo_canonical); ?>">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="<?php echo htmlspecialchars($app_name); ?>">
+    <meta property="og:title" content="<?php echo htmlspecialchars(isset($page_title) ? $page_title : $app_name); ?>">
+    <meta property="og:description" content="<?php echo htmlspecialchars($seo_description); ?>">
+    <meta property="og:url" content="<?php echo htmlspecialchars($seo_canonical); ?>">
+    <meta property="og:image" content="<?php echo htmlspecialchars($seo_og_image); ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo htmlspecialchars(isset($page_title) ? $page_title : $app_name); ?>">
+    <meta name="twitter:description" content="<?php echo htmlspecialchars($seo_description); ?>">
+    <meta name="twitter:image" content="<?php echo htmlspecialchars($seo_og_image); ?>">
+
     <script>
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark-mode');
@@ -96,7 +120,7 @@ if(isset($_SESSION['user_id'])) {
 
     <header class="top-header main-header">
         <div class="logo">
-            <a href="<?php echo $path; ?>index.php">
+            <a href="<?php echo $path; ?>index">
                 <img src="<?php echo $path; ?>assets/img/logo.png" alt="Logo LexPina" class="logo-img">
             </a>
         </div>
@@ -104,7 +128,7 @@ if(isset($_SESSION['user_id'])) {
             <?php if(isset($_SESSION['user_id'])) { ?>
             <div class="header-user-actions" style="display: flex; align-items: center; gap: 20px;">
                 <?php if(empty($_SESSION['akses']) || $_SESSION['akses'] != 'MEMBER') { ?>
-                    <a href="<?php echo $path; ?>langganan.php" class="btn-subscribe-header">Subscribe</a>
+                    <a href="<?php echo $path; ?>langganan" class="btn-subscribe-header">Subscribe</a>
                 <?php } ?>
 
                 <div class="user-profile dropdown-profile">
@@ -131,7 +155,7 @@ if(isset($_SESSION['user_id'])) {
                     </div>
                     
                     <div class="profile-menu">
-                        <a href="<?php echo $path; ?>profil.php?tab=profil"><i class="fa-regular fa-id-badge"></i> Profil Saya</a>
+                        <a href="<?php echo $path; ?>profil?tab=profil"><i class="fa-regular fa-id-badge"></i> Profil Saya</a>
                         
                         
 
@@ -144,7 +168,7 @@ if(isset($_SESSION['user_id'])) {
 
             <?php } else { ?>
             <div class="auth-buttons" style="display: flex; align-items: center; gap: 10px;">
-                <a href="<?php echo $path; ?>langganan.php" class="btn-subscribe-header">Subscribe</a>
+                <a href="<?php echo $path; ?>langganan" class="btn-subscribe-header">Subscribe</a>
                 <button type="button" id="btnOpenLogin" class="btn-signin">Sign In</button>
             </div>
             <?php } ?>
@@ -246,7 +270,7 @@ if(isset($_SESSION['user_id'])) {
             <p>Apakah Anda yakin ingin keluar dari akun LexPina?</p>
             <div class="modal-actions">
                 <button type="button" id="btnCancelLogout" class="btn-cancel-modal">Batal</button>
-                <a href="<?php echo $path; ?>logout.php" class="btn-confirm-logout">Ya, Keluar</a>
+                <a href="<?php echo $path; ?>logout" class="btn-confirm-logout">Ya, Keluar</a>
             </div>
         </div>
     </div>

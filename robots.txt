@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /login/
+Disallow: /config/
+Disallow: /profil.php
+Disallow: /checkout.php
+Disallow: /proses_
+Disallow: /ajax_search.php
+Disallow: /track_visitor.php
+Disallow: /pdf_proxy.php
+Disallow: /cek_promo.php
+
+Sitemap: https://lexpina.com/sitemap.xml

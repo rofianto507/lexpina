@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: index");
     exit();
 }
 
@@ -124,23 +124,23 @@ include 'navbar.php';
                 </div>
 
                 <ul class="profile-nav-list">
-                    <li><a href="profil.php?tab=profil" class="<?php echo ($tab == 'profil') ? 'active' : ''; ?>"><i class="fa-regular fa-user"></i> Informasi Pribadi</a></li>
+                    <li><a href="profil?tab=profil" class="<?php echo ($tab == 'profil') ? 'active' : ''; ?>"><i class="fa-regular fa-user"></i> Informasi Pribadi</a></li>
                     
                     <?php if($is_manual_user): ?>
-                    <li><a href="profil.php?tab=password" class="<?php echo ($tab == 'password') ? 'active' : ''; ?>"><i class="fa-solid fa-key"></i> Ganti Password</a></li>
+                    <li><a href="profil?tab=password" class="<?php echo ($tab == 'password') ? 'active' : ''; ?>"><i class="fa-solid fa-key"></i> Ganti Password</a></li>
                     <?php endif; ?>
 
-                    <li><a href="profil.php?tab=transaksi" class="<?php echo ($tab == 'transaksi') ? 'active' : ''; ?>"><i class="fa-solid fa-file-invoice-dollar"></i> Riwayat Transaksi</a></li>
+                    <li><a href="profil?tab=transaksi" class="<?php echo ($tab == 'transaksi') ? 'active' : ''; ?>"><i class="fa-solid fa-file-invoice-dollar"></i> Riwayat Transaksi</a></li>
                     <li>
-                        <a href="profil.php?tab=notifikasi" class="<?php echo ($tab == 'notifikasi') ? 'active' : ''; ?>" style="display: flex; justify-content: space-between; align-items: center;">
+                        <a href="profil?tab=notifikasi" class="<?php echo ($tab == 'notifikasi') ? 'active' : ''; ?>" style="display: flex; justify-content: space-between; align-items: center;">
                             <span><i class="fa-regular fa-bell"></i> Notifikasi</span>
                             <?php if($unread_notif_count > 0): ?>
                                 <span style="background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: bold;"><?php echo $unread_notif_count; ?></span>
                             <?php endif; ?>
                         </a>
                     </li>
-                    <li><a href="profil.php?tab=saran" class="<?php echo ($tab == 'saran') ? 'active' : ''; ?>"><i class="fa-solid fa-envelope-open-text"></i> Riwayat Saran & Masukan</a></li>
-                    <li><a href="profil.php?tab=bookmark" class="<?php echo ($tab == 'bookmark') ? 'active' : ''; ?>"><i class="fa-regular fa-bookmark"></i> Dokumen Tersimpan</a></li>
+                    <li><a href="profil?tab=saran" class="<?php echo ($tab == 'saran') ? 'active' : ''; ?>"><i class="fa-solid fa-envelope-open-text"></i> Riwayat Saran & Masukan</a></li>
+                    <li><a href="profil?tab=bookmark" class="<?php echo ($tab == 'bookmark') ? 'active' : ''; ?>"><i class="fa-regular fa-bookmark"></i> Dokumen Tersimpan</a></li>
                 </ul>
             </aside>
 
@@ -152,7 +152,7 @@ include 'navbar.php';
                         
                         <?php echo $pesan; ?>
 
-                        <form class="form-profile" method="POST" action="profil.php?tab=profil">
+                        <form class="form-profile" method="POST" action="profil?tab=profil">
                             <input type="hidden" name="action" value="update_profil">
                             
                             <div class="form-group">
@@ -181,7 +181,7 @@ include 'navbar.php';
 
                         <?php echo $pesan; ?>
 
-                        <form class="form-profile" method="POST" action="profil.php?tab=password">
+                        <form class="form-profile" method="POST" action="profil?tab=password">
                             <input type="hidden" name="action" value="update_password">
                             
                             <div class="form-group">
@@ -249,7 +249,7 @@ include 'navbar.php';
                             <div class="empty-state-box">
                                 <i class="fa-solid fa-receipt empty-state-icon"></i>
                                 <p class="empty-state-text">Anda belum memiliki riwayat transaksi.</p>
-                                <a href="langganan.php" class="btn-save-profile btn-link-action">Lihat Paket Premium</a>
+                                <a href="langganan" class="btn-save-profile btn-link-action">Lihat Paket Premium</a>
                             </div>
                         <?php endif; ?>
                     <?php elseif ($tab == 'notifikasi'): ?>
@@ -359,7 +359,7 @@ include 'navbar.php';
                             <div class="empty-state-box">
                                 <i class="fa-solid fa-envelope-open-text empty-state-icon"></i>
                                 <p class="empty-state-text">Anda belum pernah mengirimkan saran atau masukan.</p>
-                                <a href="saran.php" class="btn-save-profile btn-link-action">
+                                <a href="saran" class="btn-save-profile btn-link-action">
                                     <i class="fa-solid fa-pen-to-square"></i> Tulis Saran Sekarang
                                 </a>
                             </div>
@@ -372,8 +372,8 @@ include 'navbar.php';
                         <?php
                         // Tarik data bookmark di-JOIN dengan tabel databases
                         $stmt_bms = $pdo->prepare("
-                            SELECT b.dokumen_id, d.judul, d.kategori, d.tanggal_penetapan, d.views 
-                            FROM bookmarks b 
+                            SELECT b.dokumen_id, d.judul, d.slug, d.kategori, d.tanggal_penetapan, d.views
+                            FROM bookmarks b
                             JOIN `databases` d ON b.dokumen_id = d.id 
                             WHERE b.user_id = ? 
                             ORDER BY b.created_at DESC
@@ -393,7 +393,7 @@ include 'navbar.php';
                                                 <?php echo $cat_name; ?>
                                             </span>
                                             <h3 class="history-title" >
-                                                <a href="database_detail.php?id=<?php echo $bm['dokumen_id']; ?>&kategori=<?php echo $bm['kategori']; ?>" >
+                                                <a href="database-detail?id=<?php echo $bm['dokumen_id']; ?>&slug=<?php echo $bm['slug']; ?>&kategori=<?php echo $bm['kategori']; ?>" >
                                                     <?php echo htmlspecialchars($bm['judul']); ?>
                                                 </a>
                                             </h3>
@@ -416,7 +416,7 @@ include 'navbar.php';
                             <div class="empty-state-box">
                                 <i class="fa-regular fa-bookmark empty-state-icon"></i>
                                 <p class="empty-state-text">Anda belum menyimpan dokumen apapun.</p>
-                                <a href="database.php" class="btn-save-profile btn-link-action">
+                                <a href="database" class="btn-save-profile btn-link-action">
                                     <i class="fa-solid fa-magnifying-glass"></i> Cari Dokumen Hukum
                                 </a>
                             </div>

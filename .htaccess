@@ -1,2 +1,16 @@
 RewriteEngine On # Turn on the rewriting engine
 RewriteRule ^index$ index.php [NC,L]
+RewriteRule ^sitemap\.xml$ sitemap.php [NC,L]
+
+# Clean URL untuk halaman publik (hilangkan ekstensi .php)
+RewriteRule ^database$ database.php [NC,L]
+RewriteRule ^database-detail$ database_detail.php [NC,L]
+RewriteRule ^berita$ berita.php [NC,L]
+RewriteRule ^berita-detail$ berita_detail.php [NC,L]
+RewriteRule ^berita-kategori$ berita_kategori.php [NC,L]
+RewriteRule ^tentang$ tentang.php [NC,L]
+RewriteRule ^langganan$ langganan.php [NC,L]
+RewriteRule ^saran$ saran.php [NC,L]
+RewriteRule ^checkout$ checkout.php [NC,L]
+RewriteRule ^profil$ profil.php [NC,L]
+RewriteRule ^logout$ logout.php [NC,L]

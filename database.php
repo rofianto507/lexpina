@@ -125,15 +125,25 @@ try {
 }
 
 // Sidebar: Tarik 3 Dokumen Terpopuler & Rekomendasi
-$stmt_pop = $pdo->prepare("SELECT id, judul, views, kategori FROM `databases` WHERE status = 1 ORDER BY views DESC LIMIT 3");
+$stmt_pop = $pdo->prepare("SELECT id, judul, slug, views, kategori FROM `databases` WHERE status = 1 ORDER BY views DESC LIMIT 3");
 $stmt_pop->execute();
 $populer_list = $stmt_pop->fetchAll();
 
-$stmt_rec = $pdo->prepare("SELECT id, judul, deskripsi, kategori FROM `databases` WHERE status = 1 AND rekomendasi = 1 ORDER BY created_at DESC LIMIT 3");
+$stmt_rec = $pdo->prepare("SELECT id, judul, slug, deskripsi, kategori FROM `databases` WHERE status = 1 AND rekomendasi = 1 ORDER BY created_at DESC LIMIT 3");
 $stmt_rec->execute();
 $rekomendasi_list = $stmt_rec->fetchAll();
 
-include 'header.php'; 
+// ==========================================
+// SEO: title & meta description dinamis (dipakai oleh header.php)
+// ==========================================
+$page_title = $title_display;
+if ($search !== '') {
+    $page_description = 'Hasil pencarian dokumen hukum untuk kata kunci "' . $search . '" di database hukum LexPina.';
+} else {
+    $page_description = $title_display . ' - Kumpulan dokumen hukum lengkap dan terpercaya di LexPina.';
+}
+
+include 'header.php';
 include 'navbar.php'; 
 ?>
 
@@ -142,7 +152,7 @@ include 'navbar.php';
             
             <div class="news-main-column">
                 
-                <form action="database.php" method="GET" id="searchFilterForm">
+                <form action="database" method="GET" id="searchFilterForm">
                     
                     <div class="database-search-wrapper">
                         
@@ -174,7 +184,7 @@ include 'navbar.php';
                         <?php if($search !== '' || $filter_kategori !== 'all' || $sort_by !== 'terbaru'): ?>
                             <div class="search-status-text">
                                 <span>Filter pencarian sedang aktif.</span>
-                                <a href="database.php" class="btn-reset-filter">
+                                <a href="database" class="btn-reset-filter">
                                     <i class="fa-solid fa-xmark"></i> Reset Semua
                                 </a>
                             </div>
@@ -207,7 +217,7 @@ include 'navbar.php';
                                 </div>
                                 
                                 <h3 class="doc-title">
-                                    <a href="database_detail.php?id=<?php echo $doc['id']; ?>&kategori=<?php echo $doc['kategori']; ?>">
+                                    <a href="database-detail?id=<?php echo $doc['id']; ?>&slug=<?php echo $doc['slug']; ?>&kategori=<?php echo $doc['kategori']; ?>">
                                         <?php echo htmlspecialchars($doc['judul']); ?>
                                     </a>
                                 </h3>
@@ -231,17 +241,17 @@ include 'navbar.php';
                     <?php if ($total_halaman > 1): ?>
                     <div class="pagination">
                         <?php if ($halaman_aktif > 1): ?>
-                            <a href="database.php?page=<?php echo $halaman_aktif - 1; ?><?php echo $url_params; ?>" class="page-btn prev"><i class="fa-solid fa-chevron-left"></i> Prev</a>
+                            <a href="database?page=<?php echo $halaman_aktif - 1; ?><?php echo $url_params; ?>" class="page-btn prev"><i class="fa-solid fa-chevron-left"></i> Prev</a>
                         <?php endif; ?>
 
                         <?php for ($i = 1; $i <= $total_halaman; $i++): ?>
-                            <a href="database.php?page=<?php echo $i; ?><?php echo $url_params; ?>" class="page-num <?php echo ($i == $halaman_aktif) ? 'active' : ''; ?>">
+                            <a href="database?page=<?php echo $i; ?><?php echo $url_params; ?>" class="page-num <?php echo ($i == $halaman_aktif) ? 'active' : ''; ?>">
                                 <?php echo $i; ?>
                             </a>
                         <?php endfor; ?>
 
                         <?php if ($halaman_aktif < $total_halaman): ?>
-                            <a href="database.php?page=<?php echo $halaman_aktif + 1; ?><?php echo $url_params; ?>" class="page-btn next">Next <i class="fa-solid fa-chevron-right"></i></a>
+                            <a href="database?page=<?php echo $halaman_aktif + 1; ?><?php echo $url_params; ?>" class="page-btn next">Next <i class="fa-solid fa-chevron-right"></i></a>
                         <?php endif; ?>
                     </div>
                     <?php endif; ?>
@@ -261,7 +271,7 @@ include 'navbar.php';
                 <?php if ($search !== ''): ?>
                     <div class="request-doc-box">
                         <p class="request-doc-text">Tidak menemukan peraturan yang dicari?</p>
-                        <a href="saran.php?req=<?php echo urlencode($search); ?>&kategori=Penambahan+Peraturan" class="btn-request-doc">
+                        <a href="saran?req=<?php echo urlencode($search); ?>&kategori=Penambahan+Peraturan" class="btn-request-doc">
                             Minta disini!!!
                         </a>
                     </div>
@@ -282,7 +292,7 @@ include 'navbar.php';
                             <div class="pop-number"><?php echo $rank++; ?></div>
                             <div class="pop-text">
                                 <span class="sidebar-cat-badge"><?php echo $nama_kategori_pop; ?></span>
-                                <h4><a href="database_detail.php?id=<?php echo $pop['id']; ?>&kategori=<?php echo $pop['kategori']; ?>"><?php echo htmlspecialchars($pop['judul']); ?></a></h4>
+                                <h4><a href="database-detail?id=<?php echo $pop['id']; ?>&slug=<?php echo $pop['slug']; ?>&kategori=<?php echo $pop['kategori']; ?>"><?php echo htmlspecialchars($pop['judul']); ?></a></h4>
                                 <span><i class="fa-solid fa-eye"></i> <?php echo number_format($pop['views'] / 1000, 1); ?>K View</span>
                             </div>
                         </div>
@@ -298,7 +308,7 @@ include 'navbar.php';
                             $nama_kategori_rec = ucwords(str_replace('-', ' ', $rec['kategori']));
                         ?>
                         <li>
-                            <a href="database_detail.php?id=<?php echo $rec['id']; ?>&kategori=<?php echo $rec['kategori']; ?>">
+                            <a href="database-detail?id=<?php echo $rec['id']; ?>&slug=<?php echo $rec['slug']; ?>&kategori=<?php echo $rec['kategori']; ?>">
                                 <span class="sidebar-cat-badge"><?php echo $nama_kategori_rec; ?></span>
                                 <strong><?php echo htmlspecialchars($rec['judul']); ?></strong>
                                 <p><?php echo substr(htmlspecialchars($rec['deskripsi']), 0, 80); ?>...</p>

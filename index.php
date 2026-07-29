@@ -10,7 +10,7 @@ $active_page = 'beranda';
 // 1. QUERY UNTUK SLIDER DISARANKAN
 // ==========================================
 try {
-    $stmt_rec = $pdo->prepare("SELECT id, judul, kategori FROM `databases` WHERE status = 1 AND rekomendasi = 1 ORDER BY created_at DESC LIMIT 10");
+    $stmt_rec = $pdo->prepare("SELECT id, judul, slug, kategori FROM `databases` WHERE status = 1 AND rekomendasi = 1 ORDER BY created_at DESC LIMIT 10");
     $stmt_rec->execute();
     $slider_docs = $stmt_rec->fetchAll();
 } catch (PDOException $e) {
@@ -18,14 +18,38 @@ try {
 }
 
 include 'header.php';
-include 'navbar.php'; 
+include 'navbar.php';
 ?>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "<?php echo addslashes($app_name); ?>",
+    "url": "<?php echo $path; ?>",
+    "description": "<?php echo addslashes($app_description); ?>",
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "<?php echo $path; ?>database?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+    }
+}
+</script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "<?php echo addslashes($app_name); ?>",
+    "url": "<?php echo $path; ?>",
+    "logo": "<?php echo $path; ?>assets/img/logo.png",
+    "description": "<?php echo addslashes($long_description); ?>"
+}
+</script>
 
     <main>
         <section class="search-section">
             <h2 class="quote">“No man is above the law, and no man is below it”<br>- Theodore Roosevelt</h2>
             
-            <form action="database.php" method="GET" class="search-container" style="position: relative;">
+            <form action="database" method="GET" class="search-container" style="position: relative;">
                 
                 <input type="text" name="search" id="searchInput" placeholder="Cari peraturan atau dokumen hukum..." autocomplete="off">
                 
@@ -49,7 +73,7 @@ include 'navbar.php';
                         <?php foreach($slider_docs as $sdoc): 
                             $cat_name = ucwords(str_replace('-', ' ', $sdoc['kategori']));
                         ?>
-                            <div class="card" onclick="location.href='database_detail.php?id=<?php echo $sdoc['id']; ?>&kategori=<?php echo $sdoc['kategori']; ?>'" style="cursor: pointer;">
+                            <div class="card" onclick="location.href='database-detail?id=<?php echo $sdoc['id']; ?>&slug=<?php echo $sdoc['slug']; ?>&kategori=<?php echo $sdoc['kategori']; ?>'" style="cursor: pointer;">
                                 <span class="card-category"><?php echo $cat_name; ?></span>
                                 <p><?php echo htmlspecialchars($sdoc['judul']); ?></p>
                             </div>
@@ -68,7 +92,7 @@ include 'navbar.php';
                 <img src="assets/img/ilustrasi-konsolidasi.png" alt="Ilustrasi Peraturan Konsolidasi" class="konsolidasi-img">
                 <img src="assets/img/penjelasan-konsolidasi.png" alt="Penjelasan Peraturan Konsolidasi" class="konsolidasi-img">
             </div>
-            <button class="btn-tentang" onclick="location.href='tentang.php'">TENTANG KAMI</button>
+            <button class="btn-tentang" onclick="location.href='tentang'">TENTANG KAMI</button>
         </section>
         
         <?php

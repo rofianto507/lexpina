@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 4. Lapis Keamanan 1: Cek apakah user benar-benar sudah login
     if (!isset($_SESSION['user_id'])) {
         // Jika ketahuan mencoba bypass, kembalikan ke beranda
-        header("Location: index.php");
+        header("Location: index");
         exit();
     }
 
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute();
 
             // 8. Berhasil! Redirect kembali ke halaman berita dan otomatis scroll ke kolom komentar
-            header("Location: berita_detail.php?slug=" . urlencode($slug) . "#kolom-komentar");
+            header("Location: berita-detail?slug=" . urlencode($slug) . "#kolom-komentar");
             exit();
 
         } catch (PDOException $e) {
@@ -48,13 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } else {
         // Jika komentar kosong tapi dipaksa dikirim, kembalikan saja ke halaman beritanya
-        header("Location: berita_detail.php?slug=" . urlencode($slug) . "#kolom-komentar");
+        header("Location: berita-detail?slug=" . urlencode($slug) . "#kolom-komentar");
         exit();
     }
 
 } else {
     // Jika ada yang mencoba mengakses file ini langsung dari URL (proses_komentar.php), tendang ke beranda
-    header("Location: index.php");
+    header("Location: index");
     exit();
 }
 ?>

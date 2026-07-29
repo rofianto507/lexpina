@@ -79,8 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $pdo->beginTransaction();
 
         // 1. UPDATE TABEL UTAMA (databases)
+        $slug_baru = slugify($judul) . '-' . $id_dokumen;
         $stmt_update = $pdo->prepare("UPDATE `databases` SET
-            kategori = ?, judul = ?, sumber = ?, tanggal_penetapan = ?,
+            kategori = ?, judul = ?, slug = ?, sumber = ?, tanggal_penetapan = ?,
             tanggal_pengundangan = ?, tanggal_berlaku = ?, deskripsi = ?,
             dicabut = ?, dicabut_sebagian = ?, mencabut = ?, mencabut_sebagian = ?,
             diubah = ?, diubah_sebagian = ?, mengubah = ?, mengubah_sebagian = ?,
@@ -88,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             WHERE id = ?");
 
         $stmt_update->execute([
-            $kategori_post, $judul, $sumber, $tgl_penetapan, $tgl_pengundangan,
+            $kategori_post, $judul, $slug_baru, $sumber, $tgl_penetapan, $tgl_pengundangan,
             $tgl_berlaku, $deskripsi, $dicabut, $dicabut_sebagian, $mencabut, $mencabut_sebagian, $diubah, $diubah_sebagian, $mengubah, $mengubah_sebagian, $uji_materi, $file_url, $rekomendasi, $status_berlaku, $id_dokumen
         ]);
 

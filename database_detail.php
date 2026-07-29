@@ -30,7 +30,7 @@ try {
 
     // Jika dokumen tidak ditemukan, lempar kembali ke index
     if (!$doc) {
-        echo "<script>alert('Dokumen tidak ditemukan atau telah dihapus.'); window.location.href='index.php';</script>";
+        echo "<script>alert('Dokumen tidak ditemukan atau telah dihapus.'); window.location.href='index';</script>";
         exit();
     }
     
@@ -65,18 +65,18 @@ try {
     $kategori_display = ucwords(str_replace('-', ' ', $kategori_slug));
 
     // Tarik Sidebar: Terpopuler
-    $stmt_pop = $pdo->prepare("SELECT id, judul, views, kategori FROM `databases` WHERE status = 1 ORDER BY views DESC LIMIT 3");
+    $stmt_pop = $pdo->prepare("SELECT id, judul, slug, views, kategori FROM `databases` WHERE status = 1 ORDER BY views DESC LIMIT 3");
     $stmt_pop->execute();
     $populer_list = $stmt_pop->fetchAll();
 
     // Tarik Sidebar: Direkomendasikan
-    $stmt_rec = $pdo->prepare("SELECT id, judul, deskripsi, kategori FROM `databases` WHERE status = 1 AND rekomendasi = 1 ORDER BY created_at DESC LIMIT 2");
+    $stmt_rec = $pdo->prepare("SELECT id, judul, slug, deskripsi, kategori FROM `databases` WHERE status = 1 AND rekomendasi = 1 ORDER BY created_at DESC LIMIT 2");
     $stmt_rec->execute();
     $rekomendasi_list = $stmt_rec->fetchAll();
 
     // Tarik daftar Peraturan Konsolidasi terkait
     $stmt_kon = $pdo->prepare("
-        SELECT d.id, d.judul, d.kategori 
+        SELECT d.id, d.judul, d.slug, d.kategori
         FROM relasi_konsolidasi r
         JOIN `databases` d ON r.konsolidasi_id = d.id
         WHERE r.parent_id = ?
@@ -101,11 +101,57 @@ try {
     die("Error mengambil dokumen: " . $e->getMessage());
 }
 
+// ==========================================
+// SEO: title & meta description dinamis (dipakai oleh header.php)
+// ==========================================
+$page_title = $doc['judul'];
+$meta_desc_raw = trim(strip_tags($doc['deskripsi']));
+if ($meta_desc_raw === '') {
+    $meta_desc_raw = $doc['judul'] . ' - ' . $kategori_display . '. Baca selengkapnya di database hukum LexPina.';
+}
+$page_description = mb_strlen($meta_desc_raw) > 160 ? mb_substr($meta_desc_raw, 0, 157) . '...' : $meta_desc_raw;
+// Canonical selalu ke versi ber-slug, meski halaman diakses lewat URL lama tanpa slug
+$page_canonical = $path . 'database-detail?id=' . $doc['id'] . '&slug=' . $doc['slug'] . '&kategori=' . $doc['kategori'];
+
 // Set menu active
 $active_page = 'database';
-include 'header.php'; 
-include 'navbar.php'; 
+include 'header.php';
+include 'navbar.php';
+
+// ==========================================
+// SEO: Structured data (JSON-LD) - Legislation + Breadcrumb
+// ==========================================
+function seo_iso_date($tanggal) {
+    if (empty($tanggal) || $tanggal === '0000-00-00') return null;
+    return date('Y-m-d', strtotime($tanggal));
+}
+
+$ld_legislation = [
+    '@context' => 'https://schema.org',
+    '@type' => 'Legislation',
+    'name' => $doc['judul'],
+    'description' => $page_description,
+    'url' => $page_canonical,
+    'legislationIdentifier' => $doc['sumber'],
+    'legislationType' => $kategori_display,
+    'legislationJurisdiction' => 'Indonesia',
+    'inLanguage' => 'id',
+];
+if (seo_iso_date($doc['tanggal_penetapan'])) $ld_legislation['datePublished'] = seo_iso_date($doc['tanggal_penetapan']);
+if (seo_iso_date($doc['tanggal_berlaku']))   $ld_legislation['legislationDate'] = seo_iso_date($doc['tanggal_berlaku']);
+
+$ld_breadcrumb = [
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Beranda', 'item' => $path . 'index'],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Database ' . $kategori_display, 'item' => $path . 'database?kategori=' . $kategori_slug],
+        ['@type' => 'ListItem', 'position' => 3, 'name' => $doc['judul'], 'item' => $page_canonical],
+    ],
+];
 ?>
+<script type="application/ld+json"><?php echo json_encode($ld_legislation, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?></script>
+<script type="application/ld+json"><?php echo json_encode($ld_breadcrumb, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?></script>
 
     <main class="news-page">
         <div class="news-container">
@@ -113,8 +159,8 @@ include 'navbar.php';
             <div class="news-main-column">
                 
                 <nav class="breadcrumb">
-                    <a href="index.php">Beranda</a> &raquo; 
-                    <a href="database.php?kategori=<?php echo $kategori_slug; ?>">Database <?php echo $kategori_display; ?></a> &raquo; 
+                    <a href="index">Beranda</a> &raquo;
+                    <a href="database?kategori=<?php echo $kategori_slug; ?>">Database <?php echo $kategori_display; ?></a> &raquo;
                     <span>Detail Dokumen</span>
                     <div style="float: right; margin-left: 15px; display: flex; gap: 10px;">
                     
@@ -203,7 +249,7 @@ include 'navbar.php';
                                         <?php foreach ($list_konsolidasi as $kon): ?>
                                             <div style="display: flex; align-items: center; gap: 10px; background: #fff; padding: 10px 15px; border-radius: 6px; border: 1px solid #e8f8f5; box-shadow: 0 2px 4px rgba(46, 204, 113, 0.05);">
                                                 <i class="fa-solid fa-circle-check" style="color: #2ecc71; font-size: 18px;"></i>
-                                                <a href="database_detail.php?id=<?= $kon['id'] ?>&kategori=<?= $kon['kategori'] ?>" style="color: #2c3e50; font-weight: 700; text-decoration: none; font-size: 14px;">
+                                                <a href="database-detail?id=<?= $kon['id'] ?>&slug=<?= $kon['slug'] ?>&kategori=<?= $kon['kategori'] ?>" style="color: #2c3e50; font-weight: 700; text-decoration: none; font-size: 14px;">
                                                     <?= htmlspecialchars($kon['judul']) ?>
                                                 </a>
                                             </div>
@@ -916,7 +962,7 @@ include 'navbar.php';
                             <p>Mohon maaf, naskah <strong>Peraturan Konsolidasi</strong> hanya dapat diakses oleh Member Premium LexPina.</p>
                             <p class="lock-note">Dapatkan akses tanpa batas ke seluruh database, fitur analisis, dan dokumen premium lainnya.</p>
                             <div class="lock-actions">
-                                <a href="langganan.php" class="btn-upgrade-now">
+                                <a href="langganan" class="btn-upgrade-now">
                                     <i class="fa-solid fa-rocket"></i> Upgrade ke Premium Sekarang
                                 </a>
                                 <p class="small-text">Mulai dari Rp 49.999/bulan</p>
@@ -1011,7 +1057,7 @@ include 'navbar.php';
                             <div class="pop-number"><?php echo $rank++; ?></div>
                             <div class="pop-text">
                                 <span class="sidebar-cat-badge"><?php echo $nama_kategori_pop; ?></span>
-                                <h4><a href="database_detail.php?id=<?php echo $pop['id']; ?>&kategori=<?php echo $pop['kategori']; ?>"><?php echo htmlspecialchars($pop['judul']); ?></a></h4>
+                                <h4><a href="database-detail?id=<?php echo $pop['id']; ?>&slug=<?php echo $pop['slug']; ?>&kategori=<?php echo $pop['kategori']; ?>"><?php echo htmlspecialchars($pop['judul']); ?></a></h4>
                                 <span><i class="fa-solid fa-eye"></i> <?php echo number_format($pop['views'] / 1000, 1); ?>K View</span>
                             </div>
                         </div>
@@ -1027,7 +1073,7 @@ include 'navbar.php';
                             $nama_kategori_rec = ucwords(str_replace('-', ' ', $rec['kategori']));
                         ?>
                         <li>
-                            <a href="database_detail.php?id=<?php echo $rec['id']; ?>&kategori=<?php echo $rec['kategori']; ?>">
+                            <a href="database-detail?id=<?php echo $rec['id']; ?>&slug=<?php echo $rec['slug']; ?>&kategori=<?php echo $rec['kategori']; ?>">
                                 <span class="sidebar-cat-badge"><?php echo $nama_kategori_rec; ?></span>
                                 <strong><?php echo htmlspecialchars($rec['judul']); ?></strong>
                                 <p><?php echo substr(htmlspecialchars($rec['deskripsi']), 0, 80); ?>...</p>

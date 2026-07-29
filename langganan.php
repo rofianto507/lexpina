@@ -1,6 +1,11 @@
 <?php 
-$active_page = ''; 
-include 'header.php'; 
+$active_page = '';
+
+// SEO: title & meta description
+$page_title = 'Paket Langganan';
+$page_description = 'Pilih paket langganan premium LexPina untuk akses penuh ke seluruh database hukum, peraturan konsolidasi, dan fitur eksklusif lainnya.';
+
+include 'header.php';
 include 'navbar.php'; 
 
 // 1. Ambil data produk dari database menggunakan PDO
@@ -72,9 +77,9 @@ try {
                         
                         if ($is_logged_in): 
                     ?>
-                        <a href="checkout.php?id=<?php echo $row['id']; ?>" class="btn-pricing <?php echo $btn_class; ?>">Pilih Paket</a>
+                        <a href="checkout?id=<?php echo $row['id']; ?>" class="btn-pricing <?php echo $btn_class; ?>">Pilih Paket</a>
                     <?php else: ?>
-                        <button type="button" class="btn-pricing <?php echo $btn_class; ?> btn-login-trigger" data-checkout-url="checkout.php?id=<?php echo $row['id']; ?>">Pilih Paket</button>
+                        <button type="button" class="btn-pricing <?php echo $btn_class; ?> btn-login-trigger" data-checkout-url="checkout?id=<?php echo $row['id']; ?>">Pilih Paket</button>
                     <?php endif; ?>
                 </div>
 
