@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                       <th>Nama Pengguna</th>
                       <th>Paket Produk</th>
                       <th>Ttl Bayar</th>
-                    
+                      <th>Metode</th>
                       <th class="text-center">Aksi</th>
                     </tr>
                   </thead>
@@ -161,12 +161,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                       if($row['status'] == 'LUNAS') $badge_color = 'bg-success';
                       if($row['status'] == 'DITOLAK') $badge_color = 'bg-danger';
 
+                      // Label metode pembayaran
+                      if ($row['metode_bayar'] === 'midtrans') {
+                          $metode_label = '<span class="badge bg-info">Midtrans' . (!empty($row['payment_type']) ? ' - ' . htmlspecialchars($row['payment_type']) : '') . '</span>';
+                      } else {
+                          $metode_label = '<span class="badge bg-secondary">Transfer Manual</span>';
+                      }
+
                       echo "<tr>
                         <td>#TRX-".$row['id']."</td>
                         <td>".$tgl_trx."</td>
                         <td>".htmlspecialchars($row['nama_user'])."</td>
-                        <td>".htmlspecialchars($row['nama_paket'])."</td>   
-                        <td>Rp ".number_format($row['total_transfer'], 0, ',', '.')."</td>                   
+                        <td>".htmlspecialchars($row['nama_paket'])."</td>
+                        <td>Rp ".number_format($row['total_transfer'], 0, ',', '.')."</td>
+                        <td>".$metode_label."</td>
                        <td>
                           <a href='transaksi-edit?id=".$row['id']."' class='btn btn-sm btn-info'>Edit</a>
                           <button class='btn btn-sm btn-danger btnHapusTransaksi' data-id='".$row['id']."' data-action='hapus' data-desc='menghapus data'>Hapus</button>

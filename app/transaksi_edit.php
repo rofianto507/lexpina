@@ -71,17 +71,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt_user->execute([$user_id]);
                 $batas_lama = $stmt_user->fetchColumn();
                 
-                $sekarang = date('Y-m-d H:i:s');
-                
                 // 5. Logika Perhitungan Akumulasi Masa Aktif (Berdasarkan Bulan)
-                if (!empty($batas_lama) && $batas_lama > $sekarang) {
-                    // JIKA MASIH AKTIF: Tambahkan durasi bulan dari SISA masa aktif sebelumnya
-                    $batas_baru = date('Y-m-d H:i:s', strtotime($batas_lama . ' + ' . $durasi_bulan . ' months'));
-                } else {
-                    // JIKA SUDAH KEDALUWARSA / MEMBER BARU: Hitung durasi bulan dimulai dari HARI INI
-                    $batas_baru = date('Y-m-d H:i:s', strtotime($sekarang . ' + ' . $durasi_bulan . ' months'));
-                }
-                
+                // Dipakai bersama dengan webhook Midtrans (midtrans_notification.php)
+                // supaya hasilnya konsisten baik dibayar manual maupun otomatis.
+                $batas_baru = hitung_batas_langganan_baru($batas_lama, $durasi_bulan);
+
                 // 6. Terapkan pembaruan status MEMBER dan penambahan batas waktu ke akun pengguna
                 $stmt_update_user = $pdo->prepare("UPDATE users SET akses = 'MEMBER', batas_langganan = ? WHERE id = ?");
                 $stmt_update_user->execute([$batas_baru, $user_id]);
@@ -269,6 +263,11 @@ $_SESSION["menu"] = "transaksi-" . strtolower($trx['status']);
                             <img src="../public/upload/bukti/<?php echo $bukti_transfer; ?>" class="img-fluid rounded border mb-3" style="max-height: 250px; object-fit: contain;" alt="Bukti Transfer">
                         </a>
                         <small class="d-block text-muted mb-3">(Klik gambar untuk memperbesar)</small>
+                    <?php elseif($trx['metode_bayar'] === 'midtrans'): ?>
+                        <div class="p-4 bg-light border border-dashed rounded mb-3 text-muted">
+                            <i class="fa fa-bolt fs-3 mb-2 text-info"></i><br>
+                            Dibayar otomatis via Midtrans<?php echo !empty($trx['payment_type']) ? ' (' . htmlspecialchars($trx['payment_type']) . ')' : ''; ?> - tidak ada bukti transfer manual.
+                        </div>
                     <?php else: ?>
                         <div class="p-4 bg-light border border-dashed rounded mb-3 text-muted">
                             <i class="fa fa-image fs-3 mb-2"></i><br>
@@ -276,13 +275,15 @@ $_SESSION["menu"] = "transaksi-" . strtolower($trx['status']);
                         </div>
                     <?php endif; ?>
 
+                    <?php if($trx['metode_bayar'] !== 'midtrans'): ?>
                     <div class="text-start bg-light p-3 rounded">
-                        
+
                         <div>
                             <span class="text-muted d-block" style="font-size:12px;">Nama Rekening Pengirim:</span>
                             <strong class="text-dark"><?php echo htmlspecialchars($nama_pengirim); ?></strong>
                         </div>
                     </div>
+                    <?php endif; ?>
 
                   </div>
                 </div>

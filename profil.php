@@ -222,6 +222,7 @@ include 'navbar.php';
                                             <th>Tanggal</th>
                                             <th>Paket</th>
                                             <th>Total Transfer</th>
+                                            <th>Metode</th>
                                             <th>Status</th>
                                         </tr>
                                     </thead>
@@ -231,6 +232,7 @@ include 'navbar.php';
                                             <td><?php echo date('d M Y, H:i', strtotime($trx['created_at'])); ?></td>
                                             <td><strong>LexPina <?php echo htmlspecialchars($trx['nama_paket']); ?></strong></td>
                                             <td>Rp <?php echo number_format($trx['total_transfer'], 0, ',', '.'); ?></td>
+                                            <td><?php echo $trx['metode_bayar'] === 'midtrans' ? 'Midtrans' . (!empty($trx['payment_type']) ? ' (' . htmlspecialchars($trx['payment_type']) . ')' : '') : 'Transfer Manual'; ?></td>
                                             <td>
                                                 <?php if($trx['status'] == 'PENDING'): ?>
                                                     <span class="status-badge badge-pending"><i class="fa-solid fa-clock"></i> Menunggu Verifikasi</span>

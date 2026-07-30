@@ -18,7 +18,7 @@
         </div>
     </footer>
     <div class="copyright">
-        <p>&copy; 2026 Hak Cipta milik LexPina.com</p>
+        <p>&copy; 2026 Hak Cipta milik LexPina.com &nbsp;|&nbsp; <a href="syarat-ketentuan">Syarat &amp; Ketentuan</a> &nbsp;|&nbsp; <a href="kebijakan-privasi">Kebijakan Privasi</a></p>
     </div>
 
     <script src="assets/js/script.js"></script>

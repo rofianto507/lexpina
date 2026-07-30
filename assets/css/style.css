@@ -1133,6 +1133,16 @@ main {
     padding: 15px;
     font-size: 12px;
 }
+
+.copyright a {
+    color: #999;
+    text-decoration: none;
+}
+
+.copyright a:hover {
+    color: #f1c40f;
+    text-decoration: underline;
+}
 /* --- Halaman Tentang --- */
 .about-section {
     padding: 60px 20px;
@@ -1160,6 +1170,44 @@ main {
     color: #111;
     margin-top: 35px;
     margin-bottom: 45px;
+}
+
+/* --- Halaman Legal (Syarat & Ketentuan, Kebijakan Privasi) --- */
+.legal-content h1 {
+    font-size: 28px;
+    margin-bottom: 5px;
+    color: #111;
+}
+
+.legal-content .legal-updated {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 35px;
+}
+
+.legal-content h2 {
+    font-size: 18px;
+    margin-top: 35px;
+    margin-bottom: 12px;
+    color: #111;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.legal-content ul {
+    margin: 0 0 20px 20px;
+    color: #444;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.legal-content li {
+    margin-bottom: 8px;
+}
+
+.legal-content a {
+    color: #d4ac0d;
+    text-decoration: underline;
 }
 
 .about-container .est-text {
@@ -3259,6 +3307,35 @@ main {
 }
 
 /* Desain Bank */
+.payment-method-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.payment-tab {
+    flex: 1;
+    padding: 12px 10px;
+    background: #f5f5f5;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-tab:hover {
+    background: #efefef;
+}
+
+.payment-tab.active {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+}
+
 .bank-card {
     display: flex;
     align-items: center;
